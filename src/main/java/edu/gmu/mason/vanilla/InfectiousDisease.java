@@ -4,30 +4,24 @@ import edu.gmu.mason.vanilla.log.Skip;
 import edu.gmu.mason.vanilla.log.State;
 
 public class InfectiousDisease implements java.io.Serializable {
-
     @Skip
     private Person agent;
-
     @State
     private InfectionStatus status;
-
     @State
     private double chanceToSpreat;
-
     @State
     private double chanceBeInfected;
-
     @State
     private double chanceToReport;
-
     @State
     private int daysInStatus;
-
     @State
     private boolean fullyVaccined;
-
     @States
     private int daysFromDose;
+    @States
+    private boolean isQuarantined;
 
     public InfectiousDisease(){
         this.agent = null;
@@ -38,6 +32,7 @@ public class InfectiousDisease implements java.io.Serializable {
         this.daysInfected = 0;
         this.daysFromDose = 0;
         this.fullyVaccined = false;
+        this.isQuarantined = false;
     }
 
     public InfectiousDisease(Person p){
@@ -70,6 +65,10 @@ public class InfectiousDisease implements java.io.Serializable {
         this.daysFromDose = daysFromDose;
     }
 
+    public void swtQuarantine(boolean isQuarantined){
+        this.isQuarantined = isQuarantined;
+    }
+
     public InfectionStatus getStatus() {
         return status;
     }
@@ -98,5 +97,8 @@ public class InfectiousDisease implements java.io.Serializable {
         this.daysInStatus += 1;
     }
 
+    public boolean isQuarantined() {
+        return isQuarantined;
+    }
 }
 
