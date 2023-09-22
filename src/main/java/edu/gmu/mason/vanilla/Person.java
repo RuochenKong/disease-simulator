@@ -91,6 +91,8 @@ public class Person implements Steppable, java.io.Serializable {
 	private double joviality;
 	@Characteristics
 	private double jovialityBase;
+	@Characteristics
+	private InfectionsDisease infectionsDisease;
 
 	// agent needs from maslov's hierarchy of needs
 	// level 1
