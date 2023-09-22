@@ -99,6 +99,11 @@ public class Person implements Steppable, java.io.Serializable {
 	private FoodNeed foodNeed;
 	private SleepNeed sleepNeed;
 	private ShelterNeed shelterNeed;
+
+	/* TODO:
+		Health Need
+	 */
+
 	// level 2
 	private FinancialSafetyNeed financialSafetyNeed;
 	// level 3

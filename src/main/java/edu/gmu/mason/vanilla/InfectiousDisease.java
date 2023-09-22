@@ -20,8 +20,10 @@ public class InfectiousDisease implements java.io.Serializable {
     private boolean fullyVaccined;
     @States
     private int daysFromDose;
-    @States
+    @State
     private boolean isQuarantined;
+    @State
+    private boolean isReported;
 
     public InfectiousDisease(){
         this.agent = null;
@@ -41,6 +43,10 @@ public class InfectiousDisease implements java.io.Serializable {
     }
 
     public void setStatus(InfectionStatus status){
+        /* TODO:
+             Set isReport by RandNum < chanceReport (infected)
+             Set isReport = false (other infection status)
+         */
         this.status = status;
         this.daysInStatus = 0;
     }
@@ -65,7 +71,7 @@ public class InfectiousDisease implements java.io.Serializable {
         this.daysFromDose = daysFromDose;
     }
 
-    public void swtQuarantine(boolean isQuarantined){
+    public void setQuarantine(boolean isQuarantined){
         this.isQuarantined = isQuarantined;
     }
 
@@ -99,6 +105,10 @@ public class InfectiousDisease implements java.io.Serializable {
 
     public boolean isQuarantined() {
         return isQuarantined;
+    }
+
+    public boolean isReported() {
+        return isReported;
     }
 }
 
