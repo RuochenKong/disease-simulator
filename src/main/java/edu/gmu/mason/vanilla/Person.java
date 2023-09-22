@@ -161,6 +161,9 @@ public class Person implements Steppable, java.io.Serializable {
 		this.location.isMovable = true;
 		this.mobility = new AgentMobility(this);
 		this.family = family;
+
+		this.infectiousDisease = new InfectiousDisease(this);
+
 		this.foodNeed = new FoodNeed(this);
 		this.sleepNeed = new SleepNeed(this);
 		this.shelterNeed = new ShelterNeed(this);
