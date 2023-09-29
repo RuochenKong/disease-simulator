@@ -30,6 +30,9 @@ import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
+import java.util.Random;
+
+
 /**
  * General description_________________________________________________________
  * Main agent class containing agent properties and behaviors. This class
@@ -100,8 +103,8 @@ public class Person implements Steppable, java.io.Serializable {
 	private SleepNeed sleepNeed;
 	private ShelterNeed shelterNeed;
 
-	/* TODO:
-		Health Need
+	/**
+	 *  TODO: Health Need
 	 */
 
 	// level 2
@@ -166,9 +169,6 @@ public class Person implements Steppable, java.io.Serializable {
 		this.location.isMovable = true;
 		this.mobility = new AgentMobility(this);
 		this.family = family;
-
-		this.infectiousDisease = new InfectiousDisease(this);
-
 		this.foodNeed = new FoodNeed(this);
 		this.sleepNeed = new SleepNeed(this);
 		this.shelterNeed = new ShelterNeed(this);
@@ -179,6 +179,58 @@ public class Person implements Steppable, java.io.Serializable {
 		this.plans = new HashMap<>();
 		this.visitReason = VisitReason.None;
 		this.instructionQueue = new InstructionQueue();
+
+		// Adding Infectious Disease
+		this.infectiousDisease = new InfectiousDisease(this);
+	}
+
+	public void initializeDiseaseStatus(InfectionStatus status = null, VaccineStatus vaccineStatus = null,
+										double c2report = -1, double c2spread = -1, double cbinfected = -1,
+										int daysFromDose = -1;){
+		if (status!= null) this.infectiousDisease.setStatus(status);
+		if (vaccineStatus != null) this.infectiousDisease.setVaccineStatus(vaccineStatus);
+		if (c2report != -1) this.infectiousDisease.setChanceToReport(c2report);
+		if (c2spred != -1) this.infectiousDisease.setChanceToSpreat(c2spread);
+		if (cbinfected != -1) this.infectiousDisease.setChanceBeInfected(cbinfected);
+		if (daysFromDose != -1) this.infectiousDisease.setDaysFromDose(daysFromDose);
+	}
+
+	public InfectionStatus getDiseaseStatus() {
+		return this.infectiousDisease.getStatus();
+	}
+
+	public double getChanceBeInfected() {
+		return this.infectiousDisease.getChanceBeInfected();
+	}
+
+	public double getChanceToReport() {
+		return this.infectiousDisease.getChanceToReport();
+	}
+
+	public double getChanceToSpreat(){
+		return this.infectiousDisease.getChanceToSpreat();
+	}
+
+	public double getDaysFromDose() {
+		return this.infectiousDisease.getDaysFromDose();
+	}
+	public double getDaysInDiseaseStatus() {
+		return this.infectiousDisease.getDaysInStatus();
+	}
+	public VaccineStatue getVaccineStatus() {
+		return this.infectiousDisease.getVaccineStatus();
+	}
+
+	public String getCurrentDiseaseStatus(){
+		String line = "[Agent "+id;
+		line += "] " + getDiseaseStatus().toString() + " for " + getDaysFromDose() + " days";
+		return line;
+	}
+
+	public void toBeTheFirstPatient(){
+		initializeDiseaseStatus(status = InfectionStatus.Exposed, c2report = 1);
+		System.out.println("[Agent "+id+"] Started the disesase.")
+		System.out.println(getCurrentDiseaseStatus());
 	}
 
 	/**
@@ -221,6 +273,13 @@ public class Person implements Steppable, java.io.Serializable {
 							// reached sleeping time. for agents already
 							// sleeping, it will check wake-up time and set the
 							// status as 'awake'
+
+		infectiousDisease.incrementDays(); // update the days counts, including days from dose,
+										   // days in a specific disease status, and days being quarainted.
+
+		/**
+		 * TODO: Health Need update & satisfy
+		 */
 
 		// if the agent is in transport, it will continue to be until reaches
 		// next destination
@@ -536,9 +595,32 @@ public class Person implements Steppable, java.io.Serializable {
 		}
 
 		plan.setDay(planDay.toLocalDate());
+		boolean normalToWork = true;
+		Random rand = new Random();
+		// If agent is infected
+		if (this.getDiseaseStatus() == InfectionStatus.Infectious){
+			System.out.println(getCurrentDiseaseStatus());
+			// recover from disease after already in it for 7 days
+			// TODO: Add random number to the boundary, e.g. 7+rand()
+			if(this.getDaysInDiseaseStatus() > 7){
+				this.infectiousDisease.setStatus(InfectionStatus.Recovered);
+			} else {
+				normalToWork =  !this.infectiousDisease.isReported();
+				// TODO:  Health Need, Update other needs, Allow work remotely
+				if (normalToWork){
+					// Unable to get up as early as before, [30-60] minutes delay
+					plan.setWakeUpTime(sleepNeed.getSleepStartTime().plusMinutes(rand.nextInt(30) + 30));
+				} else {
+					// Off work
+					plan.setWorkDay(false);
+					plan.setWakeUpTime(sleepNeed.getSleepStartTime().plusMinutes(
+							sleepNeed.getSleepLengthInMinutes()));
+				}
+			}
+		}
 
 		// if agent is employed and the day is a work day
-		if (this.financialSafetyNeed.isEmployed()
+		if (normalToWork && this.financialSafetyNeed.isEmployed()
 				&& this.financialSafetyNeed.getJob().isWorkDay(planDay)) {
 			plan.setWorkDay(true);
 

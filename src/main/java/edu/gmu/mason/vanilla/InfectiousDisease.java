@@ -3,23 +3,38 @@ package edu.gmu.mason.vanilla;
 import edu.gmu.mason.vanilla.log.Skip;
 import edu.gmu.mason.vanilla.log.State;
 
+import java.util.Random;
+
+/**
+ * TODO:
+ *  The first infected person could be set by using
+ *  Manipulate functions during simulator
+ *  Find it later
+ */
+
+
 public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private Person agent;
+
     @State
     private InfectionStatus status;
+    @State
+    private double daysInStatus;
+    @State
+    private VaccineStatus vaccineStatus;
+    @State
+    private double daysFromDose;
+
     @State
     private double chanceToSpreat;
     @State
     private double chanceBeInfected;
     @State
     private double chanceToReport;
+
     @State
-    private int daysInStatus;
-    @State
-    private boolean fullyVaccined;
-    @States
-    private int daysFromDose;
+    private double daysQuarantined;
     @State
     private boolean isQuarantined;
     @State
@@ -27,14 +42,16 @@ public class InfectiousDisease implements java.io.Serializable {
 
     public InfectiousDisease(){
         this.agent = null;
-        this.chanceToSpreat = 0;
-        this.chanceBeInfected = 0;
-        this.chanceToReport = 0;
-        this.status = InfectionStatus.ALL;
+        this.chanceToSpreat = 0.5;
+        this.chanceBeInfected = 0.5;
+        this.chanceToReport = 0.5;
+        this.status = InfectionStatus.Suspectible;
         this.daysInfected = 0;
         this.daysFromDose = 0;
-        this.fullyVaccined = false;
+        this.vaccineStatus = VaccineStatus.Unvaccined;
         this.isQuarantined = false;
+        this.isReported = false;
+        this.daysQuarantined = -1;
     }
 
     public InfectiousDisease(Person p){
@@ -43,11 +60,9 @@ public class InfectiousDisease implements java.io.Serializable {
     }
 
     public void setStatus(InfectionStatus status){
-        /* TODO:
-             Set isReport by RandNum < chanceReport (infected)
-             Set isReport = false (other infection status)
-         */
+        Random rand = new Random();
         this.status = status;
+        this.isReported = (status == InfectiousDisease.Infectious) ? (rand.nextDouble() < this.chanceToReport) : null;
         this.daysInStatus = 0;
     }
 
@@ -63,16 +78,22 @@ public class InfectiousDisease implements java.io.Serializable {
         this.chanceBeInfected = cbinfected;
     }
 
-    public void setFullyVaccined(boolean isFullyVaccinced){
-        this.fullyVaccined = isFullyVaccinced;
+    public void setVaccineStatus(VaccineStatus vaccineStatus){
+        this.vaccineStatus = vaccineStatus;
     }
 
-    public void setDaysFromDose(int daysFromDose){
+    public void setDaysFromDose(double daysFromDose){
         this.daysFromDose = daysFromDose;
+    } // Might be useless
+
+    public void setQuarantine(){
+        this.isQuarantined = true;
+        this.daysQuarantined = 0;
     }
 
-    public void setQuarantine(boolean isQuarantined){
-        this.isQuarantined = isQuarantined;
+    public void unsetQuarantine(){
+        this.isQuarantined = false;
+        this.daysQuarantined = -1;
     }
 
     public InfectionStatus getStatus() {
@@ -91,16 +112,37 @@ public class InfectiousDisease implements java.io.Serializable {
         return chanceToSpreat;
     }
 
-    public int getDaysFromDose() {
+    public double getDaysFromDose() {
         return daysFromDose;
     }
 
-    public boolean isFullyVaccined() {
-        return fullyVaccined;
+    public double getDaysInStatus() {
+        return daysInStatus;
+    }
+    public VaccineStatue getVaccineStatus() {
+        return vaccineStatus;
     }
 
-    public void incrementDaysInStatus(){
-        this.daysInStatus += 1;
+    public void receiveVaccineDose(){
+        this.daysFromDose = 0;
+        switch (this.vaccineStatus){
+            case VaccinceSatus.Unvaccined:
+                this.vaccineStatus = VaccineSatus.Partial;
+                break;
+            case VaccineStatus.Partial:
+                if(this.daysQuarantined <= 30)
+                    this.vaccineStatus = VaccineSatus.Full;
+                break;
+            default:
+                this.vaccineStatus = VaccineStatus.Booster;
+                break;
+        }
+    }
+
+    public void incrementDays(){
+        this.daysInStatus += 1/288;
+        this.daysFromDose += 1/288;
+        if(this.isQuarantined) this.daysQuarantined += 1/288;
     }
 
     public boolean isQuarantined() {
