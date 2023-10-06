@@ -40,13 +40,19 @@ public class InfectiousDisease implements java.io.Serializable {
     @State
     private boolean isReported;
 
+    @State
+    private double normalAppetite;
+
+    @State
+    private int normalSleepLength;
+
     public InfectiousDisease(){
         this.agent = null;
         this.chanceToSpreat = 0.5;
         this.chanceBeInfected = 0.5;
         this.chanceToReport = 0.5;
-        this.status = InfectionStatus.Suspectible;
-        this.daysInfected = 0;
+        this.status = InfectionStatus.Susceptible;
+        this.daysInStatus = 0;
         this.daysFromDose = 0;
         this.vaccineStatus = VaccineStatus.Unvaccined;
         this.isQuarantined = false;
@@ -57,13 +63,43 @@ public class InfectiousDisease implements java.io.Serializable {
     public InfectiousDisease(Person p){
         this();
         this.agent = p;
+
+        this.normalAppetite = this.agent.getFoodNeed().getAppetite();
+        this.normalSleepLength = this.agent.getSleepNeed().getSleepLengthInMinutes();
+        Random rand = new Random();
+
+        // Chance to be infected in range [0.3-0.7]
+        this.chanceBeInfected = 0.3 + 0.4*rand.nextDouble();
+
+        // Chance to spread in range [0.7-0.9]
+        this.chanceToSpreat = 0.7 + 0.2*rand.nextDouble();
+
+        // Chance to report in range [0.3,0.9]
+        this.chanceToReport = 0.3 + 0.6*rand.nextDouble();
+
+        this.isReported = (rand.nextDouble() < this.chanceToReport);
     }
 
+    /**
+     * TODO:
+     *      Override *Constructor* to take an input variable of work type (or others) to change the chances.
+     */
+
     public void setStatus(InfectionStatus status){
-        Random rand = new Random();
         this.status = status;
-        this.isReported = (status == InfectiousDisease.Infectious) ? (rand.nextDouble() < this.chanceToReport) : null;
         this.daysInStatus = 0;
+
+        // Eat less when get infected
+        // Sleep 30-90 minutes longer
+        double lower = agent.getModel().params.appetiteLowerBound;
+        if (this.status == InfectionStatus.Infectious) {
+            this.agent.getFoodNeed().setAppetite(Math.max(this.normalAppetite * 0.7,lower));
+            this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength + agent.getModel().random.nextInt(60) + 30);
+        } else { // Back to normal
+            this.agent.getFoodNeed().setAppetite(this.normalAppetite);
+            this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength);
+        }
+
     }
 
     public void setChanceToSpreat(double c2spread){
@@ -80,6 +116,9 @@ public class InfectiousDisease implements java.io.Serializable {
 
     public void setVaccineStatus(VaccineStatus vaccineStatus){
         this.vaccineStatus = vaccineStatus;
+        /** TODO:
+         *      If fully vaccined, cbinfected and c2spread should decrease
+         */
     }
 
     public void setDaysFromDose(double daysFromDose){
@@ -101,15 +140,18 @@ public class InfectiousDisease implements java.io.Serializable {
     }
 
     public double getChanceBeInfected() {
-        return chanceBeInfected;
+        if (this.status == InfectionStatus.Susceptible) return chanceBeInfected;
+        return 0;
     }
 
     public double getChanceToReport() {
-        return chanceToReport;
+        if (this.status == InfectionStatus.Infectious) return chanceToReport;
+        return 0;
     }
 
     public double getChanceToSpreat() {
-        return chanceToSpreat;
+        if (this.status == InfectionStatus.Infectious) return chanceToSpreat;
+        return 0;
     }
 
     public double getDaysFromDose() {
@@ -119,30 +161,47 @@ public class InfectiousDisease implements java.io.Serializable {
     public double getDaysInStatus() {
         return daysInStatus;
     }
-    public VaccineStatue getVaccineStatus() {
+    public VaccineStatus getVaccineStatus() {
         return vaccineStatus;
     }
 
     public void receiveVaccineDose(){
         this.daysFromDose = 0;
-        switch (this.vaccineStatus){
-            case VaccinceSatus.Unvaccined:
-                this.vaccineStatus = VaccineSatus.Partial;
-                break;
-            case VaccineStatus.Partial:
-                if(this.daysQuarantined <= 30)
-                    this.vaccineStatus = VaccineSatus.Full;
-                break;
-            default:
-                this.vaccineStatus = VaccineStatus.Booster;
-                break;
+        if(this.vaccineStatus == VaccineStatus.Unvaccined){
+            this.vaccineStatus = VaccineStatus.Partial;
+        } else if (this.vaccineStatus == VaccineStatus.Partial){
+            if(this.daysQuarantined <= 30)
+                this.vaccineStatus = VaccineStatus.Full;
+        } else {
+            this.vaccineStatus = VaccineStatus.Booster;
         }
     }
 
-    public void incrementDays(){
-        this.daysInStatus += 1/288;
-        this.daysFromDose += 1/288;
-        if(this.isQuarantined) this.daysQuarantined += 1/288;
+    public void incrementDays(double tikMin){
+        this.daysInStatus += tikMin/(24*60);
+
+        if (!this.vaccineStatus.equals(VaccineStatus.Unvaccined)){
+            this.daysFromDose += tikMin/(24*60);
+        }
+        if(this.isQuarantined) this.daysQuarantined += tikMin/(24*60);
+
+        Random rand = new Random();
+
+        // Explosed for [3-14] days change to Infectious
+        if(this.status == InfectionStatus.Exposed){
+            if (daysInStatus >= rand.nextInt(11) + 3) setStatus(InfectionStatus.Infectious);
+        }
+
+        // Infectious for [5-12] days change to Recovered
+        if(this.status == InfectionStatus.Infectious){
+            if (daysInStatus >= rand.nextInt(7) + 5) setStatus(InfectionStatus.Recovered);
+        }
+
+        // Recovered for [3-6] months change to Susceptible
+        if(this.status == InfectionStatus.Recovered){
+            if (daysInStatus >= rand.nextInt(90)+ 90) setStatus(InfectionStatus.Susceptible);
+        }
+
     }
 
     public boolean isQuarantined() {
@@ -150,7 +209,9 @@ public class InfectiousDisease implements java.io.Serializable {
     }
 
     public boolean isReported() {
-        return isReported;
+        if (this.status == InfectionStatus.Infectious)
+            return isReported;
+        return false;
     }
 }
 

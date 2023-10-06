@@ -1,13 +1,7 @@
 package edu.gmu.mason.vanilla;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Queue;
 // import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -42,6 +36,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 	private Person agent;
 	@State
 	private Long meetingId = null;
+
 	/**
 	 * this variable is used to represent the status of the love need based on
 	 * number of friends
@@ -370,7 +365,6 @@ public class LoveNeed implements Need, java.io.Serializable {
 					// others
 					if (p.getLoveNeed().meetingNow()) {
 						Meeting meeting = p.getLoveNeed().getMeeting();
-
 						if (meeting != null && meeting.size() <= agent.getModel().params.maxGroupMeetingSize) {
 
 							p.getLoveNeed().getMeeting().addParticipant(agent.getAgentId());
@@ -391,6 +385,30 @@ public class LoveNeed implements Need, java.io.Serializable {
 
 						this.meetingId = meetingId;
 						p.getLoveNeed().setMeetingId(meetingId);
+
+						Random rand = new Random();
+						System.out.println("Meeting ["+this.agent.getAgentId()+" - "+p.getAgentId() + "]");
+
+						// p try to infect this.agent
+						if (p.getDiseaseStatus() == InfectionStatus.Infectious&&
+								this.agent.getDiseaseStatus() == InfectionStatus.Susceptible) {
+
+							// Infected with rate
+							if (rand.nextDouble() <= p.getChanceToSpreat() * this.agent.getChanceBeInfected())
+								this.agent.beenExposed();
+							System.out.println(this.agent.getCurrentDiseaseStatus());
+						}
+
+						// this.agent try to infect p
+						if (this.agent.getDiseaseStatus() == InfectionStatus.Infectious &&
+								p.getDiseaseStatus() == InfectionStatus.Susceptible) {
+
+							// Infected with rate
+							if (rand.nextDouble() <= this.agent.getChanceToSpreat() * p.getChanceBeInfected())
+								this.agent.beenExposed();
+							p.beenExposed();
+							System.out.println(p.getCurrentDiseaseStatus());
+						}
 
 						break;
 					}
@@ -499,6 +517,8 @@ public class LoveNeed implements Need, java.io.Serializable {
 					try {
 						agent.getModel().getAgent(agentId).getLoveNeed()
 								.strengthenTies(agent.getAgentId());
+//						if (p.getDiseaseStatus() == InfectionStatus.Infectious) agent.getModel().getAgent(agentId).beenExposed();
+//						System.out.print("Meeting");
 					} catch (Exception e) {
 						System.out.print(agent.getSimulationTime());
 						e.printStackTrace();

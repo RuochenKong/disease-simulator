@@ -39,7 +39,6 @@ public class SleepNeed implements Need, java.io.Serializable {
 																				// hours
 																				// sleep
 																				// time
-
 		status = SleepStatus.Awake;
 	}
 
@@ -51,6 +50,15 @@ public class SleepNeed implements Need, java.io.Serializable {
 			wakeUp();
 		}
 	}
+
+
+	public void changeSleepLength(int newSleepLength){
+		this.sleepLengthInMinutes = newSleepLength;
+		System.out.println("[Agent "+this.agent.getAgentId()+"] Sleep length change to "+newSleepLength +" minutes.");
+	}
+
+
+
 
 	@Override
 	public void satisfy() {
