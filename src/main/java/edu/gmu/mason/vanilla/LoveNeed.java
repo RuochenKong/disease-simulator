@@ -116,6 +116,40 @@ public class LoveNeed implements Need, java.io.Serializable {
 			return;
 		}
 
+		// If the agent is quarantined,
+		// skip if it's less than [5-9] days.
+		if (agent.isQuarantined()
+				&& agent.getDaysQuarantined() <= agent.getModel().random.nextInt(4) + 5) {
+			return;
+		}
+
+
+		// If the agent is infected and not quarantined, possible to skip.
+		if(!agent.isQuarantined() &&
+				agent.getDiseaseStatus() == InfectionStatus.Infectious){
+
+			// If the person willing to report,
+			// then it's more possible to quarantine themselves.
+			// chance = chanceToReport*[0.5-0.7] + 0.2
+			double chance = agent.getChanceToReport();
+			chance *= (agent.getModel().random.nextDouble()*0.2 + 0.5);
+			chance += 0.2;
+
+			// With the chance, quarantined and skip
+			if (agent.getModel().random.nextDouble() < chance){
+				System.out.println("[Agent "+agent.getAgentId()+"] Quarantined.");
+				agent.setQuarantine();
+				return;
+			}
+		}
+
+		// If the agent is quarantined for more than [5-9] days.
+		//   i.e. Passed from the previous check
+		if (agent.isQuarantined()){
+			System.out.println("[Agent "+agent.getAgentId()+"] Out of Quarantine after " + agent.getDaysQuarantined() + "days.");
+			agent.unsetQuarantine();
+		}
+
 		PersonMode currentMode = agent.getCurrentMode();
 		DailyPlan dailyPlanForToday = agent.getTodaysPlan();
 		WorldModel model = agent.getModel();
@@ -387,12 +421,11 @@ public class LoveNeed implements Need, java.io.Serializable {
 						p.getLoveNeed().setMeetingId(meetingId);
 
 						Random rand = new Random();
-						System.out.println("Meeting ["+this.agent.getAgentId()+" - "+p.getAgentId() + "]");
 
 						// p try to infect this.agent
 						if (p.getDiseaseStatus() == InfectionStatus.Infectious&&
 								this.agent.getDiseaseStatus() == InfectionStatus.Susceptible) {
-
+							System.out.println("Meeting ["+this.agent.getAgentId()+" - "+p.getAgentId() + "]");
 							// Infected with rate
 							if (rand.nextDouble() <= p.getChanceToSpreat() * this.agent.getChanceBeInfected())
 								this.agent.beenExposed();
@@ -402,7 +435,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 						// this.agent try to infect p
 						if (this.agent.getDiseaseStatus() == InfectionStatus.Infectious &&
 								p.getDiseaseStatus() == InfectionStatus.Susceptible) {
-
+							System.out.println("Meeting ["+this.agent.getAgentId()+" - "+p.getAgentId() + "]");
 							// Infected with rate
 							if (rand.nextDouble() <= this.agent.getChanceToSpreat() * p.getChanceBeInfected())
 								this.agent.beenExposed();

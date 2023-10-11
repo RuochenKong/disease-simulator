@@ -345,6 +345,20 @@ public class FoodNeed implements Need, java.io.Serializable {
 		starvingTreshold = 0;
 	}
 
+	/**
+	 * For debugging purpose, print out the private variables
+	 * @return
+	 */
+	public String getFoodNeedInfo(){
+		String line = "";
+		line += "    Fullness Reach Time: " + this.fullnessReachTimeInMinutes + "\n";
+		line += "    Keeping Full Time: " + this.keepingFullTimeInMinutes + "\n";
+		line += "    Fullness Decrease: " + this.fullnessDecreasePerStep + "\n";
+		line += "    Hungry Threshold: " + this.hungryTreshold + "\n";
+		return line;
+	}
+
+
 	public double getAppetite() {
 		return appetite;
 	}

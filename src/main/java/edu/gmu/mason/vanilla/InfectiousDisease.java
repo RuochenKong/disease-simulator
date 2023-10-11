@@ -33,10 +33,9 @@ public class InfectiousDisease implements java.io.Serializable {
     @State
     private double chanceToReport;
 
+    // -1: If not quarantined, Otherwise: Days been quarantined
     @State
     private double daysQuarantined;
-    @State
-    private boolean isQuarantined;
     @State
     private boolean isReported;
 
@@ -55,7 +54,6 @@ public class InfectiousDisease implements java.io.Serializable {
         this.daysInStatus = 0;
         this.daysFromDose = 0;
         this.vaccineStatus = VaccineStatus.Unvaccined;
-        this.isQuarantined = false;
         this.isReported = false;
         this.daysQuarantined = -1;
     }
@@ -89,6 +87,9 @@ public class InfectiousDisease implements java.io.Serializable {
         this.status = status;
         this.daysInStatus = 0;
 
+        // System.out.println("  Before setting:");
+        // System.out.println(agent.getFoodNeed().getFoodNeedInfo());
+
         // Eat less when get infected
         // Sleep 30-90 minutes longer
         double lower = agent.getModel().params.appetiteLowerBound;
@@ -96,9 +97,12 @@ public class InfectiousDisease implements java.io.Serializable {
             this.agent.getFoodNeed().setAppetite(Math.max(this.normalAppetite * 0.7,lower));
             this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength + agent.getModel().random.nextInt(60) + 30);
         } else { // Back to normal
-            this.agent.getFoodNeed().setAppetite(this.normalAppetite);
+            this.agent.getFoodNeed().setAppetite(this.normalAppetite); //setAppetite ?
             this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength);
         }
+
+        // System.out.println("  After setting:");
+        // System.out.println(agent.getFoodNeed().getFoodNeedInfo());
 
     }
 
@@ -126,12 +130,10 @@ public class InfectiousDisease implements java.io.Serializable {
     } // Might be useless
 
     public void setQuarantine(){
-        this.isQuarantined = true;
         this.daysQuarantined = 0;
     }
 
     public void unsetQuarantine(){
-        this.isQuarantined = false;
         this.daysQuarantined = -1;
     }
 
@@ -161,6 +163,15 @@ public class InfectiousDisease implements java.io.Serializable {
     public double getDaysInStatus() {
         return daysInStatus;
     }
+
+    public double getDaysQuarantined(){
+        return daysQuarantined;
+    }
+
+    public boolean isQuarantined(){
+        return daysQuarantined != -1;
+    }
+
     public VaccineStatus getVaccineStatus() {
         return vaccineStatus;
     }
@@ -183,7 +194,7 @@ public class InfectiousDisease implements java.io.Serializable {
         if (!this.vaccineStatus.equals(VaccineStatus.Unvaccined)){
             this.daysFromDose += tikMin/(24*60);
         }
-        if(this.isQuarantined) this.daysQuarantined += tikMin/(24*60);
+        if(this.daysQuarantined != -1) this.daysQuarantined += tikMin/(24*60);
 
         Random rand = new Random();
 
@@ -204,9 +215,6 @@ public class InfectiousDisease implements java.io.Serializable {
 
     }
 
-    public boolean isQuarantined() {
-        return isQuarantined;
-    }
 
     public boolean isReported() {
         if (this.status == InfectionStatus.Infectious)
