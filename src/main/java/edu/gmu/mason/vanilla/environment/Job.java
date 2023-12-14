@@ -2,6 +2,7 @@ package edu.gmu.mason.vanilla.environment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.joda.time.Hours;
 import org.joda.time.LocalDateTime;
@@ -40,10 +41,19 @@ public class Job implements java.io.Serializable {
 	@Characteristics
 	private int neighborhoodId;
 
+	@Characteristics
+	private boolean allowRemote;
+
 	public Job(Workplace workplace, long id) {
 		this.workplace = workplace;
 		this.id = id;
 		daysToWork = new ArrayList<DayOfWeek>();
+
+		/**
+		 * TODO
+		 */
+		Random rand = new Random();
+		allowRemote = rand.nextBoolean(); // May depend on edu level / hourly rate
 	}
 
 	public boolean isWorkDay(LocalDateTime dt) {

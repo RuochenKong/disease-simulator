@@ -172,11 +172,14 @@ public class FinancialSafetyNeed implements Need, java.io.Serializable {
 		// There are two reasons why financial safety would be an issue
 		// 1 - unemployment
 		// 2 - low paying job
+
+
+		// 3 - May considering infection disease impact.
 		
 		if (isSatisfied() == false) {
 
-
-			if (isEmployed() == false) { // this is case 1 - unemployment
+			if (this.agent.isQuarantined()){ }
+			else if (isEmployed() == false) { // this is case 1 - unemployment
 
 				// there are three types of job searching strategies, based on
 				// agents' characteristic values
@@ -193,8 +196,8 @@ public class FinancialSafetyNeed implements Need, java.io.Serializable {
 					return;
 				}
 
+
 			} else { // this is case 2 - low paying job or expensive apartment
-				
 				/*
 				 *  This means the agent is employed but it is not satisfactory enough to survive.
 				 *  There are two possible options to do here:

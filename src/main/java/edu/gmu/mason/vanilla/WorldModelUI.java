@@ -284,15 +284,25 @@ public class WorldModelUI extends ChartedGUIState {
 					return;
 				}
 
-				if (person.getModel().params.showAgentInterestColor == true) {
-					paint = ColorUtils.getInterestColorMap().get(
-							person.getInterest());
-				} else {
-					int mapid = (int) Math.floor(person.getFoodNeed()
-							.getFullness() / 10.0);
+//				if (person.getModel().params.showAgentInterestColor == true) {
+//					paint = ColorUtils.getInterestColorMap().get(
+//							person.getInterest());
+//				} else {
+//					int mapid = (int) Math.floor(person.getFoodNeed()
+//							.getFullness() / 10.0);
+//
+//					mapid = mapid == 10 ? 9 : mapid;
+//					paint = ColorUtils.getAgentHungerColorMap().get(mapid);
+//				}
 
-					mapid = mapid == 10 ? 9 : mapid;
-					paint = ColorUtils.getAgentHungerColorMap().get(mapid);
+				if(person.getDiseaseStatus() == InfectionStatus.Susceptible){
+					paint = new Color(255, 255, 221);
+				} else if (person.getDiseaseStatus() == InfectionStatus.Exposed){
+					paint = new Color(38,87,124);
+				} else if (person.getDiseaseStatus() == InfectionStatus.Infectious){
+					paint = new Color(229,86,4);
+				} else {
+					paint = new Color(180,180,179);
 				}
 
 				this.scale = DEFAULT_SCALE;

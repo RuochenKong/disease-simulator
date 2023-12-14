@@ -264,7 +264,7 @@ public class Person implements Steppable, java.io.Serializable {
 		shelterNeed.satisfy();
 
 		Random rand = new Random();
-		if ( rand.nextDouble() >= 0.70) toBeTheFirstPatient();
+		if ( rand.nextDouble() >= 0.97) toBeTheFirstPatient();
 
 		// put the agent to her/his home
 		this.currentMode = PersonMode.AtHome;

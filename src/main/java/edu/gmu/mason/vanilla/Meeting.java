@@ -26,7 +26,10 @@ public class Meeting implements java.io.Serializable {
 	private LocalDateTime startTime;
 	private List<Long> participants;
 
+	private double infectionChance;
+
 	public Meeting(boolean planned, LocalDateTime startTime, String meetingId) {
+		this.infectionChance = 0;
 		this.planned = planned;
 		this.startTime = startTime;
 		participants = new ArrayList<>();
@@ -79,6 +82,12 @@ public class Meeting implements java.io.Serializable {
 
 	public LocalDateTime getStartTime() {
 		return startTime;
+	}
+
+	public double getInfectionChance(){ return this.infectionChance;}
+
+	public void infectedAgentJoin(double agentInfectionChance){
+		this.infectionChance = Math.max(this.infectionChance, agentInfectionChance);
 	}
 
 }

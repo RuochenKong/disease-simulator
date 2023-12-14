@@ -1147,6 +1147,7 @@ public class WorldModel extends SimState {
 
 		// delete weak ties
 		for (Edge edge : linksToDelete) {
+			if(agents.get((long) edge.from()) == null ) continue;
 			agents.get((long) edge.from()).getLoveNeed().lostFriend();
 			friendFamilyNetwork.removeEdge(friendFamilyNetwork.getEdge(
 					edge.from(), edge.to()));
@@ -1625,117 +1626,218 @@ public class WorldModel extends SimState {
 
 		quantitiesOfInterest = new QuantitiesOfInterest(getMinutePerStep());
 
-		// captures all Quantities of Interest
-		dataCollector.addWatcher("QoIs", new Collector() {
-			private static final long serialVersionUID = 311152044373854L;
+		dataCollector.addWatcher("Infectious", new Collector() {
+			private static final long serialVersionUID = 311152044370201L;
 
 			public Double getData() {
 				long loggingInterval;
 
-				// average network degree
+				// percentage infectious agents
 				loggingInterval = quantitiesOfInterest
-						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE);
-				if (schedule.getSteps() % loggingInterval == 0) {
-					Set<Long> keySet = agents.keySet();
-
-					double sum = 0;
-					for (Long agentId : keySet) {
-						sum += (double) friendFamilyNetwork
-								.getEdgesIn(agentId).size();
-					}
-					double value = sum / keySet.size();
-					quantitiesOfInterest.addValue(
-							QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE,
-							value, schedule.getSteps());
-					quantitiesOfInterest.avgNetworkDegree = value;
-				}
-
-				// average balance
-				loggingInterval = quantitiesOfInterest
-						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_BALANCE);
-				if (schedule.getSteps() % loggingInterval == 0) {
-
-					double value = agents
-							.values()
-							.stream()
-							.map(Person::getFinancialSafetyNeed)
-							.mapToDouble(
-									FinancialSafetyNeed::getAvailableBalance)
-							.average().getAsDouble();
-					quantitiesOfInterest.addValue(
-							QuantitiesOfInterest.AVERAGE_BALANCE, value,
-							schedule.getSteps());
-					quantitiesOfInterest.avgBalance = value;
-				}
-
-				// percentage of unhappy agents
-				loggingInterval = quantitiesOfInterest
-						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS);
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_INFECTIOUS_AGENTS);
 				if (schedule.getSteps() % loggingInterval == 0) {
 
 					double value = (double) agents.values().stream()
-							.map(Person::getLoveNeed)
-							.filter(p -> p.isSatisfied() == false).count()
+							.map(Person::getDiseaseStatus)
+							.filter(p -> p == InfectionStatus.Infectious).count()
 							* 100.0 / agents.size();
 					quantitiesOfInterest.addValue(
-							QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS,
+							QuantitiesOfInterest.PERCENTAGE_OF_INFECTIOUS_AGENTS,
 							value, schedule.getSteps());
-					quantitiesOfInterest.percentageUnhappy = value;
+					quantitiesOfInterest.percentageInfectious = value;
 				}
 
-				// pub visits per agent
-				loggingInterval = quantitiesOfInterest
-						.getLoggingInterval(QuantitiesOfInterest.PUB_VISITS_PER_AGENT);
-				if (schedule.getSteps() % loggingInterval == 0) {
-
-					double value = quantitiesOfInterest.getPubVisitCount();
-					value /= agents.size();
-					quantitiesOfInterest.addValue(
-							QuantitiesOfInterest.PUB_VISITS_PER_AGENT, value,
-							schedule.getSteps());
-					quantitiesOfInterest.resetPubVisitorCount();
-					quantitiesOfInterest.pubVisitPerAgent = value;
-				}
-
-				// number of interactions
-				// we first capture all existing interactions
-				for (Pub pub : getAllPubs()) {
-					List<Meeting> meetings = pub.getAllMeetings();
-					for (Meeting meeting : meetings) {
-						quantitiesOfInterest.captureInteractions(meeting,
-								schedule.getSteps());
-					}
-				}
-
-				for (Restaurant restaurant : getAllRestaurants()) {
-					List<Meeting> meetings = restaurant.getAllMeetings();
-					for (Meeting meeting : meetings) {
-						quantitiesOfInterest.captureInteractions(meeting,
-								schedule.getSteps());
-					}
-				}
-
-				loggingInterval = quantitiesOfInterest
-						.getLoggingInterval(QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS);
-				if (schedule.getSteps() % loggingInterval == 0) {
-					List<AgentInteraction> agentInteractions = quantitiesOfInterest
-							.getAgentInteractions();
-
-					quantitiesOfInterest.addValue(
-							QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS,
-							(double) agentInteractions.size(),
-							schedule.getSteps());
-					quantitiesOfInterest.numOfSocialInteractions = agentInteractions.size();
-					agentInteractions.clear();
-				}
-
-				// For the sake of performance, return 1.0.
-				return 1.0;
-				// You can return a value you are interested.
-				// For instance, if you want to monitor average balance, use the following code.
-				// return (double) quantitiesOfInterest.avgBalance;
+				return (double) quantitiesOfInterest.percentageInfectious;
 			}
 		});
+
+		dataCollector.addWatcher("Exposed", new Collector() {
+			private static final long serialVersionUID = 311152044370202L;
+
+			public Double getData() {
+				long loggingInterval;
+
+				// percentage exposed agents
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_EXPOSED_AGENTS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = (double) agents.values().stream()
+							.map(Person::getDiseaseStatus)
+							.filter(p -> p == InfectionStatus.Exposed).count()
+							* 100.0 / agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PERCENTAGE_OF_EXPOSED_AGENTS,
+							value, schedule.getSteps());
+					quantitiesOfInterest.percentageExposed = value;
+				}
+
+				return (double) quantitiesOfInterest.percentageExposed;
+			}
+		});
+
+		dataCollector.addWatcher("Susceptible", new Collector() {
+			private static final long serialVersionUID = 311152044370201L;
+
+			public Double getData() {
+				long loggingInterval;
+
+				// percentage susceptible agents
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_SUSCEPTIBLE_AGENTS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = (double) agents.values().stream()
+							.map(Person::getDiseaseStatus)
+							.filter(p -> p == InfectionStatus.Susceptible).count()
+							* 100.0 / agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PERCENTAGE_OF_SUSCEPTIBLE_AGENTS,
+							value, schedule.getSteps());
+					quantitiesOfInterest.percentageSusceptible = value;
+				}
+
+				return (double) quantitiesOfInterest.percentageSusceptible;
+			}
+		});
+
+		dataCollector.addWatcher("Recovered", new Collector() {
+			private static final long serialVersionUID = 311152044370201L;
+
+			public Double getData() {
+				long loggingInterval;
+
+				// percentage infectious agents
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_RECOVERED_AGENTS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = (double) agents.values().stream()
+							.map(Person::getDiseaseStatus)
+							.filter(p -> p == InfectionStatus.Recovered).count()
+							* 100.0 / agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PERCENTAGE_OF_RECOVERED_AGENTS,
+							value, schedule.getSteps());
+					quantitiesOfInterest.percentageRecovered = value;
+				}
+
+				return (double) quantitiesOfInterest.percentageRecovered;
+			}
+		});
+
+		// captures all Quantities of Interest
+//		dataCollector.addWatcher("QoIs", new Collector() {
+//			private static final long serialVersionUID = 311152044373854L;
+//
+//			public Double getData() {
+//				long loggingInterval;
+//
+//				// average network degree
+//				loggingInterval = quantitiesOfInterest
+//						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE);
+//				if (schedule.getSteps() % loggingInterval == 0) {
+//					Set<Long> keySet = agents.keySet();
+//
+//					double sum = 0;
+//					for (Long agentId : keySet) {
+//						sum += (double) friendFamilyNetwork
+//								.getEdgesIn(agentId).size();
+//					}
+//					double value = sum / keySet.size();
+//					quantitiesOfInterest.addValue(
+//							QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE,
+//							value, schedule.getSteps());
+//					quantitiesOfInterest.avgNetworkDegree = value;
+//				}
+//
+//				// average balance
+//				loggingInterval = quantitiesOfInterest
+//						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_BALANCE);
+//				if (schedule.getSteps() % loggingInterval == 0) {
+//
+//					double value = agents
+//							.values()
+//							.stream()
+//							.map(Person::getFinancialSafetyNeed)
+//							.mapToDouble(
+//									FinancialSafetyNeed::getAvailableBalance)
+//							.average().getAsDouble();
+//					quantitiesOfInterest.addValue(
+//							QuantitiesOfInterest.AVERAGE_BALANCE, value,
+//							schedule.getSteps());
+//					quantitiesOfInterest.avgBalance = value;
+//				}
+//
+//				// percentage of unhappy agents
+//				loggingInterval = quantitiesOfInterest
+//						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS);
+//				if (schedule.getSteps() % loggingInterval == 0) {
+//
+//					double value = (double) agents.values().stream()
+//							.map(Person::getLoveNeed)
+//							.filter(p -> p.isSatisfied() == false).count()
+//							* 100.0 / agents.size();
+//					quantitiesOfInterest.addValue(
+//							QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS,
+//							value, schedule.getSteps());
+//					quantitiesOfInterest.percentageUnhappy = value;
+//				}
+//
+//				// pub visits per agent
+//				loggingInterval = quantitiesOfInterest
+//						.getLoggingInterval(QuantitiesOfInterest.PUB_VISITS_PER_AGENT);
+//				if (schedule.getSteps() % loggingInterval == 0) {
+//
+//					double value = quantitiesOfInterest.getPubVisitCount();
+//					value /= agents.size();
+//					quantitiesOfInterest.addValue(
+//							QuantitiesOfInterest.PUB_VISITS_PER_AGENT, value,
+//							schedule.getSteps());
+//					quantitiesOfInterest.resetPubVisitorCount();
+//					quantitiesOfInterest.pubVisitPerAgent = value;
+//				}
+//
+//				// number of interactions
+//				// we first capture all existing interactions
+//				for (Pub pub : getAllPubs()) {
+//					List<Meeting> meetings = pub.getAllMeetings();
+//					for (Meeting meeting : meetings) {
+//						quantitiesOfInterest.captureInteractions(meeting,
+//								schedule.getSteps());
+//					}
+//				}
+//
+//				for (Restaurant restaurant : getAllRestaurants()) {
+//					List<Meeting> meetings = restaurant.getAllMeetings();
+//					for (Meeting meeting : meetings) {
+//						quantitiesOfInterest.captureInteractions(meeting,
+//								schedule.getSteps());
+//					}
+//				}
+//
+//				loggingInterval = quantitiesOfInterest
+//						.getLoggingInterval(QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS);
+//				if (schedule.getSteps() % loggingInterval == 0) {
+//					List<AgentInteraction> agentInteractions = quantitiesOfInterest
+//							.getAgentInteractions();
+//
+//					quantitiesOfInterest.addValue(
+//							QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS,
+//							(double) agentInteractions.size(),
+//							schedule.getSteps());
+//					quantitiesOfInterest.numOfSocialInteractions = agentInteractions.size();
+//					agentInteractions.clear();
+//				}
+//
+//				// For the sake of performance, return 1.0.
+//				return 1.0;
+//				// You can return a value you are interested.
+//				// For instance, if you want to monitor average balance, use the following code.
+//				// return (double) quantitiesOfInterest.avgBalance;
+//				// return (double) quantitiesOfInterest.percentageInfectious;
+//			}
+//		});
 
 		dataCollector.addWatcher("barStats", new Collector() {
 			private static final long serialVersionUID = 7722307416790950096L;

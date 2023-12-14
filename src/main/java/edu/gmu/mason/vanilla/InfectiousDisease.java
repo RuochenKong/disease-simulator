@@ -194,7 +194,6 @@ public class InfectiousDisease implements java.io.Serializable {
         if (!this.vaccineStatus.equals(VaccineStatus.Unvaccined)){
             this.daysFromDose += tikMin/(24*60);
         }
-        if(this.daysQuarantined != -1) this.daysQuarantined += tikMin/(24*60);
 
         Random rand = new Random();
 
@@ -211,6 +210,14 @@ public class InfectiousDisease implements java.io.Serializable {
         // Recovered for [3-6] months change to Susceptible
         if(this.status == InfectionStatus.Recovered){
             if (daysInStatus >= rand.nextInt(90)+ 90) setStatus(InfectionStatus.Susceptible);
+        }
+
+        if(this.daysQuarantined != -1) {
+            if(this.status != InfectionStatus.Infectious){
+                this.daysQuarantined = -1;
+            } else {
+                this.daysQuarantined += tikMin/(24*60);
+            }
         }
 
     }

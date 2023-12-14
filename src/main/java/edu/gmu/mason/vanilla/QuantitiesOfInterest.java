@@ -25,6 +25,10 @@ public class QuantitiesOfInterest extends AnnotatedPropertied {
 	public static final String PERCENTAGE_OF_UNHAPPY_AGENTS = "percentageUnhappy";
 	public static final String PUB_VISITS_PER_AGENT = "pubVisitPerAgent";
 	public static final String NUM_OF_SOCIAL_INTERACTIONS = "numOfSocialInteractions";
+	public static final String PERCENTAGE_OF_INFECTIOUS_AGENTS = "percentageInfectious";
+	public static final String PERCENTAGE_OF_EXPOSED_AGENTS = "percentageExposed";
+	public static final String PERCENTAGE_OF_SUSCEPTIBLE_AGENTS = "percentageSusceptible";
+	public static final String PERCENTAGE_OF_RECOVERED_AGENTS = "percentageRecovered";
 
 	// in order to show QOI values in a tab of GUI and chart 
 	@EditableProperty(group = "Quantity of Interest", description = "Average social network degree", lower = "0.0", upper = "0.0", readOnly = true)
@@ -37,7 +41,15 @@ public class QuantitiesOfInterest extends AnnotatedPropertied {
 	public double pubVisitPerAgent;
 	@EditableProperty(group = "Quantity of Interest", description = "Number of social interactions", lower = "0", upper = "0", readOnly = true)
 	public int numOfSocialInteractions;
-	
+	@EditableProperty(group = "Quantity of Interest", description = "Percentage of Infectious agents", lower = "0.0", upper = "100.0", readOnly = true)
+	public double percentageInfectious;
+	@EditableProperty(group = "Quantity of Interest", description = "Percentage of Exposed agents", lower = "0.0", upper = "100.0", readOnly = true)
+	public double percentageExposed;
+	@EditableProperty(group = "Quantity of Interest", description = "Percentage of Susceptible agents", lower = "0.0", upper = "100.0", readOnly = true)
+	public double percentageSusceptible;
+	@EditableProperty(group = "Quantity of Interest", description = "Percentage of Recovered agents", lower = "0.0", upper = "100.0", readOnly = true)
+	public double percentageRecovered;
+
 	// General logging objects
 	private Map<String, Map<Long, Double>> quantitiesOfInterestLogs;
 	private Map<String, Long> loggingStepInterval;
@@ -69,6 +81,18 @@ public class QuantitiesOfInterest extends AnnotatedPropertied {
 
 		quantitiesOfInterestLogs.put(NUM_OF_SOCIAL_INTERACTIONS, new HashMap<Long, Double>());
 		loggingStepInterval.put(NUM_OF_SOCIAL_INTERACTIONS, onceADay); // will be collected once a day
+
+		quantitiesOfInterestLogs.put(PERCENTAGE_OF_INFECTIOUS_AGENTS, new HashMap<Long, Double>());
+		loggingStepInterval.put(PERCENTAGE_OF_INFECTIOUS_AGENTS, (long) minutePerStep); // will be collected per step
+
+		quantitiesOfInterestLogs.put(PERCENTAGE_OF_EXPOSED_AGENTS, new HashMap<Long, Double>());
+		loggingStepInterval.put(PERCENTAGE_OF_EXPOSED_AGENTS, (long) minutePerStep); // will be collected per step
+
+		quantitiesOfInterestLogs.put(PERCENTAGE_OF_SUSCEPTIBLE_AGENTS, new HashMap<Long, Double>());
+		loggingStepInterval.put(PERCENTAGE_OF_SUSCEPTIBLE_AGENTS, (long) minutePerStep); // will be collected per step
+
+		quantitiesOfInterestLogs.put(PERCENTAGE_OF_RECOVERED_AGENTS, new HashMap<Long, Double>());
+		loggingStepInterval.put(PERCENTAGE_OF_RECOVERED_AGENTS, (long) minutePerStep); // will be collected per step
 	}
 
 	public void addValue(String key, Double value, Long step) {

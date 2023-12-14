@@ -1,22 +1,14 @@
 package edu.gmu.mason.vanilla.environment;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import edu.gmu.mason.vanilla.*;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 
-import edu.gmu.mason.vanilla.Meeting;
-import edu.gmu.mason.vanilla.Person;
-import edu.gmu.mason.vanilla.Visit;
-import edu.gmu.mason.vanilla.WorldModel;
 import edu.gmu.mason.vanilla.log.Characteristics;
 import edu.gmu.mason.vanilla.log.Referenceable;
 import edu.gmu.mason.vanilla.log.Skip;
@@ -55,6 +47,9 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	private int censusTractId;
 	@State
 	private int numOfAgents;
+
+	@State
+	private Map< Person, ArrayList<LocalDateTime>>infectedAgents;
 	@State
 	private int numOfVisits = 0;
 	@State
@@ -84,6 +79,9 @@ public abstract class BuildingUnit implements java.io.Serializable {
 		this.meetingMap = new TreeMap<Long, Meeting>();
 		this.meetingIdIndexCounter = 0;
 		this.type = type;
+
+		this.infectedAgents = new HashMap<Person, ArrayList<LocalDateTime>>();
+
 		// new variable for logging
 		agentSet = visitMap.keySet();
 		numOfAgents = 0;
@@ -123,6 +121,13 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	public void agentArrives(Person agent, double visitLength) {
 		visitMap.put(agent.getAgentId(), new Visit(agent.getSimulationTime(), visitLength));
 		numOfAgents = visitMap.size();
+
+		// Create a mapped pair, key = agent, and values = <arriving time, leaving time>
+		if(agent.getDiseaseStatus() == InfectionStatus.Infectious){
+			ArrayList<LocalDateTime> times = null;
+			infectedAgents.put(agent, times = new ArrayList<LocalDateTime>());
+			times.add(agent.getSimulationTime());
+		}
 	}
 
 	public void agentLeaves(Person agent) {
@@ -141,6 +146,32 @@ public abstract class BuildingUnit implements java.io.Serializable {
 				meetingMap.remove(meetingId);
 			}
 		}
+
+		// Store the leaving time of an infected agent
+		if(agent.getDiseaseStatus() == InfectionStatus.Infectious){
+			ArrayList<LocalDateTime> times = infectedAgents.get(agent);
+			if (times != null) times.add(agent.getSimulationTime());
+		}
+
+
+		// Check whether an infected agent exist when the agent is at the Building
+		// Agent may get exposed when the infectious agents exist.
+		if(agent.getDiseaseStatus() == InfectionStatus.Susceptible){
+			for (Person p : infectedAgents.keySet()){
+				ArrayList<LocalDateTime> times = infectedAgents.get(p);
+				Visit visit = visitMap.get(agent.getAgentId());
+				if (times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1))){
+					Random rand = new Random();
+					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * 0.1){
+						agent.beenExposed();
+						System.out.println("From Building -- [Agent "+agent.getAgentId()+"] exposed.");
+						System.out.println(agent.getCurrentDiseaseStatus());
+					}
+				}
+			}
+
+		}
+
 		visitMap.remove(agent.getAgentId());
 		numOfAgents = visitMap.size();
 		numOfVisits++;
