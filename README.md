@@ -1,29 +1,21 @@
 # Overview
 
-This repository is the central hub for resources publish together with the paper ``Trajectory Data Generation Based on Patterns of Life'' currently under review at ACM SIGSPATIAL on their new Data and Resource Track. 
+This repository is infectious disease simulator described in the paper 
+``Understanding Bias in AI Models for the Prediction of Infectious Disease Spread'' currently under review. 
 
 ## Data
-The combined datasets are hundreds of GB in size and thus, are too large to be shared directly through GitHub. Thus, we're sharing the data using the OpenScienceFramework (OSF) which is a free and open platform for research and data sharing. All our datasets can be found on OSF following this link:
+The simulated disease data could be found in the directory [diseasedata](diseasedata).
+The data were generated with 2000 agents with simulated downtown atlanta as their living space. 
 
-https://osf.io/gbhm8/
+The "ground truth" of the disease cases in the simulated world is stored in [unbiased_2000.tsv](diseasedata/unbiased_2000.tsv).
+Then we manually split the map into 4 region, and gave them different reporting rate.
 
-In this OSF repository, you can find 24 folders. Each folder corresponds one-to-one to one of the datasets described in Table 1 in the paper. Each folder is named MAP-#AGENTS-DURATION. For example, the folder ATL-10k-15mo contains the dataset generated using the Atlanta (ATL) map, using 10,000 agents, and running for 15 months of simulation time. 
+![image](https://github.com/RuochenKong/disease-simulator/blob/main/diseasedata/figures/4_regions.png)
 
-Within each folder, you can find three datasets, which correspond to the different types of data generated: Trajectories, Check-ins, and Social Networks. 
+The data with the different reporting rates are stored in [processed_data](diseasedata/processed_data). 
+The first number in the filenames represents the reporting rate of the top left region, and the second for the rest.
 
-**As of the SIGSPATIAL' 23 deadline - at 06/24 at 3AM EST, some of these datasets are still being generated. Thus, some of these folders are yet empty. This will be filled within the next few days.**
-
-Statistics of all the datasets can be found in the following table (lines marked with starts are still running):
-![image](https://github.com/azufle/pol/assets/80583546/d6e86796-5a33-4e86-b779-cb50ae5801ae)
-
-
-## New Study Regions
-For researchers to apply our simulation and data generation to new study regions of their interest, instructions on how to obtain foundation data (roads, buildings, units) for a new study region can be found in the documentation folder in file map.md.
-
-
-
-
-
+The scripts for simulating the reporting rate and for plotting are in [scripts](diseasedata/scripts).
 
 # Patterns-of-Life Simulation
 
