@@ -116,6 +116,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 			return;
 		}
 
+		/*
 		// If the agent is quarantined for more than [5-9] days.
 		Random rand = new Random();
 		if (agent.isQuarantined()
@@ -146,7 +147,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 				agent.setQuarantine();
 			}
 		}
-
+		*/
 
 		PersonMode currentMode = agent.getCurrentMode();
 		DailyPlan dailyPlanForToday = agent.getTodaysPlan();
@@ -336,8 +337,10 @@ public class LoveNeed implements Need, java.io.Serializable {
 		if(p.getDiseaseStatus() == InfectionStatus.Susceptible){
 			Random rand = new Random();
 			if (rand.nextDouble() <= p.getChanceBeInfected() * infectionChance){
-				p.beenExposed();
-				System.out.println(p.getCurrentDiseaseStatus());
+				p.beenExposed(agent.getSimulationTime(),agent.getAgentId());
+
+				/* DEBUGGER */
+				// System.out.println(p.getCurrentDiseaseStatus());
 			}
 		}
 	}
@@ -553,7 +556,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 		List<Long> agentIds = getMeeting().getParticipants();
 
 		// Agent mey get infected
-		agentMayGetInfected(agent,agent.getLoveNeed().getMeeting().getInfectionChance());
+		agentMayGetInfected(agent,agent.getLoveNeed().getMeeting().getInfectionChance()*0.03);
 
 		if (agentIds.size() > 1) {
 
@@ -564,7 +567,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 					Long agentId = agentIds.get(i);
 
 					// Spread Disease within meeting
-					agentMayGetInfected(agent.getModel().getAgent(agentId),agent.getLoveNeed().getMeeting().getInfectionChance());
+					// agentMayGetInfected(agent.getModel().getAgent(agentId),agent.getLoveNeed().getMeeting().getInfectionChance()*0.1);
 
 					try {
 						agent.getModel().getAgent(agentId).getLoveNeed()
@@ -633,19 +636,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 			// interact with only awake roommate
 			if (aRoommate.getSleepNeed().getStatus() == SleepStatus.Awake) {
 				strengthenTies(aRoommate.getAgentId());
-				spreadFromAToB(this.agent,aRoommate,0.03);
-				spreadFromAToB(aRoommate,this.agent,0.03);
+				spreadFromAToB(this.agent,aRoommate,0.05);
+				spreadFromAToB(aRoommate,this.agent,0.05);
 			}
-//			else {
-//
-//				// No interaction,
-//				//   assuming chance decreased to 0.3,
-//				//   when the disease is airborne.
-//				System.out.println("Spread between roommates.");
-//				spreadFromAToB(this.agent,aRoommate,0.3);
-//				spreadFromAToB(aRoommate,this.agent,0.3);
-//			}
-
 		}
 	}
 

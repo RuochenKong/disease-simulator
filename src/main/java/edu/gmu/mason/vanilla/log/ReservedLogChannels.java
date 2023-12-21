@@ -108,7 +108,8 @@ public class ReservedLogChannels implements Serializable {
 		instance.putIfAbsent(Level.getLevel("INFO"), new Setting("pattenrs_of_life","info level logging", "RollingFile", DEFAULT_DIRECTORY, ".log"));
 		// if you want to test the minimal logging, add -Dsimulation.test=minimal
 		if (whatTest != null && whatTest.equals("min")) {
-		    instance.putIfAbsent(Level.getLevel("AGENT"), new Setting("AgentStateTable","AgentStates","RollingFile"));
+		    // instance.putIfAbsent(Level.getLevel("AGENT"), new Setting("AgentStateTable","AgentStates","RollingFile"));
+			instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
 			instance.putIfAbsent(Level.getLevel("AGENT5"), new Setting("Checkin", "Checkin", "RollingFile"));
 			return instance;
 

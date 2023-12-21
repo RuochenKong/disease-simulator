@@ -160,13 +160,17 @@ public abstract class BuildingUnit implements java.io.Serializable {
 			for (Person p : infectedAgents.keySet()){
 				ArrayList<LocalDateTime> times = infectedAgents.get(p);
 				Visit visit = visitMap.get(agent.getAgentId());
-				if (times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1))){
+				if (times.get(0).isBefore(visit.getArrivalTime()) &&
+						(times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1)))){
 					Random rand = new Random();
-					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * 0.1){
-						agent.beenExposed();
-						System.out.println("From Building -- [Agent "+agent.getAgentId()+"] exposed.");
-						System.out.println(agent.getCurrentDiseaseStatus());
+					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * 0.02){
+						agent.beenExposed(agent.getSimulationTime(), p.getAgentId());
+
+						/* DEBUGGER */
+						// System.out.println("From Building -- [Agent "+agent.getAgentId()+"] exposed.");
+						// System.out.println(agent.getCurrentDiseaseStatus());
 					}
+					if (agent.getDiseaseStatus() == InfectionStatus.Exposed) break;
 				}
 			}
 

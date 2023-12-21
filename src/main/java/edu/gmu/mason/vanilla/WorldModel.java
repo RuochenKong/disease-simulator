@@ -1,16 +1,11 @@
 package edu.gmu.mason.vanilla;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -259,7 +254,7 @@ public class WorldModel extends SimState {
 		}, STEP_BEGIN_PRIORITY, 1);
 
 		// manipulation
-		manipulate(ManipulationLoader.loadFromConfig(params.initialManipulationFilePath));
+		// manipulate(ManipulationLoader.loadFromConfig(params.initialManipulationFilePath));
 		reservedLog.loggingSetup();
 		reservedLog.loggingSchedule();
 	}
@@ -284,6 +279,25 @@ public class WorldModel extends SimState {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		try{
+			String timeStamp = new SimpleDateFormat("MM-dd").format(new java.util.Date());
+			File file = new File("./logs/DiseaseData_" + agentId + "_" + timeStamp + ".tsv");
+			if (!file.exists())
+				file.createNewFile();
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+
+			bw.write("Agent\tOriginalLoc\tByAgent\tExposedTime\tExposedLoc\tExposedCheckIn\tInfectiousTime\tInfectiousLoc\tInfectiousCheckIn\tRecoverTime\n");
+
+			for (Person person : this.agents.values())
+				bw.write(person.getFinalDiseaseState()+"\n");
+
+			bw.close();
+		} catch (Exception e){
+			System.out.println(e);
+		}
+
 		timeUtil.addEventTime(SimulationEvent.SimulationEnd, new DateTime());
 		timeUtil.logTimeSpent(SimulationEvent.SimulationStart,
 				SimulationEvent.SimulationEnd, "Total simulation time");

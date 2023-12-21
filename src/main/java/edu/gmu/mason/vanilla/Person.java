@@ -93,10 +93,9 @@ public class Person implements Steppable, java.io.Serializable {
 	private double joviality;
 	@Characteristics
 	private double jovialityBase;
-	@Characteristics
 	private InfectiousDisease infectiousDisease;
-
-
+	@Skip
+	private String originLocation;
 
 	// agent needs from maslov's hierarchy of needs
 	// level 1
@@ -183,12 +182,17 @@ public class Person implements Steppable, java.io.Serializable {
 
 		// Adding Infectious Disease
 		this.infectiousDisease = new InfectiousDisease(this);
+		this.originLocation = null;
+
 	}
 
 	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus,  double c2report, double c2spread, double cbinfected){
-		Random Rand = new Random();
 
-		if (status!= null) this.infectiousDisease.setStatus(status);
+		if (status == InfectionStatus.Infectious){
+			this.infectiousDisease.setStatus(model.getSimulationTime());
+		} else {
+			this.infectiousDisease.setStatus(status);
+		}
 
 		if (vaccineStatus != null) this.infectiousDisease.setVaccineStatus(vaccineStatus);
 
@@ -234,8 +238,8 @@ public class Person implements Steppable, java.io.Serializable {
 	public void unsetQuarantine(){this.infectiousDisease.unsetQuarantine();}
 	public boolean isQuarantined(){return this.infectiousDisease.isQuarantined();}
 
-	public void beenExposed(){
-		this.infectiousDisease.setStatus(InfectionStatus.Exposed);
+	public void beenExposed(LocalDateTime exposedTime, long agentId){
+		this.infectiousDisease.setStatus(exposedTime,agentId);
 	}
 
 	public String getCurrentDiseaseStatus(){
@@ -244,6 +248,34 @@ public class Person implements Steppable, java.io.Serializable {
 		line += "  Chances:"+ this.infectiousDisease.getChanceToReport() + " to report,\n";
 		line += "          "+ this.infectiousDisease.getChanceToSpreat() + " to spread,\n";
 		line += "          "+ this.infectiousDisease.getChanceBeInfected() + " to be infected.";
+		return line;
+	}
+
+	public String getFinalDiseaseState(){
+		String line = String.format("%d\t",agentId);
+		line += this.originLocation + "\t";
+		line += String.format("%d\t", infectiousDisease.getInfectedByAgentID());
+		line += (infectiousDisease.getExposedTime() != null)
+				? String.format("%s\t", infectiousDisease.getExposedTime().toString())
+				: "null\t";
+		line += (infectiousDisease.getExposedLocation() != null)
+				? String.format("%s\t", infectiousDisease.getExposedLocation().toString())
+				: "null\t";
+		line += (infectiousDisease.getExposedCheckIn() != null)
+				? String.format("%s\t", infectiousDisease.getExposedCheckIn().toString())
+				: "null\t";
+		line += (infectiousDisease.getInfectiousTime() != null)
+				? String.format("%s\t", infectiousDisease.getInfectiousTime().toString())
+				: "null\t";
+		line += (infectiousDisease.getInfectiousLocation() != null)
+				? String.format("%s\t", infectiousDisease.getInfectiousLocation().toString())
+				: "null\t";
+		line += (infectiousDisease.getInfectiousCheckIn() != null)
+				? String.format("%s\t", infectiousDisease.getInfectiousCheckIn().toString())
+				: "null\t";
+		line += (infectiousDisease.getRecoverTime() != null)
+				? String.format("%s", infectiousDisease.getRecoverTime().toString())
+				: "null";
 		return line;
 	}
 
@@ -270,6 +302,7 @@ public class Person implements Steppable, java.io.Serializable {
 		this.currentMode = PersonMode.AtHome;
 		this.currentUnit = this.shelterNeed.getCurrentShelter();
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
+		this.originLocation = this.location.toString();
 
 		// if the agent is has a family and a kid, find a school for the kid and
 		// assign it.
@@ -619,18 +652,22 @@ public class Person implements Steppable, java.io.Serializable {
 
 		plan.setDay(planDay.toLocalDate());
 
+		/* DEBUGGER
 		if(!this.getDiseaseStatus().equals(InfectionStatus.Susceptible))
 			System.out.println("\n" + getCurrentDiseaseStatus());
+		 */
 
 
-		// if agent is employed and the day is a work day
-		if ( !reportedInfectious() && this.financialSafetyNeed.isEmployed()
+		// if agent is employed and the day is a work day --> !reportedInfectious() &&
+		if (this.financialSafetyNeed.isEmployed()
 				&& this.financialSafetyNeed.getJob().isWorkDay(planDay)) {
 			plan.setWorkDay(true);
 
+			/* DEBUGGER
 			if(this.getDiseaseStatus().equals(InfectionStatus.Infectious)){
 				System.out.println("[Agent" + this.agentId + "] Infected, On work.");
 			}
+			*/
 
 			// calculate wake up time
 			LocalTime jobStartTime = this.financialSafetyNeed.getJob()
@@ -665,9 +702,11 @@ public class Person implements Steppable, java.io.Serializable {
 			// agent does not work tomorrow. so, let's have regular sleep time
 			// set.
 
+			/* DEBUGGER
 			if(this.getDiseaseStatus().equals(InfectionStatus.Infectious)){
 				System.out.println("[Agent" + this.agentId + "] Infected, Reported and Off work.");
 			}
+			*/
 
 			plan.setWorkDay(false);
 			plan.setWakeUpTime(sleepNeed.getSleepStartTime().plusMinutes(

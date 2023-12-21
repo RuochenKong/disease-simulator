@@ -1,7 +1,11 @@
 package edu.gmu.mason.vanilla;
 
+import edu.gmu.mason.vanilla.environment.Pub;
+import edu.gmu.mason.vanilla.log.Characteristics;
 import edu.gmu.mason.vanilla.log.Skip;
 import edu.gmu.mason.vanilla.log.State;
+import org.joda.time.LocalDateTime;
+import scala.None;
 
 import java.util.Random;
 
@@ -21,16 +25,18 @@ public class InfectiousDisease implements java.io.Serializable {
     private InfectionStatus status;
     @State
     private double daysInStatus;
-    @State
+    @Skip
+    private double maxDaysInStatus;
+    @Skip
     private VaccineStatus vaccineStatus;
-    @State
+    @Skip
     private double daysFromDose;
 
-    @State
+    @Characteristics
     private double chanceToSpreat;
-    @State
+    @Characteristics
     private double chanceBeInfected;
-    @State
+    @Characteristics
     private double chanceToReport;
 
     // -1: If not quarantined, Otherwise: Days been quarantined
@@ -38,12 +44,30 @@ public class InfectiousDisease implements java.io.Serializable {
     private double daysQuarantined;
     @State
     private boolean isReported;
-
-    @State
+    @Characteristics
     private double normalAppetite;
-
-    @State
+    @Characteristics
     private int normalSleepLength;
+
+    /**
+     * Assume one time infection, otherwise change to List.
+     */
+    @Skip
+    private long infectedByAgentID;
+    @Skip
+    private LocalDateTime exposedTime;
+    @Skip
+    private AgentGeometry exposedLocation;
+    @Skip
+    private PersonMode exposedCheckIn;
+    @Skip
+    private AgentGeometry infectiousLocation;
+    @Skip
+    private PersonMode infectiousCheckIn;
+    @Skip
+    private LocalDateTime infectiousTime;
+    @Skip
+    private LocalDateTime recoverTime;
 
     public InfectiousDisease(){
         this.agent = null;
@@ -52,10 +76,19 @@ public class InfectiousDisease implements java.io.Serializable {
         this.chanceToReport = 0.5;
         this.status = InfectionStatus.Susceptible;
         this.daysInStatus = 0;
+        this.maxDaysInStatus = 0;
         this.daysFromDose = 0;
         this.vaccineStatus = VaccineStatus.Unvaccined;
         this.isReported = false;
         this.daysQuarantined = -1;
+        this.infectedByAgentID = -1; // -1 for not yet been infected, self ID for initial random zero-patients
+        this.exposedTime = null;
+        this.exposedLocation = null;
+        this.exposedCheckIn = null;
+        this.infectiousLocation = null;
+        this.infectiousCheckIn = null;
+        this.infectiousTime = null;
+        this.recoverTime = null;
     }
 
     public InfectiousDisease(Person p){
@@ -97,13 +130,43 @@ public class InfectiousDisease implements java.io.Serializable {
             this.agent.getFoodNeed().setAppetite(Math.max(this.normalAppetite * 0.7,lower));
             this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength + agent.getModel().random.nextInt(60) + 30);
         } else { // Back to normal
-            this.agent.getFoodNeed().setAppetite(this.normalAppetite); //setAppetite ?
+            this.agent.getFoodNeed().setAppetite(this.normalAppetite);
             this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength);
         }
 
         // System.out.println("  After setting:");
         // System.out.println(agent.getFoodNeed().getFoodNeedInfo());
 
+        Random rand = new Random();
+
+        if (this.status == InfectionStatus.Susceptible)
+            this.maxDaysInStatus = 0;
+        // Exposed for [3-14] days change to Infectious
+        if (this.status == InfectionStatus.Exposed)
+            this.maxDaysInStatus = rand.nextInt(10) + rand.nextDouble() + 3;
+        // Infectious for [5-10] days change to Recovered
+        if (this.status == InfectionStatus.Infectious)
+            this.maxDaysInStatus = rand.nextInt(4) + rand.nextDouble() + 5;
+        // Recovered for [3-6] months change to Susceptible
+        if (this.status == InfectionStatus.Recovered)
+            this.maxDaysInStatus = rand.nextInt(89) + rand.nextDouble() + 90;
+    }
+
+    // For zero patients
+    public void setStatus(LocalDateTime exposedTime){
+        setStatus(InfectionStatus.Infectious);
+        this.exposedTime = exposedTime;
+        this.infectiousTime = exposedTime;
+        this.infectedByAgentID = agent.getAgentId();
+    }
+
+    // For exposed status
+    public void setStatus(LocalDateTime exposedTime, long agentID){
+        setStatus(InfectionStatus.Exposed);
+        this.exposedTime = exposedTime;
+        this.infectedByAgentID = agentID;
+        this.exposedLocation = agent.getLocation();
+        this.exposedCheckIn = agent.getCurrentMode();
     }
 
     public void setChanceToSpreat(double c2spread){
@@ -188,6 +251,37 @@ public class InfectiousDisease implements java.io.Serializable {
         }
     }
 
+    public boolean isZeroPatient(){
+        return infectedByAgentID == this.agent.getAgentId();
+    }
+
+    public long getInfectedByAgentID(){
+        return this.infectedByAgentID;
+    }
+
+    public LocalDateTime getExposedTime(){
+        return this.exposedTime;
+    }
+    
+    public AgentGeometry getExposedLocation(){
+        return this.exposedLocation;
+    }
+
+    public PersonMode getExposedCheckIn() {
+        return this.exposedCheckIn;
+    }
+    public AgentGeometry getInfectiousLocation(){
+        return this.infectiousLocation;
+    }
+
+    public PersonMode getInfectiousCheckIn() {return this.infectiousCheckIn;}
+    public LocalDateTime getInfectiousTime(){
+        return this.infectiousTime;
+    }
+    public LocalDateTime getRecoverTime(){
+        return this.recoverTime;
+    }
+
     public void incrementDays(double tikMin){
         this.daysInStatus += tikMin/(24*60);
 
@@ -197,19 +291,23 @@ public class InfectiousDisease implements java.io.Serializable {
 
         Random rand = new Random();
 
-        // Explosed for [3-14] days change to Infectious
-        if(this.status == InfectionStatus.Exposed){
-            if (daysInStatus >= rand.nextInt(11) + 3) setStatus(InfectionStatus.Infectious);
+        // Exposed for [3-14] days change to Infectious
+        if(this.status == InfectionStatus.Exposed && daysInStatus >= maxDaysInStatus){
+            setStatus(InfectionStatus.Infectious);
+            this.infectiousTime = this.agent.getSimulationTime();
+            this.infectiousLocation = this.agent.getLocation();
+            this.infectiousCheckIn = this.agent.getCurrentMode();
         }
 
-        // Infectious for [5-12] days change to Recovered
-        if(this.status == InfectionStatus.Infectious){
-            if (daysInStatus >= rand.nextInt(7) + 5) setStatus(InfectionStatus.Recovered);
+        // Infectious for [5-10] days change to Recovered
+        if(this.status == InfectionStatus.Infectious && daysInStatus >= maxDaysInStatus){
+            setStatus(InfectionStatus.Recovered);
+            this.recoverTime = this.agent.getSimulationTime();
         }
 
         // Recovered for [3-6] months change to Susceptible
-        if(this.status == InfectionStatus.Recovered){
-            if (daysInStatus >= rand.nextInt(90)+ 90) setStatus(InfectionStatus.Susceptible);
+        if(this.status == InfectionStatus.Recovered && daysInStatus >= maxDaysInStatus){
+            setStatus(InfectionStatus.Susceptible);
         }
 
         if(this.daysQuarantined != -1) {
