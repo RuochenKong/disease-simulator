@@ -93,6 +93,7 @@ public class Person implements Steppable, java.io.Serializable {
 	private double joviality;
 	@Characteristics
 	private double jovialityBase;
+	@State
 	private InfectiousDisease infectiousDisease;
 	@Skip
 	private String originLocation;
@@ -303,6 +304,8 @@ public class Person implements Steppable, java.io.Serializable {
 		this.currentUnit = this.shelterNeed.getCurrentShelter();
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
 		this.originLocation = this.location.toString();
+
+		/* TODO: Send infected agents to home*/
 
 		// if the agent is has a family and a kid, find a school for the kid and
 		// assign it.

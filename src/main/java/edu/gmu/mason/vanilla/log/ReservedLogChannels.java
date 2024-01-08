@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
+import edu.gmu.mason.vanilla.*;
 import org.apache.logging.log4j.Level;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -22,10 +23,6 @@ import org.joda.time.format.ISODateTimeFormat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import edu.gmu.mason.vanilla.AgentGeometry;
-import edu.gmu.mason.vanilla.Person;
-import edu.gmu.mason.vanilla.QuantitiesOfInterest;
-import edu.gmu.mason.vanilla.WorldModel;
 import edu.gmu.mason.vanilla.db.Cdf;
 import edu.gmu.mason.vanilla.db.Column;
 import edu.gmu.mason.vanilla.db.PredefinedTables;
@@ -89,7 +86,7 @@ public class ReservedLogChannels implements Serializable {
 	
 	protected Collection<EventList> eventMovingHome;
 	protected Collection<EventList> eventChangingJob;
-	
+	protected Collection<EventList> eventChangingDisease;
 	protected WorldModel model;
 	
 	private static ConcurrentMap<Level, Setting> init()
@@ -118,7 +115,7 @@ public class ReservedLogChannels implements Serializable {
 		if (whatTest != null && whatTest.equals("flexibility")) {
 			instance.putIfAbsent(Level.getLevel("MODEL1"), new Setting("InstanceVariableTable", "InstanceVariableTable", DEFAULT_OUTPUT_TYPE, "../../"));
 			instance.putIfAbsent(Level.getLevel("STAT7"), new Setting("SummaryStatisticsDataTable", "SummaryStatisticsDataTable", DEFAULT_OUTPUT_TYPE, ""));
-
+			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting("DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
 			return instance;
 		}
 		if (whatTest != null && whatTest.equals("qoi")) {
@@ -470,6 +467,10 @@ public class ReservedLogChannels implements Serializable {
 				{"EVT10", new IterativeEventLogSchedule(0, 1, "EVT10", (Supplier<Collection<EventList>> & Serializable) () -> eventMovingHome, eventFormatter, 1)},
 				{"EVT11", new LogSchedule(0, "EVT11", (Supplier & Serializable) () -> "step\tagentId\t[job]", textFormatter, 0)},
 				{"EVT11", new IterativeEventLogSchedule(0, 1, "EVT11", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingJob, eventFormatter, 1)},
+
+				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[DiseaseStatus,ByAgentID,Time,Location,CheckIn]", textFormatter, 0)},
+				{"EVT13", new IterativeEventLogSchedule(0, 1, "EVT13", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDisease, eventFormatter, 1)},
+
 				// For checkin
 				{"AGENT5", new LogSchedule(0, "AGENT5", (Supplier & Serializable) () -> schema.CheckinDataset.CheckinTable, checkinTableSchema, 0)},
 				{"AGENT5", new IterativeLogSchedule(1, 1, "AGENT5", (Supplier & Serializable) () -> model.getAgentsCheckin(), checkinData, 1)},
@@ -640,7 +641,29 @@ public class ReservedLogChannels implements Serializable {
 				eventChangingJob.add(eventList);
 			}
 		}
-		
+
+		if (eventChangingDisease == null){
+			eventChangingDisease = new ArrayList<>();
+
+			// step agentID [DiseaseStatus,ByAgentId,Time,Location,CheckIn]
+			for (Person p : model.getAgents()) {
+				EventList eventList = new EventList(p.getAgentId());
+				eventList.enableIndividualUpdateTime(false);
+				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getDiseaseStatus());
+				eventList.add((Supplier & Serializable) () -> {
+					long byAgent = model.getAgent(p.getAgentId()).getInfectiousDisease().getInfectedByAgentID();
+					if (byAgent == -1 || model.getAgent(p.getAgentId()).getDiseaseStatus() == InfectionStatus.Recovered
+					    || model.getAgent(p.getAgentId()).getDiseaseStatus() == InfectionStatus.Susceptible)
+						return null;
+					return byAgent;
+				});
+				eventList.add((Supplier & Serializable) () -> model.getSimulationTime());
+				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getLocation());
+				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getCurrentMode());
+				eventChangingDisease.add(eventList);
+			}
+		}
+
 		exclusion = new Exclusion(Building.class, WorldModel.class);
 		exclusion.addSkipField(Skip.class);
 		exclusion.addSkipField(Characteristics.class);

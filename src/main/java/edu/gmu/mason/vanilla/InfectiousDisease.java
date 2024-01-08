@@ -21,7 +21,7 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private Person agent;
 
-    @State
+    @Characteristics
     private InfectionStatus status;
     @State
     private double daysInStatus;
