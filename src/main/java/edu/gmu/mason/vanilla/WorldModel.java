@@ -280,6 +280,7 @@ public class WorldModel extends SimState {
 			e.printStackTrace();
 		}
 
+		/*
 		try{
 			String timeStamp = new SimpleDateFormat("MM-dd").format(new java.util.Date());
 			File file = new File("./logs/DiseaseData_" + agentId + "_" + timeStamp + ".tsv");
@@ -297,6 +298,8 @@ public class WorldModel extends SimState {
 		} catch (Exception e){
 			System.out.println(e);
 		}
+		*/
+
 
 		timeUtil.addEventTime(SimulationEvent.SimulationEnd, new DateTime());
 		timeUtil.logTimeSpent(SimulationEvent.SimulationStart,

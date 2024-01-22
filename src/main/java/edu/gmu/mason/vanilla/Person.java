@@ -29,8 +29,6 @@ import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
 
-import java.util.Random;
-
 
 /**
  * General description_________________________________________________________
@@ -187,10 +185,10 @@ public class Person implements Steppable, java.io.Serializable {
 
 	}
 
-	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus,  double c2report, double c2spread, double cbinfected){
+	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus, double c2spread, double cbinfected){
 
 		if (status == InfectionStatus.Infectious){
-			this.infectiousDisease.setStatus(model.getSimulationTime());
+			this.infectiousDisease.setStatus();
 		} else {
 			this.infectiousDisease.setStatus(status);
 		}
@@ -198,7 +196,6 @@ public class Person implements Steppable, java.io.Serializable {
 		if (vaccineStatus != null) this.infectiousDisease.setVaccineStatus(vaccineStatus);
 
 		// Customize the chances when specified
-		if (c2report != -1) this.infectiousDisease.setChanceToReport(c2report);
 		if (c2spread != -1) this.infectiousDisease.setChanceToSpreat(c2spread);
 		if (cbinfected != -1) this.infectiousDisease.setChanceBeInfected(cbinfected);
 	}
@@ -209,10 +206,6 @@ public class Person implements Steppable, java.io.Serializable {
 
 	public double getChanceBeInfected() {
 		return this.infectiousDisease.getChanceBeInfected();
-	}
-
-	public double getChanceToReport() {
-		return this.infectiousDisease.getChanceToReport();
 	}
 
 	public double getChanceToSpreat(){
@@ -240,50 +233,20 @@ public class Person implements Steppable, java.io.Serializable {
 	public boolean isQuarantined(){return this.infectiousDisease.isQuarantined();}
 
 	public void beenExposed(LocalDateTime exposedTime, long agentId){
-		this.infectiousDisease.setStatus(exposedTime,agentId);
+		this.infectiousDisease.setStatus(agentId);
 	}
 
 	public String getCurrentDiseaseStatus(){
 		String line = "[Agent "+agentId;
 		line += "] " + getDiseaseStatus().toString() + " for " + getDaysInDiseaseStatus() + " days\n";
-		line += "  Chances:"+ this.infectiousDisease.getChanceToReport() + " to report,\n";
-		line += "          "+ this.infectiousDisease.getChanceToSpreat() + " to spread,\n";
+		line += "  Chances:"+ this.infectiousDisease.getChanceToSpreat() + " to spread,\n";
 		line += "          "+ this.infectiousDisease.getChanceBeInfected() + " to be infected.";
 		return line;
 	}
 
-	public String getFinalDiseaseState(){
-		String line = String.format("%d\t",agentId);
-		line += this.originLocation + "\t";
-		line += String.format("%d\t", infectiousDisease.getInfectedByAgentID());
-		line += (infectiousDisease.getExposedTime() != null)
-				? String.format("%s\t", infectiousDisease.getExposedTime().toString())
-				: "null\t";
-		line += (infectiousDisease.getExposedLocation() != null)
-				? String.format("%s\t", infectiousDisease.getExposedLocation().toString())
-				: "null\t";
-		line += (infectiousDisease.getExposedCheckIn() != null)
-				? String.format("%s\t", infectiousDisease.getExposedCheckIn().toString())
-				: "null\t";
-		line += (infectiousDisease.getInfectiousTime() != null)
-				? String.format("%s\t", infectiousDisease.getInfectiousTime().toString())
-				: "null\t";
-		line += (infectiousDisease.getInfectiousLocation() != null)
-				? String.format("%s\t", infectiousDisease.getInfectiousLocation().toString())
-				: "null\t";
-		line += (infectiousDisease.getInfectiousCheckIn() != null)
-				? String.format("%s\t", infectiousDisease.getInfectiousCheckIn().toString())
-				: "null\t";
-		line += (infectiousDisease.getRecoverTime() != null)
-				? String.format("%s", infectiousDisease.getRecoverTime().toString())
-				: "null";
-		return line;
-	}
-
 	public void toBeTheFirstPatient(){
-		initializeDiseaseStatus(InfectionStatus.Infectious, null, -1,-1,-1);
-		System.out.println("[Agent "+agentId+"] Started the disesase.");
-		// System.out.println(getCurrentDiseaseStatus());
+		initializeDiseaseStatus(InfectionStatus.Infectious, null, -1,-1);
+		System.out.println("[Agent "+agentId+"] Started the disesase, with "+infectiousDisease.getRemainNumOfInitInfect()+" agents remaining.");
 	}
 
 	/**
@@ -296,16 +259,14 @@ public class Person implements Steppable, java.io.Serializable {
 		// satisfy the shelter need
 		shelterNeed.satisfy();
 
-		Random rand = new Random();
-		if ( rand.nextDouble() >= 0.97) toBeTheFirstPatient();
-
 		// put the agent to her/his home
 		this.currentMode = PersonMode.AtHome;
 		this.currentUnit = this.shelterNeed.getCurrentShelter();
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
 		this.originLocation = this.location.toString();
 
-		/* TODO: Send infected agents to home*/
+		// Initialize the disease
+		if (infectiousDisease.getRemainNumOfInitInfect() > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 70) ) toBeTheFirstPatient();
 
 		// if the agent is has a family and a kid, find a school for the kid and
 		// assign it.
@@ -346,6 +307,14 @@ public class Person implements Steppable, java.io.Serializable {
 		if (currentMode == PersonMode.Transport) {
 			mobility.transport();
 			return;
+		}
+
+		// Sent the infected agent to home
+		if (this.getDiseaseStatus() == InfectionStatus.Infectious
+				&& !this.isQuarantined()
+				&& model.random.nextDouble() > (1 - this.model.params.selfQuarantinedProbability/(double) (100*288))){
+			this.infectiousDisease.setQuarantine();
+			travelToHome(VisitReason.Disease);
 		}
 
 		sleepNeed.satisfy(); // checks sleeping/waking up schedule
@@ -660,10 +629,10 @@ public class Person implements Steppable, java.io.Serializable {
 			System.out.println("\n" + getCurrentDiseaseStatus());
 		 */
 
-
 		// if agent is employed and the day is a work day --> !reportedInfectious() &&
 		if (this.financialSafetyNeed.isEmployed()
-				&& this.financialSafetyNeed.getJob().isWorkDay(planDay)) {
+				&& this.financialSafetyNeed.getJob().isWorkDay(planDay)
+				&& !this.isQuarantined()) {
 			plan.setWorkDay(true);
 
 			/* DEBUGGER

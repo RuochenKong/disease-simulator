@@ -21,5 +21,6 @@ public enum VisitReason {
 	Home_ComingBackFromPub,
 	Workplace_Work,
 	ComingBackFromRestaurant,
-	BuildingUnitIsNoLongerUsable
+	BuildingUnitIsNoLongerUsable,
+	Disease
 }

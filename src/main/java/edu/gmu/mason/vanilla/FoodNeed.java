@@ -181,7 +181,10 @@ public class FoodNeed implements Need, java.io.Serializable {
 				boolean isWorkdayMorning = dailyPlanForToday.isWorkDay() == true
 						&& dailyPlanForToday.hasBeenAtWork() == false;
 
-				if (preConditionToEatHome
+				if (agent.isQuarantined()){
+					eatAtHome();
+				}
+				else if (preConditionToEatHome
 						&& (isWorkdayMorning || model.random.nextBoolean())) {
 					eatAtHome();
 				} else {

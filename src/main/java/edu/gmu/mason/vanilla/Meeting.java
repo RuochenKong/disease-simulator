@@ -1,9 +1,11 @@
 package edu.gmu.mason.vanilla;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.joda.time.LocalDateTime;
 
 import edu.gmu.mason.vanilla.log.Characteristics;
@@ -26,10 +28,13 @@ public class Meeting implements java.io.Serializable {
 	private LocalDateTime startTime;
 	private List<Long> participants;
 
-	private double infectionChance;
+	private List<Double> infectionChances;
+	private List<Long> infectionAgents;
+
 
 	public Meeting(boolean planned, LocalDateTime startTime, String meetingId) {
-		this.infectionChance = 0;
+		this.infectionChances = new ArrayList<>();
+		this.infectionAgents = new ArrayList<>();
 		this.planned = planned;
 		this.startTime = startTime;
 		participants = new ArrayList<>();
@@ -51,7 +56,6 @@ public class Meeting implements java.io.Serializable {
 	}
 
 	public void removeParticipant(Long agentId) {
-
 		Iterator<Long> participantsIter = participants.iterator();
 		while (participantsIter.hasNext()) {
 			Long personId = participantsIter.next();
@@ -60,7 +64,11 @@ public class Meeting implements java.io.Serializable {
 				break;
 			}
 		}
-
+		int idx = infectionAgents.indexOf(agentId);
+		if (idx != -1){
+			infectionAgents.remove(idx);
+			infectionChances.remove(idx);
+		}
 	}
 
 	private boolean agentExists(long personId) {
@@ -84,10 +92,15 @@ public class Meeting implements java.io.Serializable {
 		return startTime;
 	}
 
-	public double getInfectionChance(){ return this.infectionChance;}
+	public double getInfectionChance(){
+		if (this.infectionChances.isEmpty())
+			return 0;
+		return (double)Collections.max(this.infectionChances);
+	}
 
-	public void infectedAgentJoin(double agentInfectionChance){
-		this.infectionChance = Math.max(this.infectionChance, agentInfectionChance);
+	public void infectedAgentJoin(Long agentID, double agentInfectionChance){
+		this.infectionChances.add(agentInfectionChance);
+		this.infectionAgents.add(agentID);
 	}
 
 }

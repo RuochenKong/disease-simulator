@@ -112,42 +112,10 @@ public class LoveNeed implements Need, java.io.Serializable {
 
 		// skip if agent is not alive or transporting
 		if (agent.getLifeStatus() != LifeStatus.Alive
-				|| agent.getCurrentMode() == PersonMode.Transport) {
+				|| agent.getCurrentMode() == PersonMode.Transport
+				|| agent.isQuarantined()) {
 			return;
 		}
-
-		/*
-		// If the agent is quarantined for more than [5-9] days.
-		Random rand = new Random();
-		if (agent.isQuarantined()
-				&& agent.getDaysQuarantined() > rand.nextInt(4) + 5){
-			System.out.println("[Agent "+agent.getAgentId()+"] Out of Quarantine after " + agent.getDaysQuarantined() + "days.");
-			agent.unsetQuarantine();
-		}
-
-
-		// If the agent is infected and not quarantined, possible to skip.
-		if(!agent.isQuarantined() &&
-				agent.getDiseaseStatus() == InfectionStatus.Infectious){
-			// System.out.println(agent.getCurrentDiseaseStatus());
-
-
-			// If the person willing to report,
-			// then it's more possible to quarantine themselves.
-			// chance = chanceToReport*[0.1-0.3] + 0.1 TODO
-			double chance = agent.getChanceToReport();
-			chance *= (rand.nextDouble()*0.02);
-
-
-			//  System.out.println(agent.getChanceToReport() + ",  "+chance+"   ----  "+rand);
-			// With the chance, quarantined and skip
-			if (rand.nextDouble() < chance){
-				System.out.println("[Agent "+agent.getAgentId()+"] Quarantined.");
-				agent.setCurrentMode(PersonMode.AtHome);
-				agent.setQuarantine();
-			}
-		}
-		*/
 
 		PersonMode currentMode = agent.getCurrentMode();
 		DailyPlan dailyPlanForToday = agent.getTodaysPlan();
@@ -444,9 +412,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 						p.getLoveNeed().setMeetingId(meetingId);
 
 						if (this.agent.getDiseaseStatus() == InfectionStatus.Infectious)
-							agent.getLoveNeed().getMeeting().infectedAgentJoin(this.agent.getChanceBeInfected());
+							agent.getLoveNeed().getMeeting().infectedAgentJoin(this.agent.getAgentId(), this.agent.getChanceBeInfected());
 						if (p.getDiseaseStatus() == InfectionStatus.Infectious)
-							p.getLoveNeed().getMeeting().infectedAgentJoin(p.getChanceBeInfected());
+							p.getLoveNeed().getMeeting().infectedAgentJoin(p.getAgentId(),p.getChanceBeInfected());
 
 						break;
 					}
@@ -514,9 +482,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 										.getMeetingId();
 
 								if (agent.getDiseaseStatus() == InfectionStatus.Infectious)
-									agent.getLoveNeed().getMeeting().infectedAgentJoin(agent.getChanceBeInfected());
+									agent.getLoveNeed().getMeeting().infectedAgentJoin(agent.getAgentId(),agent.getChanceBeInfected());
 								if (agentToConnect.getDiseaseStatus() == InfectionStatus.Infectious)
-									agentToConnect.getLoveNeed().getMeeting().infectedAgentJoin(agentToConnect.getChanceBeInfected());
+									agentToConnect.getLoveNeed().getMeeting().infectedAgentJoin(agentToConnect.getAgentId(), agentToConnect.getChanceBeInfected());
 							}
 						} else {
 							// we need to create the meeting and add both agents
@@ -534,9 +502,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 									.setMeetingId(meetingId);
 
 							if (agent.getDiseaseStatus() == InfectionStatus.Infectious)
-								agent.getLoveNeed().getMeeting().infectedAgentJoin(agent.getChanceBeInfected());
+								agent.getLoveNeed().getMeeting().infectedAgentJoin(agent.getAgentId(), agent.getChanceBeInfected());
 							if (agentToConnect.getDiseaseStatus() == InfectionStatus.Infectious)
-								agentToConnect.getLoveNeed().getMeeting().infectedAgentJoin(agentToConnect.getChanceBeInfected());
+								agentToConnect.getLoveNeed().getMeeting().infectedAgentJoin(agentToConnect.getAgentId(), agentToConnect.getChanceBeInfected());
 
 						}
 					}
@@ -556,7 +524,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 		List<Long> agentIds = getMeeting().getParticipants();
 
 		// Agent mey get infected
-		agentMayGetInfected(agent,agent.getLoveNeed().getMeeting().getInfectionChance()*0.03);
+		agentMayGetInfected(agent,agent.getLoveNeed().getMeeting().getInfectionChance()*agent.getModel().params.additionalDiseaseSpreadingParam);
 
 		if (agentIds.size() > 1) {
 
@@ -565,10 +533,6 @@ public class LoveNeed implements Need, java.io.Serializable {
 			for (int i = 0; i < agentIds.size(); i++) {
 				if (agentIds.get(i) != agent.getAgentId()) {
 					Long agentId = agentIds.get(i);
-
-					// Spread Disease within meeting
-					// agentMayGetInfected(agent.getModel().getAgent(agentId),agent.getLoveNeed().getMeeting().getInfectionChance()*0.1);
-
 					try {
 						agent.getModel().getAgent(agentId).getLoveNeed()
 								.strengthenTies(agent.getAgentId());
@@ -636,8 +600,8 @@ public class LoveNeed implements Need, java.io.Serializable {
 			// interact with only awake roommate
 			if (aRoommate.getSleepNeed().getStatus() == SleepStatus.Awake) {
 				strengthenTies(aRoommate.getAgentId());
-				spreadFromAToB(this.agent,aRoommate,0.05);
-				spreadFromAToB(aRoommate,this.agent,0.05);
+				spreadFromAToB(this.agent,aRoommate,this.agent.getModel().params.additionalDiseaseSpreadingParam);
+				spreadFromAToB(aRoommate,this.agent,agent.getModel().params.additionalDiseaseSpreadingParam);
 			}
 		}
 	}

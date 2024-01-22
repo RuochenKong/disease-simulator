@@ -128,8 +128,8 @@ public class WorldParameters extends AnnotatedPropertied {
 	public static final double SITE_CAPACITY_MEAN = 80.0;
 	public static final double SITE_CAPACITY_SD = 20.0;
 	public static final double MONTHLY_SCHOOL_COST_RATE = 100.0;
-	public static final double MINIMUM_HOURLY_RATE = 10.0;
-	public static final double MAXIMUM_HOURLY_RATE = 100.0;
+	public static final double MINIMUM_HOURLY_RATE = 100.0;
+	public static final double MAXIMUM_HOURLY_RATE = 1000.0;
 	public static final double INITIAL_ADDITIONAL_BALANCE_LOWER_BOUND = 500.0;
 	public static final double INITIAL_ADDITIONAL_BALANCE_UPPER_BOUND = 1000.0;
 
@@ -186,6 +186,20 @@ public class WorldParameters extends AnnotatedPropertied {
 	public int maximumSiteVisitLengthInMinutes;
 	public double baseRentRate;
 	public String maps;
+
+	// Disease Parameters
+	@EditableProperty(group = "Disease", description = "Initial percentage of infectious", lower = "0.0", upper = "100.0", readOnly = false)
+	public double initPercentInfectious;
+	@EditableProperty(group = "Disease", description = "Probability of staying at home when infected", lower = "0.0", upper = "100.0", readOnly = false)
+	public double selfQuarantinedProbability;
+	@EditableProperty(group = "Disease", description = "Disease spreading parameter", lower = "0.0", upper = "1.0", readOnly = false)
+	public double additionalDiseaseSpreadingParam;
+	@EditableProperty(group = "Disease", description = "Tik delay of known cases", lower = "0", upper = "1000000", readOnly = false)
+	public int numTikDelay;
+	@EditableProperty(group = "Disease", description = "Known case impact parameter", lower = "0.0", upper = "1.0", readOnly = false)
+	public double knownCaseImpactParam;
+	@EditableProperty(group = "Disease", description = "Probability of reporting a case", lower = "0.0", upper = "1.0", readOnly = false)
+	public double reportingProbability;
 
 	// Network parameters
 	@EditableProperty(group = "Behavior", description = "Focal closure probability", lower = "0.0", upper = "1.0", readOnly = false)
