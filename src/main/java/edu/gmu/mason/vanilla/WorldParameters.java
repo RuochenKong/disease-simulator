@@ -187,6 +187,8 @@ public class WorldParameters extends AnnotatedPropertied {
 	public double baseRentRate;
 	public String maps;
 
+	public String regions;
+
 	// Disease Parameters
 	@EditableProperty(group = "Disease", description = "Initial percentage of infectious", lower = "0.0", upper = "100.0", readOnly = false)
 	public double initPercentInfectious;
@@ -198,8 +200,14 @@ public class WorldParameters extends AnnotatedPropertied {
 	public int numTikDelay;
 	@EditableProperty(group = "Disease", description = "Known case impact parameter", lower = "0.0", upper = "1.0", readOnly = false)
 	public double knownCaseImpactParam;
+	@EditableProperty(group = "Disease", description = "Threshold Percentage of Infectious to Wear Mask", lower = "0.0", upper = "1.0", readOnly = false)
+	public double maskWearingThreshold;
 	@EditableProperty(group = "Disease", description = "Probability of reporting a case", lower = "0.0", upper = "1.0", readOnly = false)
 	public double reportingProbability;
+	@EditableProperty(group = "Disease", description = "Effectivity of wearing masks", lower = "0.0", upper = "1.0", readOnly = false)
+	public double avgMaskEffectivity;
+	@EditableProperty(group = "Disease", description = "Minimum minutes of continuously wearing masks", lower = "1", upper = "1440", readOnly = false)
+	public int minMaskWearingLength;
 
 	// Network parameters
 	@EditableProperty(group = "Behavior", description = "Focal closure probability", lower = "0.0", upper = "1.0", readOnly = false)
@@ -395,6 +403,7 @@ public class WorldParameters extends AnnotatedPropertied {
 		additionalAgentAgeMax = ADDITIONAL_AGENT_AGE_MAX;
 		baseRentRate = BASE_RENT_RATE;
 		maps = DEFAULT_MAPS;
+		regions = null;
 
 		maximumAllowedRentalSalaryRatio = MAXIMUM_ALLOWED_RENTAL_SALARY_RATIO;
 		maxDaysToBeHomeless = MAX_DAYS_TO_BE_HOMELESS;

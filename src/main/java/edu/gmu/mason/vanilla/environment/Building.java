@@ -45,6 +45,10 @@ public class Building implements java.io.Serializable {
 	private int blockGroupId;
 	@Characteristics
 	private int censusTractId;
+
+	@Characteristics
+	private int regionID;
+
 	@State
 	private boolean usable = true;
 
@@ -165,6 +169,10 @@ public class Building implements java.io.Serializable {
 	public void setCensusTractId(int censusTractId) {
 		this.censusTractId = censusTractId;
 	}
+
+	public void setRegionId(int regionID){ this.regionID = regionID; }
+
+	public int getRegionID(){return this.regionID;}
 
 	public boolean isUsable() {
 		return usable;

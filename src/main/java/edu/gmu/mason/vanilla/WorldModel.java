@@ -165,7 +165,9 @@ public class WorldModel extends SimState {
 	private Map<Long, Job> jobs;
 	private Map<Long, Restaurant> restaurants;
 	private Map<Long, Pub> pubs;
-
+	private Map<Integer, Region> regions;
+	private List<Integer> regionsIds;
+	private Map<Integer, List<Long>> regionResidentialMap;
 	private List<BuildingUnit> buildingUnitsToSupply;
 
 	// social networks
@@ -207,9 +209,12 @@ public class WorldModel extends SimState {
 		timeUtil.addEventTime(SimulationEvent.SimulationStart, new DateTime());
 		simulationSeed = seed;
 		spatialNetwork.loadMapLayers(params.maps, "walkways.shp",
-				"buildings.shp", "buildingUnits.shp");
+				"buildings_region1.shp", "buildingUnits.shp", params.regions);
+
+		initRegion();
 		initPlaces();
 		GeoUtils.alignMBRs(spatialNetwork.getAllLayers());
+
 		initVisualGraph();
 		reservedLog = new ReservedLogChannels(this);
 		startDataCollectionForQoIs();
@@ -316,6 +321,7 @@ public class WorldModel extends SimState {
 				.getGeometries().iterator();
 
 		this.neighborhoodBuildingMap = new TreeMap<Integer, List<Building>>();
+		this.regionResidentialMap = new TreeMap<Integer, List<Long>>();
 		this.buildings = new TreeMap<Long, Building>();
 		this.classrooms = new TreeMap<Long, Classroom>();
 		this.apartments = new TreeMap<Long, Apartment>();
@@ -328,6 +334,7 @@ public class WorldModel extends SimState {
 
 		long buildingId = 0;
 		int neighborhoodId = 0;
+		int regionId = 0;
 		int bType = 0;
 		int blockId = 0;
 		int blockGroupId = 0;
@@ -339,6 +346,7 @@ public class WorldModel extends SimState {
 			MasonGeometry geom = iter.next();
 
 			neighborhoodId = geom.getIntegerAttribute("neighbor");
+			regionId = geom.getIntegerAttribute("region");
 			buildingId = geom.getIntegerAttribute("id");
 			bType = geom.getIntegerAttribute("function");
 			degree = geom.getDoubleAttribute("degree");
@@ -348,6 +356,7 @@ public class WorldModel extends SimState {
 			place.setBuildingType(BuildingType.valueOf(bType));
 			place.setNeighborhoodId(neighborhoodId);
 			place.setAttractiveness(degree);
+			place.setRegionId(regionId);
 
 			List<Building> neighbors = null;
 			if (neighborhoodBuildingMap.containsKey(neighborhoodId)) {
@@ -356,6 +365,18 @@ public class WorldModel extends SimState {
 				neighbors = new ArrayList<Building>();
 				neighborhoodBuildingMap.put(neighborhoodId, neighbors);
 			}
+
+			if (BuildingType.valueOf(bType) == BuildingType.Residental){
+				List<Long> regionRes = null;
+				if (regionResidentialMap.containsKey(regionId)){
+					regionRes = regionResidentialMap.get(regionId);
+				} else {
+					regionRes = new ArrayList<Long>();
+					regionResidentialMap.put(regionId,regionRes);
+				}
+				regionRes.add(buildingId);
+			}
+
 
 			buildings.put(place.getId(), place);
 			neighbors.add(place);
@@ -367,6 +388,7 @@ public class WorldModel extends SimState {
 		// UNITS
 		Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap,
 				params.numOfAgents);
+		//Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap);
 		int nIndex = 0;
 
 		NeighborhoodComposition neighborhoodComposition;
@@ -395,7 +417,6 @@ public class WorldModel extends SimState {
 			neighborhoodComposition.calculate(numOfAgentsPerNeighborhood.get(nId));
 			// neighborhoodComposition.calculateConstant(numOfAgentsPerNeighborhood.get(nId));
 
-			logger.info("Neighborhood #" + nId);
 			logger.info("-------Buildings----------");
 			logger.info("Total number of buildings: "
 					+ numberOfNeighborhoodBuildings);
@@ -603,7 +624,50 @@ public class WorldModel extends SimState {
 					index %= units.size();
 				}
 			}
+			break;
 		}
+	}
+
+	private void initRegion(){
+		Iterator<MasonGeometry> iter = spatialNetwork.getRegionLayer()
+				.getGeometries().iterator();
+		this.regions = new TreeMap<Integer,Region>();
+		this.regionsIds = new ArrayList<Integer>();
+
+		int regionID;
+		int totalNumAgents = params.numOfAgents;
+		double percentage;
+		int countedAgents = 0;
+
+		while (iter.hasNext()) {
+			MasonGeometry geom = iter.next();
+
+			regionID = geom.getIntegerAttribute("ID");
+			percentage = geom.getDoubleAttribute("TotPop");
+			regionsIds.add(regionID);
+
+			int numAgents = (int)(percentage * totalNumAgents + 0.5);
+			if (countedAgents + numAgents > totalNumAgents) numAgents = totalNumAgents - countedAgents;
+			Region place = new Region(regionID, numAgents, params);
+
+			countedAgents += numAgents;
+
+			place.setIsHispanic(geom.getDoubleAttribute("Hispanic"));
+			place.setIsMale(geom.getDoubleAttribute("Male"));
+			place.setMedianHouseholdIncome(geom.getIntegerAttribute("MedIncome"));
+			place.setLocation(geom);
+
+			for (int i = 0; i < 10; i++) place.addAgeGroup(geom.getDoubleAttribute("AgeGroup"+i));
+			for (int i = 0; i < 5; i++) place.addEduLevel(geom.getDoubleAttribute("EduLevel"+i));
+			for (int i = 0; i < 7; i++) place.addRace(geom.getDoubleAttribute("Race"+i));
+
+			place.setDistribution();
+
+			regions.put(place.getRegionID(), place);
+		}
+
+
+
 	}
 
 	private void initVisualGraph() {
@@ -896,6 +960,8 @@ public class WorldModel extends SimState {
 		// add approx equal number of agents for each neighborhood.
 		Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap,
 				params.numOfAgents);
+		//Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap);
+
 		int nIndex = 0;
 		logger.info("Total number of agents: " + params.numOfAgents);
 
@@ -906,46 +972,67 @@ public class WorldModel extends SimState {
 			neighborhoodComposition.calculate(numOfAgentsPerNeighborhood.get(nId));
 			// neighborhoodComposition.calculateConstant(numOfAgentsPerNeighborhood.get(nId));
 
-			// create create family agents with kids
-			for (long i = 0; i < neighborhoodComposition
-					.getNumberOfFamilyAgentsWKids(); i++) {
-				addAgent(agentId++, nId, true, true, 3);
-			}
+			for (int rId : this.regions.keySet()) {
+				Region curRegion = regions.get(rId);
+				System.out.println("Number of agents in Region #" + rId + ": " + curRegion.getPopulation());
 
-			// create create family agents with no kid
-			for (long i = 0; i < neighborhoodComposition
-					.getNumberOfFamilyAgentsWOKids(); i++) {
-				addAgent(agentId++, nId, true, false, 2);
-			}
+				// create family agents with kids
+				for (long i = 0; i < curRegion.getNumberOfFamilyAgentsWKids(); i++) {
+					addAgent(agentId++, nId, true, true, 3, curRegion);
+				}
 
-			// create single agents
-			for (long i = 0; i < neighborhoodComposition
-					.getNumberOfSingleAgents(); i++) {
-				addAgent(agentId++, nId, false, false, 1);
+				// create family agents with no kid
+				for (long i = 0; i < curRegion.getNumberOfFamilyAgentsWOKids(); i++) {
+					addAgent(agentId++, nId, true, false, 2, curRegion);
+				}
+
+				// create single agents
+				for (long i = 0; i < curRegion.getNumberOfSingleAgents(); i++) {
+					addAgent(agentId++, nId, false, false, 1, curRegion);
+				}
+
 			}
 		}
 		// spatialNetwork.clearPrecomputedPaths();
 		logger.info("Human agents are added.");
+
+		logger.info("Number of Regions: "+regions.size());
+		for (Integer rid: regions.keySet()){
+			logger.info("-------Region "+rid+": "+regions.get(rid).getPopulation()+" Agents----------");
+			logger.info("# of "+regions.get(rid).getRace());
+			logger.info("# of "+regions.get(rid).getAgeGroup());
+			logger.info("# of "+regions.get(rid).getEduLevel());
+		}
 	}
 
 	private void addAgent(long agentId, int nId, boolean family, boolean kids,
-			int numOfPeople) {
+			int numOfPeople, Region region) {
 
 		Person agent = new Person(this, agentId);
 
 		AgentInitialization initialization = new AgentInitialization(this);
 		// initialize the agent
 
-		EducationLevel education = initialization.generateEducationLevel();
+		int agentAge = initialization.generateAgentAge(region);
+		EducationLevel education = initialization.generateEducationLevel(region);
+		Race race = initialization.generateAgentRace(region);
+		boolean isMale = initialization.isMale(region);
+		boolean isHispanic = initialization.isHispanic(region);
+		region.incrementInitiated();
+		logger.info(" Agent #"+agentId+" "+agentAge+" years old "+race.toString()+" "+education.toString());
+
 		// System.out.println("Education level: " + education);
 		double initialBalance = initialization
 				.generateInitialBalance(education);
 		double joviality = initialization.generateJovialityValue();
 
 		agent.setNeighborhoodId(nId);
-
 		agent.setAge(initialization.generateAgentAge());
 		agent.setEducationLevel(education);
+		agent.setRace(race);
+		agent.setGender(isMale);
+		agent.setHispanic(isHispanic);
+
 		agent.setInterest(initialization.getAgentInterest());
 		agent.getFoodNeed()
 				.setAppetite(initialization.generateAppetiteNumber());
@@ -978,7 +1065,7 @@ public class WorldModel extends SimState {
 
 		Stoppable stp = schedule.scheduleRepeating(agent);
 		agent.setStoppable(stp);
-		logger.info("Agent #" + agentId + " added.");
+		// logger.info("Agent #" + agentId + " added.");
 	}
 
 	/**
@@ -1004,6 +1091,15 @@ public class WorldModel extends SimState {
 		}
 		numberOfAgentsPerNeighborhood.put(nids[nids.length - 1],
 				numOfAgents - (neighborhoodBuildingMap.size() - 1) * apprxNumber);
+
+		return numberOfAgentsPerNeighborhood;
+	}
+
+	public Map<Integer, Integer> numberOfAgentsPerNeighborhood(Map<Integer, List<Building>> neighborhoodBuildingMap) {
+		Map<Integer, Integer> numberOfAgentsPerNeighborhood = new TreeMap<Integer, Integer>();
+		for (Integer rId : regions.keySet()){
+			numberOfAgentsPerNeighborhood.put(rId, regions.get(rId).getPopulation());
+		}
 
 		return numberOfAgentsPerNeighborhood;
 	}
@@ -1590,6 +1686,8 @@ public class WorldModel extends SimState {
 		return this.agents.get(id);
 	}
 
+	public Region getRegion(Integer id) {return  this.regions.get(id);}
+
 	public int getDay() {
 		return day;
 	}
@@ -1743,6 +1841,30 @@ public class WorldModel extends SimState {
 			}
 		});
 
+		dataCollector.addWatcher("Wearing Masks", new Collector() {
+			private static final long serialVersionUID = 311152044370201L;
+
+			public Double getData() {
+				long loggingInterval;
+
+				// percentage infectious agents
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_WEARING_MASKS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = (double) agents.values().stream()
+							.map(Person::isWearingMask)
+							.filter(p -> p).count()
+							* 100.0 / agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PERCENTAGE_OF_WEARING_MASKS,
+							value, schedule.getSteps());
+					quantitiesOfInterest.percentageWearingMasks = value;
+				}
+
+				return (double) quantitiesOfInterest.percentageWearingMasks;
+			}
+		});
 		// captures all Quantities of Interest
 //		dataCollector.addWatcher("QoIs", new Collector() {
 //			private static final long serialVersionUID = 311152044373854L;

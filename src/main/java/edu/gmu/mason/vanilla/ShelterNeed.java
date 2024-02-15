@@ -108,6 +108,7 @@ public class ShelterNeed implements Need, java.io.Serializable {
 
 	}
 
+	// TODO: Add region restriction
 	private Apartment searchApartmentBasedOnAgentCharacteristic(double maxMoneyForRental) {
 		// 1. Sociolus: closest apartment to the workplace
 		// 2. Balancus: cheapest empty apartment in the neighborhood of the

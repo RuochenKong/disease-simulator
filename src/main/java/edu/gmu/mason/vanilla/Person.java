@@ -66,20 +66,27 @@ public class Person implements Steppable, java.io.Serializable {
 	private long agentId;
 	@State
 	private int neighborhoodId;
+	@Characteristics
+	private int originRegionId; // Assigned while initiate
+	@Characteristics
+	private boolean isMale;
+	@Characteristics
+	private boolean isHispanic;
+	@Characteristics
+	private Race race;
+	@Characteristics
+	private EducationLevel educationLevel;
+	@State
+	private double age;
 
 	// public boolean isNeedle = false;
 
-	@State
-	private double age;
 	@State
 	private PersonMode currentMode;
 	@State
 	private BuildingUnit currentUnit;
 
 	private Family family;
-
-	@Characteristics
-	private EducationLevel educationLevel;
 
 	@Characteristics
 	private AgentInterest interest;
@@ -183,7 +190,21 @@ public class Person implements Steppable, java.io.Serializable {
 		this.infectiousDisease = new InfectiousDisease(this);
 		this.originLocation = null;
 
+		this.originRegionId = 0;
+
 	}
+
+	public boolean setOriginRegion(int regionId){
+		if (model.getRegion(regionId).isRegionFull()) return false;
+		this.originRegionId = regionId;
+		return true;
+	}
+
+	public void setRace(Race race){ this.race = race;}
+
+	public void setGender(boolean isMale){ this.isMale = isMale; }
+
+	public void setHispanic(boolean isHispanic) {this.isHispanic = isHispanic;}
 
 	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus, double c2spread, double cbinfected){
 
@@ -204,6 +225,7 @@ public class Person implements Steppable, java.io.Serializable {
 		return this.infectiousDisease.getStatus();
 	}
 
+	public boolean isWearingMask(){ return this.infectiousDisease.isWearingMasks(); }
 	public double getChanceBeInfected() {
 		return this.infectiousDisease.getChanceBeInfected();
 	}

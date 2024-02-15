@@ -163,7 +163,7 @@ public abstract class BuildingUnit implements java.io.Serializable {
 				if (times.get(0).isBefore(visit.getArrivalTime()) &&
 						(times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1)))){
 					Random rand = new Random();
-					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * 0.02){
+					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * agent.getModel().params.additionalDiseaseSpreadingParam){
 						agent.beenExposed(agent.getSimulationTime(), p.getAgentId());
 
 						/* DEBUGGER */

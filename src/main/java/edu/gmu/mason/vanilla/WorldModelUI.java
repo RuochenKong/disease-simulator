@@ -60,6 +60,9 @@ public class WorldModelUI extends ChartedGUIState {
 	// geography components
 	GeomVectorFieldPortrayal walkwayPortrayal = new GeomVectorFieldPortrayal();
 	GeomVectorFieldPortrayal buildingPortrayal = new GeomVectorFieldPortrayal();
+
+	GeomVectorFieldPortrayal regionPortrayal = new GeomVectorFieldPortrayal();
+
 	GeomVectorFieldPortrayal agentPortrayal = new GeomVectorFieldPortrayal();
 	SupplierHUD textPortrayal = new SupplierHUD();
 
@@ -150,6 +153,7 @@ public class WorldModelUI extends ChartedGUIState {
 
 		display.attach(walkwayPortrayal, "walkway", true);
 		display.attach(buildingPortrayal, "buildings", true);
+		display.attach(regionPortrayal, "regions", true);
 		display.attach(agentPortrayal, "agents", true);
 		display.attach(textPortrayal, "label");
 
@@ -209,6 +213,10 @@ public class WorldModelUI extends ChartedGUIState {
 
 	private void setupPortrayals() {
 		WorldModel model = (WorldModel) state;
+
+		regionPortrayal.setField(model.getSpatialNetwork().getRegionLayer());
+		regionPortrayal.setPortrayalForAll(new GeomPortrayal(new Color(248, 232, 238),
+				DEFAULT_SCALE, false));
 
 		walkwayPortrayal.setField(model.getSpatialNetwork().getWalkwayLayer());
 		walkwayPortrayal.setPortrayalForAll(new GeomPortrayal(Color.BLACK,

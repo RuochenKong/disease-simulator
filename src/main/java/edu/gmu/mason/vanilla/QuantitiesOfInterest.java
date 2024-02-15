@@ -29,6 +29,8 @@ public class QuantitiesOfInterest extends AnnotatedPropertied {
 	public static final String PERCENTAGE_OF_EXPOSED_AGENTS = "percentageExposed";
 	public static final String PERCENTAGE_OF_SUSCEPTIBLE_AGENTS = "percentageSusceptible";
 	public static final String PERCENTAGE_OF_RECOVERED_AGENTS = "percentageRecovered";
+	public static final String PERCENTAGE_OF_WEARING_MASKS = "percentageWearingMasks";
+
 
 	// in order to show QOI values in a tab of GUI and chart 
 	@EditableProperty(group = "Quantity of Interest", description = "Average social network degree", lower = "0.0", upper = "0.0", readOnly = true)
@@ -49,6 +51,9 @@ public class QuantitiesOfInterest extends AnnotatedPropertied {
 	public double percentageSusceptible;
 	@EditableProperty(group = "Quantity of Interest", description = "Percentage of Recovered agents", lower = "0.0", upper = "100.0", readOnly = true)
 	public double percentageRecovered;
+
+	@EditableProperty(group = "Quantity of Interest", description = "Percentage of Agents wearing masks", lower = "0.0", upper = "100.0", readOnly = true)
+	public double percentageWearingMasks;
 
 	// General logging objects
 	private Map<String, Map<Long, Double>> quantitiesOfInterestLogs;
@@ -93,6 +98,9 @@ public class QuantitiesOfInterest extends AnnotatedPropertied {
 
 		quantitiesOfInterestLogs.put(PERCENTAGE_OF_RECOVERED_AGENTS, new HashMap<Long, Double>());
 		loggingStepInterval.put(PERCENTAGE_OF_RECOVERED_AGENTS, (long) minutePerStep); // will be collected per step
+
+		quantitiesOfInterestLogs.put(PERCENTAGE_OF_WEARING_MASKS, new HashMap<Long, Double>());
+		loggingStepInterval.put(PERCENTAGE_OF_WEARING_MASKS, (long) minutePerStep); // will be collected per step
 	}
 
 	public void addValue(String key, Double value, Long step) {

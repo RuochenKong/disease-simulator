@@ -48,6 +48,13 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private double daysFromDose;
 
+    @State
+    private boolean wearingMasks;
+    @Skip
+    private double maskWearingLength;
+    @Skip
+    private int maskCheckTikCount;
+
     @Characteristics
     private double chanceToSpreat;
     @Characteristics
@@ -75,6 +82,29 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private PersonMode statusChangeCheckIn;
 
+    // HELPER FUNCTIONS
+    // Normal distribution in range [0,1], with mean = 0.5
+    private double randPositiveGaussian(){
+        double rand = agent.getModel().random.nextGaussian();
+        rand = (rand > 3) ? 3 : rand;
+        rand = (rand < -3) ? -3 : rand;
+        rand /= 6;
+        return rand;
+    }
+
+    // Shifted distribution with new mean and correspondingly new range
+    private double randPositiveGaussian(double mean){
+        if (mean == 1 || mean == 0) return mean;
+        double rand = this.randPositiveGaussian();
+        if (mean >  0.5){
+            double tmp = (mean - 0.5)/(1-mean);
+            rand = (rand + tmp)/(1+tmp);
+        } else if (mean < 0.5){
+            rand *= 2 * mean;
+        }
+        return rand;
+    }
+
     public InfectiousDisease(){
         this.agent = null;
         this.chanceToSpreat = 0.5;
@@ -91,6 +121,11 @@ public class InfectiousDisease implements java.io.Serializable {
         this.statusChangeTime = null;
         this.statusChangeLocation = null;
         this.statusChangeCheckIn = null;
+        this.wearingMasks = false;
+        this.maskWearingLength = 0;
+
+        Random rand = new Random();
+        this.maskCheckTikCount = rand.nextInt(15)-6;
     }
 
     public InfectiousDisease(Person p){
@@ -108,9 +143,8 @@ public class InfectiousDisease implements java.io.Serializable {
         this.normalAppetite = this.agent.getFoodNeed().getAppetite();
         this.normalSleepLength = this.agent.getSleepNeed().getSleepLengthInMinutes();
 
-
-        // Random rand = new Random();
         MersenneTwisterFast rand = agent.getModel().random;
+
         // Chance to be infected in range [0.3-0.7]
         this.chanceBeInfected = 0.3 + 0.4*rand.nextDouble();
 
@@ -154,13 +188,13 @@ public class InfectiousDisease implements java.io.Serializable {
 
         if (this.status == InfectionStatus.Susceptible)
             this.maxDaysInStatus = 0;
-        // Exposed for [3-14] days change to Infectious
+        // Exposed for [1-10] days change to Infectious
         if (this.status == InfectionStatus.Exposed)
-            this.maxDaysInStatus = rand.nextDouble() * 11 + 3;
-        // Infectious for [5-10] days change to Recovered,
+            this.maxDaysInStatus = rand.nextDouble() * 9 + 1;
+        // Infectious for [5-8] days change to Recovered,
         // Could bear at most [1-4] days of staying home
         if (this.status == InfectionStatus.Infectious){
-            this.maxDaysInStatus = rand.nextDouble() * 4 + 5;
+            this.maxDaysInStatus = rand.nextDouble() * 3 + 5;
             this.maxDaysQuarantined = rand.nextDouble() * 3 + 1;
             this.isReported = rand.nextDouble() < agent.getModel().params.reportingProbability;
 
@@ -222,7 +256,11 @@ public class InfectiousDisease implements java.io.Serializable {
     }
 
     public double getChanceBeInfected() {
-        if (this.status == InfectionStatus.Susceptible) return chanceBeInfected;
+        if (this.status == InfectionStatus.Susceptible){
+            if (!this.wearingMasks) return this.chanceBeInfected;
+            double effectivity = randPositiveGaussian(agent.getModel().params.avgMaskEffectivity);
+            return (1-effectivity) * this.chanceBeInfected;
+        }
         return 0;
     }
 
@@ -282,10 +320,12 @@ public class InfectiousDisease implements java.io.Serializable {
     private void incrementTikCounts(){
         String agentTime = agent.getModel().getSimulationTime().toString();
         if (agentTime.equals(currentTime)) return;
-        // DEBUGGER
+
+        /*  DEBUGGER
         System.out.println("[" + currentTime + "]:");
         System.out.println("\t Known Cases: "+numKnownCases);
         System.out.println("\t New Cases: "+numNewCases.toString());
+        */
 
         currentTime = agentTime;
         numNewCases.add(0);  // Add placeholder for new tik
@@ -297,6 +337,18 @@ public class InfectiousDisease implements java.io.Serializable {
 
     public void incrementDays(double tikMin){
         this.daysInStatus += tikMin/(24*60);
+        incrementTikCounts();
+
+        if (this.wearingMasks ){
+
+            if (randPositiveGaussian(0.65) < 0.5 && this.maskWearingLength>agent.getModel().params.minMaskWearingLength){
+                System.out.println("[Agent "+agent.getAgentId()+"] end wearing masks at time "+agent.getSimulationTime());
+                this.wearingMasks = false;
+                this.maskWearingLength = 0;
+            } else {
+                this.maskWearingLength += tikMin;
+            }
+        }
 
         if (!this.vaccineStatus.equals(VaccineStatus.Unvaccined)){
             this.daysFromDose += tikMin/(24*60);
@@ -331,7 +383,29 @@ public class InfectiousDisease implements java.io.Serializable {
             }
         }
 
-        incrementTikCounts();
+        if (this.status == InfectionStatus.Susceptible){
+            if ( maskCheckTikCount > 0){
+                this.maskCheckTikCount --;
+            } else {
+                if (!wearingMasks){
+                    double chanceWearingMask = this.getKnowCaseImpactParam();
+                    if (agent.getModel().random.nextDouble() < chanceWearingMask){
+
+                        System.out.println("[Agent "+agent.getAgentId()+"] start wearing masks "+agent.getSimulationTime());
+                        this.wearingMasks = true;
+                        this.maskCheckTikCount =12;
+                    }
+                  }
+            }
+        } else if (this.wearingMasks) {
+            this.wearingMasks = false;
+            this.maskWearingLength = 0;
+            this.maskCheckTikCount = 12;
+        }
+    }
+
+    public boolean isWearingMasks(){
+        return this.wearingMasks;
     }
 
     public boolean isReported() {
@@ -342,9 +416,11 @@ public class InfectiousDisease implements java.io.Serializable {
 
     public double getKnowCaseImpactParam(){
         int totalAgents = this.agent.getModel().params.numOfAgents;
+        double threshold = this.agent.getModel().params.maskWearingThreshold;
         double param = this.agent.getModel().params.knownCaseImpactParam;
-        return ((double)numKnownCases/(double)totalAgents) * param;
+        double percentageInfectious = (double)numKnownCases/(double)totalAgents;
+        if (percentageInfectious < threshold) return percentageInfectious/threshold*param;
+        return param;
     }
 
 }
-

@@ -50,6 +50,7 @@ import sim.util.geo.MasonGeometry;
 public class ReservedLogChannels implements Serializable {
 	public static final String LOG_ROOT_DIRECTORY_PROPERTY_NAME = "log.rootDirectory";
 	public static final String TEST_PROPERTY_NAME = "simulation.test";
+	public static final String DISEASE_FILE_PREFIX = "file.prefix";
 	private static final long serialVersionUID = 6956761501760484884L;
 	protected static final String DEFAULT_OUTPUT_TYPE = "File";
 	protected static final String DEFAULT_SUFFIX_TYPE = ".tsv";
@@ -112,10 +113,12 @@ public class ReservedLogChannels implements Serializable {
 
 		}
 		// If you want flexibility, add -Dsimulation.test=flexibility
-		if (whatTest != null && whatTest.equals("flexibility")) {
+		if (whatTest != null && whatTest.equals("disease")) {
+			String whatPre = System.getProperty(DISEASE_FILE_PREFIX);
+			if (whatPre == null) whatPre = "";
 			instance.putIfAbsent(Level.getLevel("MODEL1"), new Setting("InstanceVariableTable", "InstanceVariableTable", DEFAULT_OUTPUT_TYPE, "../../"));
 			instance.putIfAbsent(Level.getLevel("STAT7"), new Setting("SummaryStatisticsDataTable", "SummaryStatisticsDataTable", DEFAULT_OUTPUT_TYPE, ""));
-			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting("DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
+			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting(whatPre+"DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
 			return instance;
 		}
 		if (whatTest != null && whatTest.equals("qoi")) {
@@ -468,7 +471,7 @@ public class ReservedLogChannels implements Serializable {
 				{"EVT11", new LogSchedule(0, "EVT11", (Supplier & Serializable) () -> "step\tagentId\t[job]", textFormatter, 0)},
 				{"EVT11", new IterativeEventLogSchedule(0, 1, "EVT11", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingJob, eventFormatter, 1)},
 
-				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[DiseaseStatus,ByAgentID,Time,Location,CheckIn]", textFormatter, 0)},
+				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[diseaseStatus,byAgentID,time,location,checkin]", textFormatter, 0)},
 				{"EVT13", new IterativeEventLogSchedule(0, 1, "EVT13", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDisease, eventFormatter, 1)},
 
 				// For checkin
@@ -649,17 +652,18 @@ public class ReservedLogChannels implements Serializable {
 			for (Person p : model.getAgents()) {
 				EventList eventList = new EventList(p.getAgentId());
 				eventList.enableIndividualUpdateTime(false);
-				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getDiseaseStatus());
+				InfectiousDisease agentDisease = model.getAgent(p.getAgentId()).getInfectiousDisease();
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatus());
 				eventList.add((Supplier & Serializable) () -> {
-					long byAgent = model.getAgent(p.getAgentId()).getInfectiousDisease().getInfectedByAgentID();
-					if (byAgent == -1 || model.getAgent(p.getAgentId()).getDiseaseStatus() == InfectionStatus.Recovered
-					    || model.getAgent(p.getAgentId()).getDiseaseStatus() == InfectionStatus.Susceptible)
+					long byAgent = agentDisease.getInfectedByAgentID();
+					if (byAgent == -1 || agentDisease.getStatus() == InfectionStatus.Recovered
+					    || agentDisease.getStatus() == InfectionStatus.Susceptible)
 						return null;
 					return byAgent;
 				});
-				eventList.add((Supplier & Serializable) () -> model.getSimulationTime());
-				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getLocation());
-				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getCurrentMode());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeTime());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeLocation());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeCheckIn());
 				eventChangingDisease.add(eventList);
 			}
 		}
