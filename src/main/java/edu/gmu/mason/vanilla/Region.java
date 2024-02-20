@@ -217,7 +217,7 @@ public class Region {
 
     public String getGender(){
         StringBuilder res = new StringBuilder();
-        res.append("Male: "+numMale+", Female"+(population-numMale));
+        res.append("Male: "+numMale+", Female: "+(population-numMale));
         return res.toString();
     }
 
@@ -237,6 +237,16 @@ public class Region {
 
     public int getNumberOfFamilyAgentsWOKids() {
         return numberOfFamilyAgentsWOKids;
+    }
+
+    public void clearDistCollection(){
+        this.raceDist.clear();
+        this.educationLevelDist.clear();
+        this.ageGroupDist.clear();
+
+        this.raceDist = null;
+        this.ageGroupDist = null;
+        this.educationLevelDist = null;
     }
 
 }

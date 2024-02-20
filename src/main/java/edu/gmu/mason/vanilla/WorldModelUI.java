@@ -22,6 +22,7 @@ import edu.gmu.mason.vanilla.utils.ColorUtils;
 import edu.gmu.mason.vanilla.utils.SimulationEvent;
 import edu.gmu.mason.vanilla.utils.SupplierHUD;
 import edu.gmu.mason.vanilla.utils.DateTimeUtil;
+import scala.Int;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.engine.SimState;
@@ -303,6 +304,7 @@ public class WorldModelUI extends ChartedGUIState {
 //					paint = ColorUtils.getAgentHungerColorMap().get(mapid);
 //				}
 
+
 				if(person.getDiseaseStatus() == InfectionStatus.Susceptible){
 					paint = new Color(255, 255, 221);
 				} else if (person.getDiseaseStatus() == InfectionStatus.Exposed){
@@ -312,6 +314,27 @@ public class WorldModelUI extends ChartedGUIState {
 				} else {
 					paint = new Color(180,180,179);
 				}
+
+
+
+
+				/* DeBug
+				if(person.getOriginRegionId() ==  122){
+					paint = new Color(255, 255, 221);
+				} else if (person.getOriginRegionId() == 188){
+					paint = new Color(38,87,124);
+				} else if (person.getOriginRegionId() == 201){
+					paint = new Color(229,86,4);
+				}  else if (person.getOriginRegionId() == 260){
+					paint = new Color(22,86,4);
+				} else if (person.getOriginRegionId() == 158){
+					paint = new Color(221,236,4);
+				} else if (person.getOriginRegionId() == 113){
+					paint = new Color(229,86,145);
+				} else {
+					paint = Color.BLACK;
+				}
+*/
 
 				this.scale = DEFAULT_SCALE;
 

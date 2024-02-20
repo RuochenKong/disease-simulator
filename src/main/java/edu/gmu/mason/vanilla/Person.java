@@ -194,10 +194,8 @@ public class Person implements Steppable, java.io.Serializable {
 
 	}
 
-	public boolean setOriginRegion(int regionId){
-		if (model.getRegion(regionId).isRegionFull()) return false;
+	public void setOriginRegion(int regionId){
 		this.originRegionId = regionId;
-		return true;
 	}
 
 	public void setRace(Race race){ this.race = race;}
@@ -257,6 +255,11 @@ public class Person implements Steppable, java.io.Serializable {
 	public void beenExposed(LocalDateTime exposedTime, long agentId){
 		this.infectiousDisease.setStatus(agentId);
 	}
+
+	public int getOriginRegionId(){return this.originRegionId;}
+
+	public Region getOriginRegion(){return model.getRegion(this.originRegionId);}
+
 
 	public String getCurrentDiseaseStatus(){
 		String line = "[Agent "+agentId;

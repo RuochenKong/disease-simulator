@@ -168,6 +168,8 @@ public class WorldModel extends SimState {
 	private Map<Integer, Region> regions;
 	private List<Integer> regionsIds;
 	private Map<Integer, List<Long>> regionResidentialMap;
+
+	private Map<Integer, List<Long>> regionApartmentMap;
 	private List<BuildingUnit> buildingUnitsToSupply;
 
 	// social networks
@@ -322,6 +324,7 @@ public class WorldModel extends SimState {
 
 		this.neighborhoodBuildingMap = new TreeMap<Integer, List<Building>>();
 		this.regionResidentialMap = new TreeMap<Integer, List<Long>>();
+		this.regionApartmentMap = new TreeMap<Integer, List<Long>>();
 		this.buildings = new TreeMap<Long, Building>();
 		this.classrooms = new TreeMap<Long, Classroom>();
 		this.apartments = new TreeMap<Long, Apartment>();
@@ -506,6 +509,7 @@ public class WorldModel extends SimState {
 				apartment.setRentalCost(rent);
 
 				apartment.setBlockId(bld.getBlockId());
+				apartment.setRegionId(bld.getRegionID());
 				apartment.setBlockGroupId(bld.getBlockGroupId());
 				apartment.setCensusTractId(bld.getCensusTractId());
 
@@ -990,9 +994,10 @@ public class WorldModel extends SimState {
 				for (long i = 0; i < curRegion.getNumberOfSingleAgents(); i++) {
 					addAgent(agentId++, nId, false, false, 1, curRegion);
 				}
-
+				regions.get(rId).clearDistCollection();
 			}
 		}
+
 		// spatialNetwork.clearPrecomputedPaths();
 		logger.info("Human agents are added.");
 
@@ -1002,6 +1007,8 @@ public class WorldModel extends SimState {
 			logger.info("# of "+regions.get(rid).getRace());
 			logger.info("# of "+regions.get(rid).getAgeGroup());
 			logger.info("# of "+regions.get(rid).getEduLevel());
+			logger.info("# of "+regions.get(rid).getGender());
+			logger.info("# of "+regions.get(rid).getHispanic());
 		}
 	}
 
@@ -1019,13 +1026,16 @@ public class WorldModel extends SimState {
 		boolean isMale = initialization.isMale(region);
 		boolean isHispanic = initialization.isHispanic(region);
 		region.incrementInitiated();
-		logger.info(" Agent #"+agentId+" "+agentAge+" years old "+race.toString()+" "+education.toString());
+
+		String gender = (isMale) ? "Male" : "Female";
+		logger.info(" Agent #"+agentId+" "+agentAge+" years old "+gender+ " "+race.toString()+" "+education.toString());
 
 		// System.out.println("Education level: " + education);
 		double initialBalance = initialization
 				.generateInitialBalance(education);
 		double joviality = initialization.generateJovialityValue();
 
+		agent.setOriginRegion(region.getRegionID());
 		agent.setNeighborhoodId(nId);
 		agent.setAge(initialization.generateAgentAge());
 		agent.setEducationLevel(education);
@@ -1517,6 +1527,19 @@ public class WorldModel extends SimState {
 				.collect(Collectors.toList());
 	}
 
+
+	public List<Building> getUsableBuildings(int neighboodId,int regionId, BuildingType type) {
+		return this.buildings
+				.values()
+				.stream()
+				.filter(p -> p.getNeighborhoodId() == neighboodId
+						&& p.isUsable() == true
+						&& p.getBuildingType().equals(type)
+						&& p.getRegionID() == regionId)
+				.collect(Collectors.toList());
+	}
+
+
 	/**
 	 * Returns usable buildings.
 	 * 
@@ -1571,6 +1594,17 @@ public class WorldModel extends SimState {
 				.stream()
 				.filter(p -> p.isUsable() == true
 						&& p.getRemainingPersonCapacity() > 0)
+				.collect(Collectors.toList());
+	}
+
+
+	public List<Apartment> getUsableApartmentsWithAvailableCapacity(int regionId) {
+		return apartments
+				.values()
+				.stream()
+				.filter(p -> p.isUsable() == true
+						&& p.getRemainingPersonCapacity() > 0)
+				.filter(p -> p.getRegionId() == regionId)
 				.collect(Collectors.toList());
 	}
 
