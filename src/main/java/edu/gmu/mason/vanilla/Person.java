@@ -100,6 +100,12 @@ public class Person implements Steppable, java.io.Serializable {
 	private double jovialityBase;
 	@State
 	private InfectiousDisease infectiousDisease;
+
+	// reportingRates stored in order: (set as public to keep reaching it simple)
+	//   [AgeGroup, Race, Edu Level, Gender, Hispanic, Income, Region]
+	@State
+	public List<Double> reportingRates;
+
 	@Skip
 	private String originLocation;
 
@@ -191,8 +197,122 @@ public class Person implements Steppable, java.io.Serializable {
 		this.originLocation = null;
 
 		this.originRegionId = 0;
+		this.reportingRates = new ArrayList<>();
+		for (int i = 0; i < 7; i++) this.reportingRates.add(0.0);
 
 	}
+
+	public void setReportingRates(){
+		int ageGroupIdx = (int)Math.floor(age/5) - 3;
+		switch (ageGroupIdx){
+			case 0:
+				this.reportingRates.set(0,model.biasParams.rateOfAge15to19);
+				break;
+			case 1:
+				this.reportingRates.set(0,model.biasParams.rateOfAge20to24);
+				break;
+			case 2:
+				this.reportingRates.set(0,model.biasParams.rateOfAge25to29);
+				break;
+			case 3:
+				this.reportingRates.set(0,model.biasParams.rateOfAge30to34);
+				break;
+			case 4:
+				this.reportingRates.set(0,model.biasParams.rateOfAge35to39);
+				break;
+			case 5:
+				this.reportingRates.set(0,model.biasParams.rateOfAge40to44);
+				break;
+			case 6:
+				this.reportingRates.set(0,model.biasParams.rateOfAge45to49);
+				break;
+			case 7:
+				this.reportingRates.set(0,model.biasParams.rateOfAge50to54);
+				break;
+			case 8:
+				this.reportingRates.set(0,model.biasParams.rateOfAge55to59);
+				break;
+			default:
+				this.reportingRates.set(0,model.biasParams.rateOfAge60to64);
+				break;
+		}
+
+		int raceIdx = race.getValue();
+		switch (raceIdx){
+			case 0:
+				this.reportingRates.set(1,model.biasParams.rateOfWhiteOnly);
+				break;
+			case 1:
+				this.reportingRates.set(1,model.biasParams.rateOfBlackOnly);
+				break;
+			case 2:
+				this.reportingRates.set(1,model.biasParams.rateOfAmerIndianOnly);
+				break;
+			case 3:
+				this.reportingRates.set(1,model.biasParams.rateOfAsianOnly);
+				break;
+			case 4:
+				this.reportingRates.set(1,model.biasParams.rateOfPacIslandOnly);
+				break;
+			case 5:
+				this.reportingRates.set(1,model.biasParams.rateOfOtherRace);
+				break;
+			default:
+				this.reportingRates.set(1,model.biasParams.rateOfPlus2Races);
+				break;
+		}
+
+		int eduIdx = educationLevel.getValue();
+		switch (eduIdx){
+			case 0:
+				this.reportingRates.set(2,model.biasParams.rateOfLow);
+				break;
+			case 1:
+				this.reportingRates.set(2,model.biasParams.rateOfHighSchoolOrCollege);
+				break;
+			case 2:
+				this.reportingRates.set(2,model.biasParams.rateOfBachelors);
+				break;
+			default:
+				this.reportingRates.set(2,model.biasParams.rateOfGraduate);
+				break;
+		}
+
+		if(isMale){
+			this.reportingRates.set(3,model.biasParams.rateOfMale);
+		} else {
+			this.reportingRates.set(3,model.biasParams.rateOfFemale);
+		}
+
+		if(isHispanic){
+			this.reportingRates.set(4,model.biasParams.rateOfHispanic);
+		} else {
+			this.reportingRates.set(4,model.biasParams.rateOfNonHispanic);
+		}
+
+		double minIncome = model.params.minimumHourlyRate * model.params.workHoursPerDay * 21;
+		double maxIncome = model.params.maximumHourlyRate * model.params.workHoursPerDay * 30;
+		double Q2Income = (minIncome + maxIncome) / 2;
+		double Q1Income = (minIncome + Q2Income) / 2;
+		double Q3Income = (maxIncome + Q2Income) / 2;
+
+		if (this.financialSafetyNeed.projectedMonthlyIncome() < Q1Income){
+			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ1);
+		} else if (this.financialSafetyNeed.projectedMonthlyIncome() < Q2Income) {
+			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ2);
+		} else if (this.financialSafetyNeed.projectedMonthlyIncome() < Q3Income) {
+			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ3);
+		} else {
+			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ4);
+		}
+
+		if (this.getOriginRegion().getMedianIncome() < model.biasParams.annualIncomeThres){
+			this.reportingRates.set(6, model.biasParams.rateOfBelowThres);
+		} else {
+			this.reportingRates.set(6, model.biasParams.rateOfAboveThres);
+		}
+	}
+
 
 	public void setOriginRegion(int regionId){
 		this.originRegionId = regionId;

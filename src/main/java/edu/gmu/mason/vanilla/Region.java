@@ -10,11 +10,10 @@ import java.util.RandomAccess;
 
 public class Region {
 
-    private static int accuracy = 100;
-
-    private WorldParameters params;
+    private static final int accuracy = 100;
 
     private int regionID;
+    private double perPopulation;
     private int population;
 
     private int numberOfSingleAgents;
@@ -48,6 +47,7 @@ public class Region {
 
     public Region(){
         this.regionID = -1;
+        this.perPopulation = 0;
         this.population = 0;
 
         this.race = new ArrayList<>();
@@ -74,24 +74,35 @@ public class Region {
         rand = new Random(0);
     }
 
-    public Region(int id, int pop, WorldParameters params){
+    public Region(int id, double perPop){
         this();
         this.regionID = id;
-        this.population = pop;
-        this.params = params;
+        this.perPopulation = perPop;
+    }
 
-        double ratio = (double) pop / 1000;
-        double singleNum = params.numOfSingleAgentsPer1000 * ratio;
-        double familyWKidsNum = params.numOfFamilyAgentsWithKidsPer1000
+    public double getPerPopulation() {
+        return perPopulation;
+    }
+
+    public void setPopulation(int pop){
+        this.population = pop;
+    }
+
+    public void calNumAgents(int numOfSingleAgentsPer1000, int numOfFamilyAgentsWithKidsPer1000){
+
+        double ratio = (double) this.population / 1000;
+        double singleNum = numOfSingleAgentsPer1000 * ratio;
+        double familyWKidsNum = numOfFamilyAgentsWithKidsPer1000
                 * ratio;
 
         numberOfSingleAgents = Math.toIntExact(Math.round(singleNum));
         numberOfFamilyAgentsWKids = Math.toIntExact(Math.round(familyWKidsNum));
-        numberOfFamilyAgentsWOKids = pop - numberOfSingleAgents
+        numberOfFamilyAgentsWOKids = this.population - numberOfSingleAgents
                 - numberOfFamilyAgentsWKids;
 
         // System.out.println("Region "+id +" has "+population+" agents.");
     }
+
 
     public void addRace(double percentage){
         this.race.add(percentage);
@@ -183,9 +194,6 @@ public class Region {
     public void incrementInitiated(){
         this.initiatedAgent ++;
     }
-    public boolean isRegionFull(){
-        return this.initiatedAgent == this.population;
-    }
 
     public int getPopulation(){
         return this.population;
@@ -243,10 +251,11 @@ public class Region {
         this.raceDist.clear();
         this.educationLevelDist.clear();
         this.ageGroupDist.clear();
-
-        this.raceDist = null;
-        this.ageGroupDist = null;
-        this.educationLevelDist = null;
     }
 
+    public MasonGeometry getLocation() {return this.location;}
+
+    public int getMedianIncome() {
+        return this.medianHouseholdIncome;
+    }
 }

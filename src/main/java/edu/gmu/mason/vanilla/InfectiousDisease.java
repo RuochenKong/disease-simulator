@@ -8,6 +8,7 @@ import edu.gmu.mason.vanilla.log.State;
 import org.joda.time.LocalDateTime;
 import scala.None;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -72,6 +73,14 @@ public class InfectiousDisease implements java.io.Serializable {
     @Characteristics
     private int normalSleepLength;
 
+    // Biased Report
+    @State
+    private List<Boolean> biasedReported;
+    @Characteristics
+    private static final List<String> biasCategories= new ArrayList<>(Arrays.asList("AgeGroup", "Race", "EduLevel", "Gender", "Hispanic", "Income", "Region"));
+    @State
+    private String reportedCategories;
+
     // Logging info
     @Skip
     private long infectedByAgentID;
@@ -105,6 +114,11 @@ public class InfectiousDisease implements java.io.Serializable {
         return rand;
     }
 
+    private void resetBiasedReport(){
+        for (int i = 0 ; i < 7; i++) this.biasedReported.set(i, false);
+        this.reportedCategories = null;
+    }
+
     public InfectiousDisease(){
         this.agent = null;
         this.chanceToSpreat = 0.5;
@@ -123,9 +137,12 @@ public class InfectiousDisease implements java.io.Serializable {
         this.statusChangeCheckIn = null;
         this.wearingMasks = false;
         this.maskWearingLength = 0;
+        this.reportedCategories = null;
 
         Random rand = new Random();
         this.maskCheckTikCount = rand.nextInt(15)-6;
+        this.biasedReported = new ArrayList<>();
+        for (int i = 0; i < 7; i ++) biasedReported.add(false);
     }
 
     public InfectiousDisease(Person p){
@@ -135,8 +152,9 @@ public class InfectiousDisease implements java.io.Serializable {
             int numAgents = p.getModel().params.numOfAgents;
             remainNumOfInitInfect = (int) (infectPer * numAgents);
             numTikDelay = p.getModel().params.numTikDelay;
-            numNewCases.add(0);
             currentTime = p.getModel().params.initialSimulationTime.toString();
+
+            numNewCases.add(0);
         }
 
         this.agent = p;
@@ -188,15 +206,29 @@ public class InfectiousDisease implements java.io.Serializable {
 
         if (this.status == InfectionStatus.Susceptible)
             this.maxDaysInStatus = 0;
-        // Exposed for [1-10] days change to Infectious
+        // Exposed for [1-5] days change to Infectious
         if (this.status == InfectionStatus.Exposed)
-            this.maxDaysInStatus = rand.nextDouble() * 9 + 1;
+            this.maxDaysInStatus = rand.nextDouble() * 4 + 1;
         // Infectious for [5-8] days change to Recovered,
         // Could bear at most [1-4] days of staying home
         if (this.status == InfectionStatus.Infectious){
             this.maxDaysInStatus = rand.nextDouble() * 3 + 5;
             this.maxDaysQuarantined = rand.nextDouble() * 3 + 1;
-            this.isReported = rand.nextDouble() < agent.getModel().params.reportingProbability;
+
+            this.isReported = calReport();
+
+            this.agent.setReportingRates(); // Set Biased Reporting Rate
+            // Get reporting
+            StringBuilder strBuilder = new StringBuilder("");
+            for (int i = 0; i < 7; i++){
+                if (rand.nextDouble() < this.agent.reportingRates.get(i)){
+                    this.biasedReported.set(i, true);
+                    strBuilder.append("/");
+                    strBuilder.append(biasCategories.get(i));
+                }
+            }
+            this.reportedCategories = strBuilder.toString();
+            this.reportedCategories = (this.reportedCategories.length() <= 1) ? null : this.reportedCategories.substring(1);
 
             // Increment the count at the newest tik
             if (this.isReported) numNewCases.set(numNewCases.size() - 1, numNewCases.get(numNewCases.size() - 1) + 1);
@@ -205,6 +237,13 @@ public class InfectiousDisease implements java.io.Serializable {
         // Recovered for [1-6] months change to Susceptible
         if (this.status == InfectionStatus.Recovered)
             this.maxDaysInStatus = rand.nextDouble() * 150 + 30;
+    }
+
+    public boolean calReport(){
+        boolean report;
+        Random rand = new Random();
+        report =  rand.nextDouble() < agent.getModel().params.reportingProbability;
+        return report;
     }
 
     // For zero patients
@@ -317,6 +356,10 @@ public class InfectiousDisease implements java.io.Serializable {
         return this.statusChangeCheckIn;
     }
 
+    public String getReportedCategories(){
+        return this.reportedCategories;
+    }
+
     private void incrementTikCounts(){
         String agentTime = agent.getModel().getSimulationTime().toString();
         if (agentTime.equals(currentTime)) return;
@@ -365,6 +408,7 @@ public class InfectiousDisease implements java.io.Serializable {
             setStatus(InfectionStatus.Recovered);
             this.daysQuarantined = -1;
             this.isReported = false;
+            resetBiasedReport();
         }
 
         // Recovered for [3-6] months change to Susceptible

@@ -99,6 +99,7 @@ import edu.gmu.mason.vanilla.utils.SimulationTimeStepSetting;
 import edu.gmu.mason.vanilla.utils.StringUtils;
 import edu.gmu.mason.vanilla.utils.DateTimeUtil;
 import edu.gmu.mason.vanilla.utils.EventSchedule;
+import scala.Int;
 import sim.engine.MakesSimState;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -126,6 +127,7 @@ public class WorldModel extends SimState {
 
 	// a public reference to simulation parameters
 	public WorldParameters params;
+	public WorldBiasParameters biasParams;
 
 	private static final long serialVersionUID = -7358991191225853449L;
 
@@ -201,6 +203,7 @@ public class WorldModel extends SimState {
 	private Object[][] latestBarStatsData = { { 1, Color.BLACK, Color.BLACK,
 			Color.BLACK, 0.00, 0.0, 0 } };
 
+	/*
 	public WorldModel(long seed, WorldParameters params) throws IOException,
 			Exception {
 		super(seed);
@@ -211,7 +214,30 @@ public class WorldModel extends SimState {
 		timeUtil.addEventTime(SimulationEvent.SimulationStart, new DateTime());
 		simulationSeed = seed;
 		spatialNetwork.loadMapLayers(params.maps, "walkways.shp",
-				"buildings_region1.shp", "buildingUnits.shp", params.regions);
+				"buildings.shp", "buildingUnits.shp", params.regions);
+
+		initRegion();
+		initPlaces();
+		GeoUtils.alignMBRs(spatialNetwork.getAllLayers());
+
+		initVisualGraph();
+		reservedLog = new ReservedLogChannels(this);
+		startDataCollectionForQoIs();
+	}
+	*/
+
+	public WorldModel(long seed, WorldParameters params, WorldBiasParameters biasParameters) throws IOException,
+			Exception {
+		super(seed);
+		manipulationScheduler = new MasterScheduler<Manipulation>();
+		logScheduler = new MasterScheduler<LogSchedule>();
+		eventScheduler = new MasterScheduler<EventSchedule>();
+		this.params = params;
+		this.biasParams = biasParameters;
+		timeUtil.addEventTime(SimulationEvent.SimulationStart, new DateTime());
+		simulationSeed = seed;
+		spatialNetwork.loadMapLayers(params.maps, "walkways.shp",
+				"buildings.shp", "buildingUnits.shp", params.regions);
 
 		initRegion();
 		initPlaces();
@@ -349,7 +375,11 @@ public class WorldModel extends SimState {
 			MasonGeometry geom = iter.next();
 
 			neighborhoodId = geom.getIntegerAttribute("neighbor");
-			regionId = geom.getIntegerAttribute("region");
+			try{
+				regionId = geom.getIntegerAttribute("region");
+			} catch (Exception e){
+				regionId = -1;
+			}
 			buildingId = geom.getIntegerAttribute("id");
 			bType = geom.getIntegerAttribute("function");
 			degree = geom.getDoubleAttribute("degree");
@@ -359,6 +389,43 @@ public class WorldModel extends SimState {
 			place.setBuildingType(BuildingType.valueOf(bType));
 			place.setNeighborhoodId(neighborhoodId);
 			place.setAttractiveness(degree);
+
+			// Entirely covered
+			if (regionId == -1) {
+				for (Integer rId : regions.keySet()) {
+					Region region = regions.get(rId);
+					if (region.getLocation().geometry.covers(geom.geometry)) {
+						regionId = rId;
+						break;
+					}
+				}
+			}
+
+			// At the boundary
+			if (regionId == -1){
+				for (Integer rId: regions.keySet()){
+					Region region = regions.get(rId);
+					if (region.getLocation().geometry.intersects(geom.geometry)){
+						regionId = rId;
+						break;
+					}
+				}
+			}
+
+			// A little outside
+			if (regionId == -1){
+
+				// Find the nearest region
+				double distance = Double.POSITIVE_INFINITY;
+				for (Integer rId: regions.keySet()){
+					Region region = regions.get(rId);
+					if (distance > region.getLocation().geometry.distance(geom.geometry)){
+						regionId = rId;
+						distance = region.getLocation().geometry.distance(geom.geometry);
+					}
+				}
+			}
+
 			place.setRegionId(regionId);
 
 			List<Building> neighbors = null;
@@ -646,15 +713,11 @@ public class WorldModel extends SimState {
 		while (iter.hasNext()) {
 			MasonGeometry geom = iter.next();
 
-			regionID = geom.getIntegerAttribute("ID");
+			regionID = geom.getIntegerAttribute("id");
 			percentage = geom.getDoubleAttribute("TotPop");
 			regionsIds.add(regionID);
 
-			int numAgents = (int)(percentage * totalNumAgents + 0.5);
-			if (countedAgents + numAgents > totalNumAgents) numAgents = totalNumAgents - countedAgents;
-			Region place = new Region(regionID, numAgents, params);
-
-			countedAgents += numAgents;
+			Region place = new Region(regionID, percentage);
 
 			place.setIsHispanic(geom.getDoubleAttribute("Hispanic"));
 			place.setIsMale(geom.getDoubleAttribute("Male"));
@@ -665,7 +728,6 @@ public class WorldModel extends SimState {
 			for (int i = 0; i < 5; i++) place.addEduLevel(geom.getDoubleAttribute("EduLevel"+i));
 			for (int i = 0; i < 7; i++) place.addRace(geom.getDoubleAttribute("Race"+i));
 
-			place.setDistribution();
 
 			regions.put(place.getRegionID(), place);
 		}
@@ -969,6 +1031,8 @@ public class WorldModel extends SimState {
 		int nIndex = 0;
 		logger.info("Total number of agents: " + params.numOfAgents);
 
+		int agentCount = params.numOfAgents;
+		int targetNumAgent = params.numOfAgents;
 		for (int nId : this.neighborhoodBuildingMap.keySet()) {
 			System.out.println("Number of agents in neighborhood #" + nId + ": " + numOfAgentsPerNeighborhood.get(nId));
 
@@ -978,7 +1042,15 @@ public class WorldModel extends SimState {
 
 			for (int rId : this.regions.keySet()) {
 				Region curRegion = regions.get(rId);
-				System.out.println("Number of agents in Region #" + rId + ": " + curRegion.getPopulation());
+				curRegion.setDistribution();
+
+				int numAgentInRegion = (int)(curRegion.getPerPopulation() * targetNumAgent + 0.5);
+				if (agentCount - numAgentInRegion < 0) numAgentInRegion = agentCount;
+				agentCount -= numAgentInRegion;
+				curRegion.setPopulation(numAgentInRegion);
+				curRegion.calNumAgents(params.numOfSingleAgentsPer1000, params.numOfFamilyAgentsWithKidsPer1000);
+
+				logger.info("Number of agents in Region #" + rId + ": " + curRegion.getPopulation());
 
 				// create family agents with kids
 				for (long i = 0; i < curRegion.getNumberOfFamilyAgentsWKids(); i++) {
@@ -2079,9 +2151,17 @@ public class WorldModel extends SimState {
 					if (configurationPath != null) {
 						params = new WorldParameters(configurationPath);
 					}
+
+					String biasConfigPath = argumentForKey("-bias.config",
+							args);
+					WorldBiasParameters biasParameters = new WorldBiasParameters();
+					if (biasConfigPath!= null) {
+						biasParameters = new WorldBiasParameters(biasConfigPath);
+					}
+
 					return (SimState) (c.getConstructor(new Class[] {
-							Long.TYPE, WorldParameters.class }).newInstance(new Object[] {
-									Long.valueOf(params.seed), params }));
+							Long.TYPE, WorldParameters.class, WorldBiasParameters.class }).newInstance(new Object[] {
+									Long.valueOf(params.seed), params , biasParameters}));
 				} catch (Exception e) {
 					throw new RuntimeException(
 							"Exception occurred while trying to construct the simulation "

@@ -88,6 +88,8 @@ public class ReservedLogChannels implements Serializable {
 	protected Collection<EventList> eventMovingHome;
 	protected Collection<EventList> eventChangingJob;
 	protected Collection<EventList> eventChangingDisease;
+	protected Collection<EventList> eventBiasDiseaseReporting;
+
 	protected WorldModel model;
 	
 	private static ConcurrentMap<Level, Setting> init()
@@ -97,30 +99,36 @@ public class ReservedLogChannels implements Serializable {
 		
 		String whatTest = System.getProperty(TEST_PROPERTY_NAME);
 		
-		
 		// if you want to disable all logging, add -Dsimulation.test=non
 		if (whatTest != null && whatTest.equals("non")) {
 			return instance;
 		}
+
 		// system level logging
-		instance.putIfAbsent(Level.getLevel("INFO"), new Setting("pattenrs_of_life","info level logging", "RollingFile", DEFAULT_DIRECTORY, ".log"));
+		String whatPre = System.getProperty(DISEASE_FILE_PREFIX);
+		if (whatPre == null) whatPre = "";
+		instance.putIfAbsent(Level.getLevel("INFO"), new Setting(whatPre+"patterns_of_life","info level logging", "RollingFile", DEFAULT_DIRECTORY, ".log"));
 		// if you want to test the minimal logging, add -Dsimulation.test=minimal
 		if (whatTest != null && whatTest.equals("min")) {
 		    // instance.putIfAbsent(Level.getLevel("AGENT"), new Setting("AgentStateTable","AgentStates","RollingFile"));
 			instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
 			instance.putIfAbsent(Level.getLevel("AGENT5"), new Setting("Checkin", "Checkin", "RollingFile"));
 			return instance;
-
 		}
+
 		// If you want flexibility, add -Dsimulation.test=flexibility
 		if (whatTest != null && whatTest.equals("disease")) {
-			String whatPre = System.getProperty(DISEASE_FILE_PREFIX);
-			if (whatPre == null) whatPre = "";
 			instance.putIfAbsent(Level.getLevel("MODEL1"), new Setting("InstanceVariableTable", "InstanceVariableTable", DEFAULT_OUTPUT_TYPE, "../../"));
 			instance.putIfAbsent(Level.getLevel("STAT7"), new Setting("SummaryStatisticsDataTable", "SummaryStatisticsDataTable", DEFAULT_OUTPUT_TYPE, ""));
 			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting(whatPre+"DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
 			return instance;
 		}
+
+		if (whatTest != null && whatTest.equals("bias")){
+			instance.putIfAbsent(Level.getLevel("EVT14"), new Setting(whatPre+"DiseaseStatus","DiseaseStatus"));
+			return instance;
+		}
+
 		if (whatTest != null && whatTest.equals("qoi")) {
 			instance.putIfAbsent(Level.getLevel("STAT1"), new Setting("QOI1Table","QOI1", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("STAT2"), new Setting("QOI2Table","QOI2", DEFAULT_OUTPUT_TYPE, "qois/"));
@@ -474,6 +482,9 @@ public class ReservedLogChannels implements Serializable {
 				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[diseaseStatus,byAgentID,time,location,checkin]", textFormatter, 0)},
 				{"EVT13", new IterativeEventLogSchedule(0, 1, "EVT13", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDisease, eventFormatter, 1)},
 
+				{"EVT14", new LogSchedule(0, "EVT14", (Supplier & Serializable) () -> "step\tagentId\t[resRegion,diseaseStatus,byAgentID,time,location,checkin,biasReportingCond]", textFormatter, 0)},
+				{"EVT14", new IterativeEventLogSchedule(0, 1, "EVT14", (Supplier<Collection<EventList>> & Serializable) () -> eventBiasDiseaseReporting, eventFormatter, 1)},
+
 				// For checkin
 				{"AGENT5", new LogSchedule(0, "AGENT5", (Supplier & Serializable) () -> schema.CheckinDataset.CheckinTable, checkinTableSchema, 0)},
 				{"AGENT5", new IterativeLogSchedule(1, 1, "AGENT5", (Supplier & Serializable) () -> model.getAgentsCheckin(), checkinData, 1)},
@@ -666,6 +677,33 @@ public class ReservedLogChannels implements Serializable {
 				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeCheckIn());
 				eventChangingDisease.add(eventList);
 			}
+		}
+
+		if (eventBiasDiseaseReporting == null){
+			eventBiasDiseaseReporting = new ArrayList<>();
+
+			// step	agentId	[resRegion,diseaseStatus,byAgentID,time,location,checkin,biasReportingCond]
+			for (Person p : model.getAgents()) {
+				EventList eventList = new EventList(p.getAgentId());
+				eventList.enableIndividualUpdateTime(false);
+				eventList.add((Supplier & Serializable) () -> p.getOriginRegionId());
+
+				InfectiousDisease agentDisease = model.getAgent(p.getAgentId()).getInfectiousDisease();
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatus());
+				eventList.add((Supplier & Serializable) () -> {
+					long byAgent = agentDisease.getInfectedByAgentID();
+					if (byAgent == -1 || agentDisease.getStatus() == InfectionStatus.Recovered
+							|| agentDisease.getStatus() == InfectionStatus.Susceptible)
+						return null;
+					return byAgent;
+				});
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeTime());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeLocation());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeCheckIn());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getReportedCategories());
+				eventBiasDiseaseReporting.add(eventList);
+			}
+
 		}
 
 		exclusion = new Exclusion(Building.class, WorldModel.class);

@@ -24,4 +24,8 @@ public enum Race {
 		}
 		return null;
 	}
+
+	public int getValue() {
+		return this.index;
+	}
 }

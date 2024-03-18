@@ -73,8 +73,8 @@ public class WorldModelUI extends ChartedGUIState {
 		super(state);
 	}
 
-	public WorldModelUI(WorldParameters params) throws IOException, Exception {
-		super(new WorldModel(params.seed, params));
+	public WorldModelUI(WorldParameters params, WorldBiasParameters biasParameters) throws IOException, Exception {
+		super(new WorldModel(params.seed, params, biasParameters));
 	}
 
 	public static String getName() {
@@ -128,6 +128,8 @@ public class WorldModelUI extends ChartedGUIState {
 
 		insp.addInspector(new TitledSimpleInspector(
 				((WorldModel) state).params, this, null), "Parameters");
+		insp.addInspector(new TitledSimpleInspector(
+				((WorldModel) state).biasParams, this, null), "Reporting Bias parameters");
 		insp.addInspector(new TitledSimpleInspector(
 				((WorldModel) state).getQuantitiesOfInterest(), this, null), "QOI");
 		return insp;
@@ -304,7 +306,6 @@ public class WorldModelUI extends ChartedGUIState {
 //					paint = ColorUtils.getAgentHungerColorMap().get(mapid);
 //				}
 
-
 				if(person.getDiseaseStatus() == InfectionStatus.Susceptible){
 					paint = new Color(255, 255, 221);
 				} else if (person.getDiseaseStatus() == InfectionStatus.Exposed){
@@ -314,9 +315,6 @@ public class WorldModelUI extends ChartedGUIState {
 				} else {
 					paint = new Color(180,180,179);
 				}
-
-
-
 
 				/* DeBug
 				if(person.getOriginRegionId() ==  122){
@@ -334,8 +332,8 @@ public class WorldModelUI extends ChartedGUIState {
 				} else {
 					paint = Color.BLACK;
 				}
-*/
 
+				 */
 				this.scale = DEFAULT_SCALE;
 
 				super.draw(object, graphics, info);
@@ -370,7 +368,22 @@ public class WorldModelUI extends ChartedGUIState {
 				System.err.println("WARNING: Counld not find a configuration file:"
 						+ WorldParameters.DEFAULT_PROPERTY_FILE_NAME + ". A new configuration file is generated.");
 			}
-			new WorldModelUI(params).createController();
+
+			WorldBiasParameters biasParameters = null;
+			try {
+				String configurationPath = WorldModel.argumentForKey("-bias.config", args);
+				if(configurationPath==null) {
+					configurationPath =  WorldBiasParameters.DEFAULT_BIAS_FILE_NAME;
+				}
+				biasParameters = new WorldBiasParameters(configurationPath);
+			} catch (ConfigurationException e) {
+				biasParameters = new WorldBiasParameters();
+				biasParameters.store( WorldBiasParameters.DEFAULT_BIAS_FILE_NAME);
+				System.err.println("WARNING: Counld not find a bias configuration file:"
+						+  WorldBiasParameters.DEFAULT_BIAS_FILE_NAME + ". A new configuration file is generated.");
+			}
+
+			new WorldModelUI(params, biasParameters).createController();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
