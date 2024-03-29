@@ -32,7 +32,7 @@ public class WorldParameters extends AnnotatedPropertied {
 	private static final long serialVersionUID = 3872954334021542511L;
 
 	// CONSTANTS
-	public static final String DEFAULT_PROPERTY_FILE_NAME = "parameters.properties";
+	public static final String DEFAULT_PROPERTY_FILE_NAME = "atlanta.properties";
 
 	// SIMULATION
 	public static final long SEED = 1;
