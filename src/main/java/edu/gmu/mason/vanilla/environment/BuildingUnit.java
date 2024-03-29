@@ -45,6 +45,10 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	private int blockGroupId;
 	@Characteristics
 	private int censusTractId;
+
+	@Characteristics
+	private int regionId;
+
 	@State
 	private int numOfAgents;
 
@@ -160,10 +164,11 @@ public abstract class BuildingUnit implements java.io.Serializable {
 			for (Person p : infectedAgents.keySet()){
 				ArrayList<LocalDateTime> times = infectedAgents.get(p);
 				Visit visit = visitMap.get(agent.getAgentId());
+				if (visit == null) continue;
 				if (times.get(0).isBefore(visit.getArrivalTime()) &&
 						(times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1)))){
 					Random rand = new Random();
-					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * 0.02){
+					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * agent.getModel().params.additionalDiseaseSpreadingParam){
 						agent.beenExposed(agent.getSimulationTime(), p.getAgentId());
 
 						/* DEBUGGER */
@@ -334,5 +339,9 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	public void resetNearestRestaurantDistanceMap() {
 		nearestRestaurantCostMap = null;
 	}
+
+	public void setRegionId(int rId){ this.regionId = rId;}
+
+	public int getRegionId() {return this.regionId;}
 
 }

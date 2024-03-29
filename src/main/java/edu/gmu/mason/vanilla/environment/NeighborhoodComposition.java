@@ -41,6 +41,7 @@ public class NeighborhoodComposition {
 
 	private static Map<EducationLevel, Double> mapPayScale = new HashMap<EducationLevel, Double>() {
 		{
+			//put(EducationLevel.Unknown, PAY_SCALE_LOW);
 			put(EducationLevel.Low, PAY_SCALE_LOW);
 			put(EducationLevel.HighSchoolOrCollege, PAY_SCALE_HS_COLLEGE);
 			put(EducationLevel.Bachelors, PAY_SCALE_BACHELORS);
@@ -83,6 +84,7 @@ public class NeighborhoodComposition {
 
 		double schoolLowerBound = ratio * 0.2;
 		double schoolUpperBound = ratio * 1.0;
+		if (schoolLowerBound == schoolUpperBound) schoolUpperBound ++;
 		UniformRealDistribution uRNG = new UniformRealDistribution(rng,
 				schoolLowerBound, schoolUpperBound);
 
@@ -149,12 +151,12 @@ public class NeighborhoodComposition {
 	public long getRandomBuildingId(List<Building> buildings, BuildingType type) {
 		List<Long> ids = new ArrayList<Long>();
 
+
 		for (Building b : buildings) {
 			if (b.getBuildingType().equals(type)) {
 				ids.add(b.getId());
 			}
 		}
-
 		UniformIntegerDistribution uRNG = new UniformIntegerDistribution(rng,
 				0, ids.size() - 1);
 

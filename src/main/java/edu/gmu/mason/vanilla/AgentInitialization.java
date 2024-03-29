@@ -5,6 +5,10 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 import edu.gmu.mason.vanilla.environment.NeighborhoodComposition;
 import edu.gmu.mason.vanilla.utils.MersenneTwisterWrapper;
+import scala.util.Random;
+import sim.app.lsystem.LSystem;
+
+
 
 /**
  * General description_________________________________________________________
@@ -33,13 +37,6 @@ public class AgentInitialization {
 				* NeighborhoodComposition.getPayScale(level);
 	}
 
-	public int generateAgentAge() {
-		UniformIntegerDistribution uRNG = new UniformIntegerDistribution(rng,
-				params.additionalAgentAgeMin, params.additionalAgentAgeMax);
-
-		return params.baseAgentAge + uRNG.sample();
-	}
-
 	public AgentInterest getAgentInterest() {
 		UniformIntegerDistribution uRNG = new UniformIntegerDistribution(rng,
 				1, params.numOfAgentInterests);
@@ -65,6 +62,14 @@ public class AgentInitialization {
 		return uRNG.sample();
 	}
 
+	// Random Assigned Attributes
+	public int generateAgentAge() {
+		UniformIntegerDistribution uRNG = new UniformIntegerDistribution(rng,
+				params.additionalAgentAgeMin, params.additionalAgentAgeMax);
+
+		return params.baseAgentAge + uRNG.sample();
+	}
+
 	public EducationLevel generateEducationLevel() {
 		UniformRealDistribution uRNG = new UniformRealDistribution(rng, 0.0,
 				params.EDUCATION_REQ_GRADUATE);
@@ -80,5 +85,42 @@ public class AgentInitialization {
 			return EducationLevel.Graduate;
 		}
 		return EducationLevel.Unknown;
+	}
+
+
+	// Census Data Based assigning attributes
+	public int generateAgentAge(Region region) {
+		AgeGroup ageGroup = region.newAgeGroupAssigned();
+		int minAge = 15 + ageGroup.index * 5;
+		UniformIntegerDistribution uRNG = new UniformIntegerDistribution(rng, minAge, minAge+4);
+		return uRNG.sample();
+	}
+
+	public Race generateAgentRace(Region region){
+		return region.newRaceAssigned();
+	}
+
+	public EducationLevel generateEducationLevel(Region region){
+		return region.newEduLevelAssigned();
+	}
+
+	public int generateAgentHHCensusIncome(Region region){
+		return region.newIncomeAssigned();
+	}
+
+	public int generateAgentIndivCensusIncome(Region region){
+		return region.newIndivIncomeAssigned();
+	}
+
+	public boolean isMale(Region region){
+		return region.newGender();
+	}
+
+	public boolean isHispanic(Region region){
+		return region.newHispanic();
+	}
+
+	public boolean inProvince(Region region){
+		return region.newInProvince();
 	}
 }

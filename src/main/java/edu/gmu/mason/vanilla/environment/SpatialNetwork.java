@@ -51,6 +51,9 @@ public class SpatialNetwork implements java.io.Serializable {
 	private GeomVectorField walkwayLayer;
 	private GeomVectorField buildingLayer;
 	private GeomVectorField buildingUnitLayer;
+
+	private GeomVectorField regionLayer;
+
 	private GeomVectorField bombLayer;
 	private Map<Integer, List<MasonGeometry>> buildingUnitTable;
 	private Map<MultiKey, MasonGeometry> nearestJunctionTable;
@@ -60,6 +63,7 @@ public class SpatialNetwork implements java.io.Serializable {
 		walkwayLayer = new GeomVectorField(width, height);
 		buildingLayer = new GeomVectorField(width, height);
 		buildingUnitLayer = new GeomVectorField(width, height);
+		regionLayer = new GeomVectorField(width, height);
 		buildingUnitTable = new HashMap<Integer, List<MasonGeometry>>();
 		nearestJunctionTable = new HashMap<MultiKey, MasonGeometry>();
 		walkwayNetwork = new GeomPlanarGraph();
@@ -129,7 +133,7 @@ public class SpatialNetwork implements java.io.Serializable {
 
 	// Movement/Geography-related methods
 	public void loadMapLayers(String directory, String walkwayShapefile,
-			String buildingShapefile, String buildingUnitShapefile)
+			String buildingShapefile, String buildingUnitShapefile, String regionfile)
 					throws IOException, Exception {
 		URL codeBase = WorldModel.class.getProtectionDomain().getCodeSource()
 				.getLocation();
@@ -156,6 +160,14 @@ public class SpatialNetwork implements java.io.Serializable {
 			System.out.println(geometry);
 			ShapeFileImporter.read(geometry, buildingUnitLayer);
 
+			if (regionfile != null){
+				String regionPath = base + "/" + directory + "/" + regionfile;
+				geometry = Paths.get(regionPath).toUri().toURL();
+				System.out.println(geometry);
+				ShapeFileImporter.read(geometry, regionLayer);
+			}
+
+
 		} else {
 			// walkway map
 			URL geometry = WorldModel.class.getResource("/" + directory + "/" + walkwayShapefile);
@@ -166,6 +178,12 @@ public class SpatialNetwork implements java.io.Serializable {
 
 			geometry = WorldModel.class.getResource("/" + directory + "/" + buildingUnitShapefile);
 			ShapeFileImporter.read(geometry, buildingUnitLayer);
+
+			if (regionfile != null){
+				geometry = WorldModel.class.getResource("/" + directory + "/" + regionfile);
+				ShapeFileImporter.read(geometry, regionLayer);
+			}
+
 
 		}
 
@@ -369,6 +387,7 @@ public class SpatialNetwork implements java.io.Serializable {
 		layers.add(walkwayLayer);
 		// layers.add(agentLayer);
 		layers.add(buildingLayer);
+		layers.add(regionLayer);
 
 		return layers;
 	}
@@ -419,6 +438,10 @@ public class SpatialNetwork implements java.io.Serializable {
 
 	public GeomVectorField getBuildingUnitLayer() {
 		return buildingUnitLayer;
+	}
+
+	public GeomVectorField getRegionLayer(){
+		return regionLayer;
 	}
 
 	public Map<Integer, List<MasonGeometry>> getBuildingUnitTable() {

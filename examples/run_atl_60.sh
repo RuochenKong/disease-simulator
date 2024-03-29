@@ -1,0 +1,1 @@
+java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=bias -Dfile.prefix=atl-60 -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration atl.5k.properties -bias.config bias.properties -bias.single.config bias.60.single -until 8640

@@ -50,11 +50,12 @@ import sim.util.geo.MasonGeometry;
 public class ReservedLogChannels implements Serializable {
 	public static final String LOG_ROOT_DIRECTORY_PROPERTY_NAME = "log.rootDirectory";
 	public static final String TEST_PROPERTY_NAME = "simulation.test";
+	public static final String DISEASE_FILE_PREFIX = "file.prefix";
 	private static final long serialVersionUID = 6956761501760484884L;
 	protected static final String DEFAULT_OUTPUT_TYPE = "File";
 	protected static final String DEFAULT_SUFFIX_TYPE = ".tsv";
 	protected static final String DEFAULT_ROOT_DIRECTORY = "./";
-	public static final String DEFAULT_DIRECTORY = "logs/";
+	public static String DEFAULT_DIRECTORY = "logs/";
 	
 	protected static final ConcurrentMap<Level, Setting> RESERVED_LEVELS = init();
 	
@@ -87,6 +88,8 @@ public class ReservedLogChannels implements Serializable {
 	protected Collection<EventList> eventMovingHome;
 	protected Collection<EventList> eventChangingJob;
 	protected Collection<EventList> eventChangingDisease;
+	protected Collection<EventList> eventChangingDiseaseReports;
+
 	protected WorldModel model;
 	
 	private static ConcurrentMap<Level, Setting> init()
@@ -95,29 +98,40 @@ public class ReservedLogChannels implements Serializable {
 		// ADD ALL
 		
 		String whatTest = System.getProperty(TEST_PROPERTY_NAME);
-		
-		
+
+		/*
 		// if you want to disable all logging, add -Dsimulation.test=non
 		if (whatTest != null && whatTest.equals("non")) {
 			return instance;
 		}
+		*/
+
 		// system level logging
-		instance.putIfAbsent(Level.getLevel("INFO"), new Setting("pattenrs_of_life","info level logging", "RollingFile", DEFAULT_DIRECTORY, ".log"));
+		String whatPre = System.getProperty(DISEASE_FILE_PREFIX);
+		if (whatPre != null) DEFAULT_DIRECTORY = whatPre+"/";
+		instance.putIfAbsent(Level.getLevel("INFO"), new Setting("patterns_of_life","info level logging", "RollingFile", DEFAULT_DIRECTORY, ".log"));
 		// if you want to test the minimal logging, add -Dsimulation.test=minimal
 		if (whatTest != null && whatTest.equals("min")) {
 		    // instance.putIfAbsent(Level.getLevel("AGENT"), new Setting("AgentStateTable","AgentStates","RollingFile"));
 			instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
 			instance.putIfAbsent(Level.getLevel("AGENT5"), new Setting("Checkin", "Checkin", "RollingFile"));
 			return instance;
-
 		}
+
 		// If you want flexibility, add -Dsimulation.test=flexibility
-		if (whatTest != null && whatTest.equals("flexibility")) {
+		if (whatTest != null && whatTest.equals("disease")) {
 			instance.putIfAbsent(Level.getLevel("MODEL1"), new Setting("InstanceVariableTable", "InstanceVariableTable", DEFAULT_OUTPUT_TYPE, "../../"));
 			instance.putIfAbsent(Level.getLevel("STAT7"), new Setting("SummaryStatisticsDataTable", "SummaryStatisticsDataTable", DEFAULT_OUTPUT_TYPE, ""));
 			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting("DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
 			return instance;
 		}
+
+		if (whatTest != null && whatTest.equals("bias") ){
+			instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
+			instance.putIfAbsent(Level.getLevel("EVT14"), new Setting("DiseaseReports","DiseaseReports"));
+			return instance;
+		}
+
 		if (whatTest != null && whatTest.equals("qoi")) {
 			instance.putIfAbsent(Level.getLevel("STAT1"), new Setting("QOI1Table","QOI1", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("STAT2"), new Setting("QOI2Table","QOI2", DEFAULT_OUTPUT_TYPE, "qois/"));
@@ -163,6 +177,8 @@ public class ReservedLogChannels implements Serializable {
 			
 			
 		}
+
+		/*
 			instance.putIfAbsent(Level.getLevel("STAT1"), new Setting("QOI1Table","QOI1", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("STAT2"), new Setting("QOI2Table","QOI2", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("STAT3"), new Setting("QOI3Table","QOI3", DEFAULT_OUTPUT_TYPE, "qois/"));
@@ -171,7 +187,11 @@ public class ReservedLogChannels implements Serializable {
 			instance.putIfAbsent(Level.getLevel("STAT6"), new Setting("QOI6Table","QOI6", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("AGENT5"), new Setting("Checkin", "Checkin", "RollingFile"));
 			instance.putIfAbsent(Level.getLevel("AGENT6"), new Setting("SocialNetwork", "SocialNetwork", "RollingFile"));
-			return instance;
+		 */
+
+		instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
+		instance.putIfAbsent(Level.getLevel("EVT14"), new Setting("DiseaseReports","DiseaseReports"));
+		return instance;
 	
 	}
 	
@@ -468,8 +488,11 @@ public class ReservedLogChannels implements Serializable {
 				{"EVT11", new LogSchedule(0, "EVT11", (Supplier & Serializable) () -> "step\tagentId\t[job]", textFormatter, 0)},
 				{"EVT11", new IterativeEventLogSchedule(0, 1, "EVT11", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingJob, eventFormatter, 1)},
 
-				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[DiseaseStatus,ByAgentID,Time,Location,CheckIn]", textFormatter, 0)},
+				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,byAgentID,time,location,checkin]", textFormatter, 0)},
 				{"EVT13", new IterativeEventLogSchedule(0, 1, "EVT13", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDisease, eventFormatter, 1)},
+
+				{"EVT14", new LogSchedule(0, "EVT14", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,byAgentID,time,location,checkin,Report(Component),Report(Single)]", textFormatter, 0)},
+				{"EVT14", new IterativeEventLogSchedule(0, 1, "EVT14", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDiseaseReports, eventFormatter, 1)},
 
 				// For checkin
 				{"AGENT5", new LogSchedule(0, "AGENT5", (Supplier & Serializable) () -> schema.CheckinDataset.CheckinTable, checkinTableSchema, 0)},
@@ -649,18 +672,46 @@ public class ReservedLogChannels implements Serializable {
 			for (Person p : model.getAgents()) {
 				EventList eventList = new EventList(p.getAgentId());
 				eventList.enableIndividualUpdateTime(false);
-				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getDiseaseStatus());
+				eventList.add((Supplier & Serializable) () -> p.getOriginRegionId());
+				InfectiousDisease agentDisease = model.getAgent(p.getAgentId()).getInfectiousDisease();
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatus());
 				eventList.add((Supplier & Serializable) () -> {
-					long byAgent = model.getAgent(p.getAgentId()).getInfectiousDisease().getInfectedByAgentID();
-					if (byAgent == -1 || model.getAgent(p.getAgentId()).getDiseaseStatus() == InfectionStatus.Recovered
-					    || model.getAgent(p.getAgentId()).getDiseaseStatus() == InfectionStatus.Susceptible)
+					long byAgent = agentDisease.getInfectedByAgentID();
+					if (byAgent == -1 || agentDisease.getStatus() == InfectionStatus.Recovered
+					    || agentDisease.getStatus() == InfectionStatus.Susceptible)
 						return null;
 					return byAgent;
 				});
-				eventList.add((Supplier & Serializable) () -> model.getSimulationTime());
-				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getLocation());
-				eventList.add((Supplier & Serializable) () -> model.getAgent(p.getAgentId()).getCurrentMode());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeTime());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeLocation());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeCheckIn());
 				eventChangingDisease.add(eventList);
+			}
+		}
+
+		if (eventChangingDiseaseReports == null){
+			eventChangingDiseaseReports = new ArrayList<>();
+
+			// step agentId [regionId,diseaseStatus,byAgentID,time,location,checkin,Report(Component),Report(Single)]
+			for (Person p : model.getAgents()) {
+				EventList eventList = new EventList(p.getAgentId());
+				eventList.enableIndividualUpdateTime(false);
+				eventList.add((Supplier & Serializable) () -> p.getOriginRegionId());
+				InfectiousDisease agentDisease = model.getAgent(p.getAgentId()).getInfectiousDisease();
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatus());
+				eventList.add((Supplier & Serializable) () -> {
+					long byAgent = agentDisease.getInfectedByAgentID();
+					if (byAgent == -1 || agentDisease.getStatus() == InfectionStatus.Recovered
+							|| agentDisease.getStatus() == InfectionStatus.Susceptible)
+						return null;
+					return byAgent;
+				});
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeTime());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeLocation());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeCheckIn());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getCompReport());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getSingleBiasReports());
+				eventChangingDiseaseReports.add(eventList);
 			}
 		}
 

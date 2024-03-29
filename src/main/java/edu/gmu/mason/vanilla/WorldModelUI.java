@@ -22,6 +22,7 @@ import edu.gmu.mason.vanilla.utils.ColorUtils;
 import edu.gmu.mason.vanilla.utils.SimulationEvent;
 import edu.gmu.mason.vanilla.utils.SupplierHUD;
 import edu.gmu.mason.vanilla.utils.DateTimeUtil;
+import scala.Int;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.engine.SimState;
@@ -60,6 +61,9 @@ public class WorldModelUI extends ChartedGUIState {
 	// geography components
 	GeomVectorFieldPortrayal walkwayPortrayal = new GeomVectorFieldPortrayal();
 	GeomVectorFieldPortrayal buildingPortrayal = new GeomVectorFieldPortrayal();
+
+	GeomVectorFieldPortrayal regionPortrayal = new GeomVectorFieldPortrayal();
+
 	GeomVectorFieldPortrayal agentPortrayal = new GeomVectorFieldPortrayal();
 	SupplierHUD textPortrayal = new SupplierHUD();
 
@@ -69,8 +73,8 @@ public class WorldModelUI extends ChartedGUIState {
 		super(state);
 	}
 
-	public WorldModelUI(WorldParameters params) throws IOException, Exception {
-		super(new WorldModel(params.seed, params));
+	public WorldModelUI(WorldParameters params,BiasParameters biasParameters, BiasSingleParameters biasSingleParameters) throws IOException, Exception {
+		super(new WorldModel(params.seed, params, biasParameters, biasSingleParameters));
 	}
 
 	public static String getName() {
@@ -125,6 +129,10 @@ public class WorldModelUI extends ChartedGUIState {
 		insp.addInspector(new TitledSimpleInspector(
 				((WorldModel) state).params, this, null), "Parameters");
 		insp.addInspector(new TitledSimpleInspector(
+				((WorldModel) state).biasParams, this, null), "Multivariate Biases Parameters");
+		insp.addInspector(new TitledSimpleInspector(
+				((WorldModel) state).biasSingleParams, this, null), "Single Bias Parameters");
+		insp.addInspector(new TitledSimpleInspector(
 				((WorldModel) state).getQuantitiesOfInterest(), this, null), "QOI");
 		return insp;
 	}
@@ -150,6 +158,7 @@ public class WorldModelUI extends ChartedGUIState {
 
 		display.attach(walkwayPortrayal, "walkway", true);
 		display.attach(buildingPortrayal, "buildings", true);
+		display.attach(regionPortrayal, "regions", true);
 		display.attach(agentPortrayal, "agents", true);
 		display.attach(textPortrayal, "label");
 
@@ -209,6 +218,10 @@ public class WorldModelUI extends ChartedGUIState {
 
 	private void setupPortrayals() {
 		WorldModel model = (WorldModel) state;
+
+		regionPortrayal.setField(model.getSpatialNetwork().getRegionLayer());
+		regionPortrayal.setPortrayalForAll(new GeomPortrayal(new Color(248, 232, 238),
+				DEFAULT_SCALE, false));
 
 		walkwayPortrayal.setField(model.getSpatialNetwork().getWalkwayLayer());
 		walkwayPortrayal.setPortrayalForAll(new GeomPortrayal(Color.BLACK,
@@ -305,6 +318,24 @@ public class WorldModelUI extends ChartedGUIState {
 					paint = new Color(180,180,179);
 				}
 
+				/* DeBug
+				if(person.getOriginRegionId() ==  122){
+					paint = new Color(255, 255, 221);
+				} else if (person.getOriginRegionId() == 188){
+					paint = new Color(38,87,124);
+				} else if (person.getOriginRegionId() == 201){
+					paint = new Color(229,86,4);
+				}  else if (person.getOriginRegionId() == 260){
+					paint = new Color(22,86,4);
+				} else if (person.getOriginRegionId() == 158){
+					paint = new Color(221,236,4);
+				} else if (person.getOriginRegionId() == 113){
+					paint = new Color(229,86,145);
+				} else {
+					paint = Color.BLACK;
+				}
+
+				 */
 				this.scale = DEFAULT_SCALE;
 
 				super.draw(object, graphics, info);
@@ -339,7 +370,37 @@ public class WorldModelUI extends ChartedGUIState {
 				System.err.println("WARNING: Counld not find a configuration file:"
 						+ WorldParameters.DEFAULT_PROPERTY_FILE_NAME + ". A new configuration file is generated.");
 			}
-			new WorldModelUI(params).createController();
+
+			BiasParameters biasParameters = null;
+			try {
+				String configurationPath = WorldModel.argumentForKey("-bias.config", args);
+				if(configurationPath==null) {
+					configurationPath =  BiasParameters.DEFAULT_BIAS_FILENAME;
+				}
+				biasParameters = new BiasParameters(configurationPath);
+			} catch (ConfigurationException e) {
+				biasParameters = new BiasParameters();
+				biasParameters.store( BiasParameters.DEFAULT_BIAS_FILENAME);
+				System.err.println("WARNING: Counld not find a bias configuration file:"
+						+  BiasParameters.DEFAULT_BIAS_FILENAME + ". A new configuration file is generated.");
+			}
+
+			BiasSingleParameters biasSingleParameters = null;
+			try {
+				String configurationPath = WorldModel.argumentForKey("-bias.single.config", args);
+				if(configurationPath==null) {
+					configurationPath =  BiasSingleParameters.DEFAULT_BIAS_FILENAME;
+				}
+				biasSingleParameters = new BiasSingleParameters(configurationPath);
+			} catch (ConfigurationException e) {
+				biasSingleParameters = new BiasSingleParameters();
+				biasSingleParameters.store( BiasSingleParameters.DEFAULT_BIAS_FILENAME);
+				System.err.println("WARNING: Counld not find a bias configuration file:"
+						+  BiasSingleParameters.DEFAULT_BIAS_FILENAME + ". A new configuration file is generated.");
+			}
+
+			new WorldModelUI(params, biasParameters, biasSingleParameters).createController();
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

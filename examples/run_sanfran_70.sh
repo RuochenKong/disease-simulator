@@ -1,0 +1,1 @@
+java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=bias -Dfile.prefix=sf-70 -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration sanfran.5k.properties -bias.config bias.properties -bias.single.config bias.70.single -until 8640

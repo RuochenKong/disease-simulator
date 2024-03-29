@@ -1,10 +1,6 @@
 package edu.gmu.mason.vanilla;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.joda.time.LocalDateTime;
@@ -28,8 +24,6 @@ import sim.field.network.Edge;
 import sim.util.Bag;
 import sim.util.geo.MasonGeometry;
 import sim.util.geo.PointMoveTo;
-
-import java.util.Random;
 
 
 /**
@@ -64,24 +58,54 @@ public class Person implements Steppable, java.io.Serializable {
 	@Skip
 	private Jitter jitter;
 
-	// basic properties
 	private long agentId;
 	@State
 	private int neighborhoodId;
 
-	// public boolean isNeedle = false;
-
+	// bias properties -- General
+	@Characteristics
+	private int originRegionId; // Assigned while initiate
+	@Characteristics
+	private boolean isMale;
+	@Characteristics
+	private EducationLevel educationLevel;
 	@State
 	private double age;
+
+	// bias properties -- Atl Examples
+	@Characteristics
+	private boolean isHispanic;
+	@Characteristics
+	private Race race;
+	@Characteristics
+	private int indiv_census_income;
+	@Characteristics
+	private int hh_census_income;
+
+	// bias properties -- GZ-Tianhe Examples
+	@Characteristics
+	private boolean householdInProvince;
+
+	// bias reporting
+	@Skip
+	public static List<String> singleBiasTypes = new ArrayList<>();
+	@Skip
+	public static List<List<List<Double>>> processedSingleBiasParams = new ArrayList<>();
+	@Skip
+	public static int numSingleBias = 0;
+
+	@Characteristics
+	public double reportingRate;
+	@Characteristics
+	public List<Double> reportingRates_Single;
+
+	// Agent properties
 	@State
 	private PersonMode currentMode;
 	@State
 	private BuildingUnit currentUnit;
 
 	private Family family;
-
-	@Characteristics
-	private EducationLevel educationLevel;
 
 	@Characteristics
 	private AgentInterest interest;
@@ -95,8 +119,8 @@ public class Person implements Steppable, java.io.Serializable {
 	private double jovialityBase;
 	@State
 	private InfectiousDisease infectiousDisease;
-	@Skip
-	private String originLocation;
+
+
 
 	// agent needs from maslov's hierarchy of needs
 	// level 1
@@ -183,14 +207,124 @@ public class Person implements Steppable, java.io.Serializable {
 
 		// Adding Infectious Disease
 		this.infectiousDisease = new InfectiousDisease(this);
-		this.originLocation = null;
 
+		this.originRegionId = 0;
+		this.reportingRate = 0;
+		this.reportingRates_Single = new ArrayList<>();
 	}
 
-	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus,  double c2report, double c2spread, double cbinfected){
+	public static void addBiasType(String newBias){
+		singleBiasTypes.add(newBias);
+	}
+
+	public void setReportingRate(){
+		String[] consideredBias = model.biasParams.biasConsideration.split("/");
+		double numerator = model.biasParams.intercept;
+		for (String biasType: consideredBias){
+			if (biasType.equals("Vulnerability") && this.age >= 50) numerator *= model.biasParams.vulnerability;
+			if (biasType.equals("Race") && this.race == Race.WhiteOnly) numerator *= model.biasParams.raceWhite;
+			if (biasType.equals("Gender") && this.isMale) numerator *= model.biasParams.genderMale;
+			if (biasType.equals("Income") && this.indiv_census_income > 70000) numerator *= model.biasParams.income;
+			if (biasType.equals("Household Income") && this.hh_census_income > 100000) numerator *= model.biasParams.hh_income;
+
+			if (biasType.equals("Hispanic") && model.biasParams.hispanic != 0 && this.isHispanic) numerator *= model.biasParams.hispanic;
+			if (biasType.equals("Education") && model.biasParams.eduBachelor != 0 &&
+					(this.educationLevel == EducationLevel.Bachelors || this.educationLevel == EducationLevel.Graduate))
+				numerator *= model.biasParams.eduBachelor;
+			if (biasType.equals("Living Area") && model.biasParams.livingArea != 0 &&
+					this.getOriginRegion().getAreaPerAgent() > 30) numerator *= model.biasParams.livingArea;
+			if (biasType.equals("Residency") && model.biasParams.resInProvince != 0 && this.householdInProvince)
+				numerator *= model.biasParams.resInProvince;
+		}
+		this.reportingRate = numerator/(1+numerator);
+	}
+
+	public double getReportingRate(){
+		return this.reportingRate;
+	}
+
+	public void setReportingRates_Single(){
+		numSingleBias = singleBiasTypes.size();
+		for (int i = 0 ; i < numSingleBias; i++) {
+			String biasType = singleBiasTypes.get(i);
+			List<List<Double>> pairProb = processedSingleBiasParams.get(i);
+
+			int idxOther = -1;
+			boolean found = false;
+
+			if (biasType.equals("Age") || biasType.equals("Income") || biasType.equals("HouseHold Income")  || biasType.equals("Living Area")) {
+				double compareVal = 0;
+				if (biasType.equals("Age")) compareVal = this.age;
+				if (biasType.equals("Income")) compareVal = (double) this.indiv_census_income / 1000.0;
+				if (biasType.equals("HouseHold Income")) compareVal = (double) this.hh_census_income / 1000.0;
+				if (biasType.equals("Living Area")) compareVal = this.getOriginRegion().getAreaPerAgent();
+				for (int j = 0; j < pairProb.size() && !found; j++) {
+					List<Double> param = pairProb.get(j);
+					if (param.get(0) == -1.0) {
+						idxOther = j;
+						continue;
+					}
+					if (param.get(0) <= compareVal && param.get(1) > compareVal) {
+						this.reportingRates_Single.add(param.get(2));
+						found = true;
+					}
+				}
+				if (!found) {
+					double rate = (idxOther == -1) ? 0.5 : pairProb.get(idxOther).get(1);
+					this.reportingRates_Single.add(rate);
+				}
+			} else {
+				double searchIdx = -1.0;
+				if (biasType.equals("Gender")) searchIdx = this.isMale ? 1.0 : 0.0;
+				if (biasType.equals("Education")) searchIdx = this.educationLevel.getValue();
+				if (biasType.equals("Race")) searchIdx = this.race.getValue();
+				if (biasType.equals("Hispanic")) searchIdx = this.isHispanic ? 1.0 : 0.0;
+				if (biasType.equals("Residency")) searchIdx = this.householdInProvince ? 1.0 : 0.0;
+				for (int j = 0; j < pairProb.size() && !found; j++) {
+					List<Double> param = pairProb.get(j);
+					if (param.get(0) == -1.0) {
+						idxOther = j;
+						continue;
+					}
+					if (param.get(0) == searchIdx) {
+						this.reportingRates_Single.add(param.get(1));
+						found = true;
+					}
+				}
+				if (!found) {
+					double rate = (idxOther == -1) ? 0.5 : pairProb.get(idxOther).get(1);
+					this.reportingRates_Single.add(rate);
+				}
+			}
+		}
+	}
+
+	public List<Double> getReportingRates_Single(){
+		return this.reportingRates_Single;
+	}
+
+	public void setOriginRegion(int regionId){
+		this.originRegionId = regionId;
+	}
+
+	public void setRace(Race race){ this.race = race;}
+
+	public void setHHCensusIncome(int income){this.hh_census_income = income;}
+
+	public void setIndivCensusIncome(int income){this.indiv_census_income = income;}
+
+
+	public void setGender(boolean isMale){ this.isMale = isMale; }
+
+	public void setHispanic(boolean isHispanic) {this.isHispanic = isHispanic;}
+
+	public void setHouseholdInProvince(boolean inProvince) {this.householdInProvince = inProvince;}
+
+
+	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus, double c2spread, double cbinfected){
 
 		if (status == InfectionStatus.Infectious){
-			this.infectiousDisease.setStatus(model.getSimulationTime());
+			this.infectiousDisease.setStatus();
 		} else {
 			this.infectiousDisease.setStatus(status);
 		}
@@ -198,7 +332,6 @@ public class Person implements Steppable, java.io.Serializable {
 		if (vaccineStatus != null) this.infectiousDisease.setVaccineStatus(vaccineStatus);
 
 		// Customize the chances when specified
-		if (c2report != -1) this.infectiousDisease.setChanceToReport(c2report);
 		if (c2spread != -1) this.infectiousDisease.setChanceToSpreat(c2spread);
 		if (cbinfected != -1) this.infectiousDisease.setChanceBeInfected(cbinfected);
 	}
@@ -207,21 +340,15 @@ public class Person implements Steppable, java.io.Serializable {
 		return this.infectiousDisease.getStatus();
 	}
 
+	public boolean isWearingMask(){ return this.infectiousDisease.isWearingMasks(); }
 	public double getChanceBeInfected() {
 		return this.infectiousDisease.getChanceBeInfected();
-	}
-
-	public double getChanceToReport() {
-		return this.infectiousDisease.getChanceToReport();
 	}
 
 	public double getChanceToSpreat(){
 		return this.infectiousDisease.getChanceToSpreat();
 	}
 
-	public boolean reportedInfectious(){
-		return this.infectiousDisease.isReported();
-	}
 	public double getDaysFromDose() {
 		return this.infectiousDisease.getDaysFromDose();
 	}
@@ -232,58 +359,31 @@ public class Person implements Steppable, java.io.Serializable {
 		return this.infectiousDisease.getVaccineStatus();
 	}
 
-	public boolean isDiseaseReported(){return this.infectiousDisease.isReported(); }
-
 	public double getDaysQuarantined(){return this.infectiousDisease.getDaysQuarantined();}
 	public void setQuarantine(){this.infectiousDisease.setQuarantine();}
 	public void unsetQuarantine(){this.infectiousDisease.unsetQuarantine();}
 	public boolean isQuarantined(){return this.infectiousDisease.isQuarantined();}
 
 	public void beenExposed(LocalDateTime exposedTime, long agentId){
-		this.infectiousDisease.setStatus(exposedTime,agentId);
+		this.infectiousDisease.setStatus(agentId);
 	}
+
+	public int getOriginRegionId(){return this.originRegionId;}
+
+	public Region getOriginRegion(){return model.getRegion(this.originRegionId);}
+
 
 	public String getCurrentDiseaseStatus(){
 		String line = "[Agent "+agentId;
 		line += "] " + getDiseaseStatus().toString() + " for " + getDaysInDiseaseStatus() + " days\n";
-		line += "  Chances:"+ this.infectiousDisease.getChanceToReport() + " to report,\n";
-		line += "          "+ this.infectiousDisease.getChanceToSpreat() + " to spread,\n";
+		line += "  Chances:"+ this.infectiousDisease.getChanceToSpreat() + " to spread,\n";
 		line += "          "+ this.infectiousDisease.getChanceBeInfected() + " to be infected.";
 		return line;
 	}
 
-	public String getFinalDiseaseState(){
-		String line = String.format("%d\t",agentId);
-		line += this.originLocation + "\t";
-		line += String.format("%d\t", infectiousDisease.getInfectedByAgentID());
-		line += (infectiousDisease.getExposedTime() != null)
-				? String.format("%s\t", infectiousDisease.getExposedTime().toString())
-				: "null\t";
-		line += (infectiousDisease.getExposedLocation() != null)
-				? String.format("%s\t", infectiousDisease.getExposedLocation().toString())
-				: "null\t";
-		line += (infectiousDisease.getExposedCheckIn() != null)
-				? String.format("%s\t", infectiousDisease.getExposedCheckIn().toString())
-				: "null\t";
-		line += (infectiousDisease.getInfectiousTime() != null)
-				? String.format("%s\t", infectiousDisease.getInfectiousTime().toString())
-				: "null\t";
-		line += (infectiousDisease.getInfectiousLocation() != null)
-				? String.format("%s\t", infectiousDisease.getInfectiousLocation().toString())
-				: "null\t";
-		line += (infectiousDisease.getInfectiousCheckIn() != null)
-				? String.format("%s\t", infectiousDisease.getInfectiousCheckIn().toString())
-				: "null\t";
-		line += (infectiousDisease.getRecoverTime() != null)
-				? String.format("%s", infectiousDisease.getRecoverTime().toString())
-				: "null";
-		return line;
-	}
-
 	public void toBeTheFirstPatient(){
-		initializeDiseaseStatus(InfectionStatus.Infectious, null, -1,-1,-1);
-		System.out.println("[Agent "+agentId+"] Started the disesase.");
-		// System.out.println(getCurrentDiseaseStatus());
+		initializeDiseaseStatus(InfectionStatus.Infectious, null, -1,-1);
+		System.out.println("[Agent "+agentId+"] Started the disesase, with "+infectiousDisease.getRemainNumOfInitInfect()+" agents remaining.");
 	}
 
 	/**
@@ -296,16 +396,13 @@ public class Person implements Steppable, java.io.Serializable {
 		// satisfy the shelter need
 		shelterNeed.satisfy();
 
-		Random rand = new Random();
-		if ( rand.nextDouble() >= 0.97) toBeTheFirstPatient();
-
 		// put the agent to her/his home
 		this.currentMode = PersonMode.AtHome;
 		this.currentUnit = this.shelterNeed.getCurrentShelter();
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
-		this.originLocation = this.location.toString();
 
-		/* TODO: Send infected agents to home*/
+		// Initialize the disease
+		if (infectiousDisease.getRemainNumOfInitInfect() > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 70) ) toBeTheFirstPatient();
 
 		// if the agent is has a family and a kid, find a school for the kid and
 		// assign it.
@@ -346,6 +443,14 @@ public class Person implements Steppable, java.io.Serializable {
 		if (currentMode == PersonMode.Transport) {
 			mobility.transport();
 			return;
+		}
+
+		// Sent the infected agent to home
+		if (this.getDiseaseStatus() == InfectionStatus.Infectious
+				&& !this.isQuarantined()
+				&& model.random.nextDouble() > (1 - this.model.params.selfQuarantinedProbability/(double) (100*288))){
+			this.infectiousDisease.setQuarantine();
+			travelToHome(VisitReason.Disease);
 		}
 
 		sleepNeed.satisfy(); // checks sleeping/waking up schedule
@@ -660,10 +765,10 @@ public class Person implements Steppable, java.io.Serializable {
 			System.out.println("\n" + getCurrentDiseaseStatus());
 		 */
 
-
 		// if agent is employed and the day is a work day --> !reportedInfectious() &&
 		if (this.financialSafetyNeed.isEmployed()
-				&& this.financialSafetyNeed.getJob().isWorkDay(planDay)) {
+				&& this.financialSafetyNeed.getJob().isWorkDay(planDay)
+				&& !this.isQuarantined()) {
 			plan.setWorkDay(true);
 
 			/* DEBUGGER

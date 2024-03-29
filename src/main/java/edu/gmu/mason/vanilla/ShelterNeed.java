@@ -108,12 +108,14 @@ public class ShelterNeed implements Need, java.io.Serializable {
 
 	}
 
+	// TODO: Add region restriction
 	private Apartment searchApartmentBasedOnAgentCharacteristic(double maxMoneyForRental) {
 		// 1. Sociolus: closest apartment to the workplace
 		// 2. Balancus: cheapest empty apartment in the neighborhood of the
 		// workplace; if there is no, cheapest apartment in the world,
 		// 3. Croesus: cheapest shared apartment in the world
 		Apartment apt = null;
+
 
 		switch (agent.getCharacteristic()) {
 			case Sociolus:
@@ -165,7 +167,7 @@ public class ShelterNeed implements Need, java.io.Serializable {
 	private void findGhostHouse() {
 
 		List<Building> residentialBuildings = agent.getModel()
-				.getUsableBuildings(agent.getNeighborhoodId(),
+				.getUsableBuildings(agent.getNeighborhoodId(),agent.getOriginRegionId(),
 						BuildingType.Residental);
 
 		if (residentialBuildings == null || residentialBuildings.size() == 0) {
@@ -294,7 +296,7 @@ public class ShelterNeed implements Need, java.io.Serializable {
 			double maxMoneyForRental, int neighborhoodId) {
 
 		List<Apartment> apartments = agent.getModel()
-				.getUsableApartmentsWithAvailableCapacity();
+				.getUsableApartmentsWithAvailableCapacity(agent.getOriginRegionId());
 
 		if (neighborhoodId >= 0) { // this means if a neighborhood is specified,
 									// just keep apartments on that neighborhood

@@ -1,27 +1,19 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.28.7-Firenze">
+<qgis version="3.34.3-Prizren">
   <identifier></identifier>
   <parentidentifier></parentidentifier>
   <language></language>
   <type></type>
   <title></title>
   <abstract></abstract>
-  <contact>
-    <name></name>
-    <organization></organization>
-    <position></position>
-    <voice></voice>
-    <fax></fax>
-    <email></email>
-    <role></role>
-  </contact>
   <links/>
+  <dates/>
   <fees></fees>
   <encoding></encoding>
   <crs>
     <spatialrefsys nativeFormat="Wkt">
       <wkt></wkt>
-      <proj4></proj4>
+      <proj4>+proj=utm +zone=16 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
       <srsid>0</srsid>
       <srid>0</srid>
       <authid></authid>
@@ -31,13 +23,5 @@
       <geographicflag>false</geographicflag>
     </spatialrefsys>
   </crs>
-  <extent>
-    <spatial minx="0" maxx="0" maxz="0" dimensions="2" miny="0" crs="" minz="0" maxy="0"/>
-    <temporal>
-      <period>
-        <start></start>
-        <end></end>
-      </period>
-    </temporal>
-  </extent>
+  <extent/>
 </qgis>

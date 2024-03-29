@@ -173,13 +173,9 @@ public class FinancialSafetyNeed implements Need, java.io.Serializable {
 		// 1 - unemployment
 		// 2 - low paying job
 
-
-		// 3 - May considering infection disease impact.
-		
 		if (isSatisfied() == false) {
 
-			if (this.agent.isQuarantined()){ }
-			else if (isEmployed() == false) { // this is case 1 - unemployment
+			if (isEmployed() == false) { // this is case 1 - unemployment
 
 				// there are three types of job searching strategies, based on
 				// agents' characteristic values

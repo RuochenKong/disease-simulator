@@ -99,6 +99,7 @@ import edu.gmu.mason.vanilla.utils.SimulationTimeStepSetting;
 import edu.gmu.mason.vanilla.utils.StringUtils;
 import edu.gmu.mason.vanilla.utils.DateTimeUtil;
 import edu.gmu.mason.vanilla.utils.EventSchedule;
+import scala.Int;
 import sim.engine.MakesSimState;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -126,6 +127,9 @@ public class WorldModel extends SimState {
 
 	// a public reference to simulation parameters
 	public WorldParameters params;
+	public BiasParameters biasParams;
+
+	public BiasSingleParameters biasSingleParams;
 
 	private static final long serialVersionUID = -7358991191225853449L;
 
@@ -165,7 +169,11 @@ public class WorldModel extends SimState {
 	private Map<Long, Job> jobs;
 	private Map<Long, Restaurant> restaurants;
 	private Map<Long, Pub> pubs;
+	private Map<Integer, Region> regions;
+	private List<Integer> regionsIds;
+	private Map<Integer, List<Long>> regionResidentialMap;
 
+	private Map<Integer, List<Long>> regionApartmentMap;
 	private List<BuildingUnit> buildingUnitsToSupply;
 
 	// social networks
@@ -197,6 +205,7 @@ public class WorldModel extends SimState {
 	private Object[][] latestBarStatsData = { { 1, Color.BLACK, Color.BLACK,
 			Color.BLACK, 0.00, 0.0, 0 } };
 
+	/*
 	public WorldModel(long seed, WorldParameters params) throws IOException,
 			Exception {
 		super(seed);
@@ -207,9 +216,294 @@ public class WorldModel extends SimState {
 		timeUtil.addEventTime(SimulationEvent.SimulationStart, new DateTime());
 		simulationSeed = seed;
 		spatialNetwork.loadMapLayers(params.maps, "walkways.shp",
-				"buildings.shp", "buildingUnits.shp");
+				"buildings.shp", "buildingUnits.shp", params.regions);
+
+		initRegion();
 		initPlaces();
 		GeoUtils.alignMBRs(spatialNetwork.getAllLayers());
+
+		initVisualGraph();
+		reservedLog = new ReservedLogChannels(this);
+		startDataCollectionForQoIs();
+	}
+	*/
+
+	private void collectSingleBiasTypes() throws Exception {
+		if (!this.biasSingleParams.activate) return;
+		int idxColon;
+		String prefix;
+		if (!this.biasSingleParams.ageProb.equals("")){
+			Person.addBiasType("Age");
+			String[] paramSplit = biasSingleParams.ageProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("other")){
+					procParam.add(-1.0);
+				} else {
+					int idxDash = prefix.indexOf("-");
+					if (idxDash == -1) throw new Exception("Invalid Age Probability Config");
+					double low = Double.parseDouble(prefix.substring(1,idxDash));
+					double high = Double.parseDouble(prefix.substring(idxDash+1,prefix.length()-1));
+					if (low >= high || high <= 0) throw new Exception("Invalid Age Probability Config");
+					procParam.add(low);
+					procParam.add(high);
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.genderProb.equals("")) {
+			Person.addBiasType("Gender");
+			String[] paramSplit = biasSingleParams.genderProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("Male")){
+					procParam.add(1.0);
+				} else if (prefix.equals("Female")){
+					procParam.add(0.0);
+				} else  {
+					throw new Exception("Invalid Gender Probability Config");
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.eduProb.equals("")) {
+			Person.addBiasType("Education");
+			String[] paramSplit = biasSingleParams.eduProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				switch (prefix) {
+					case "Unknown":
+						procParam.add(0.0);
+						break;
+					case "Low":
+						procParam.add(1.0);
+						break;
+					case "HighSchoolOrCollege":
+						procParam.add(2.0);
+						break;
+					case "Bachelors":
+						procParam.add(3.0);
+						break;
+					case "Graduate":
+						procParam.add(4.0);
+						break;
+					case "other":
+						procParam.add(-1.0);
+						break;
+					default:
+						throw new Exception("Invalid Education Probability Config");
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.incomeProb.equals("")) {
+			Person.addBiasType("Income");
+			String[] paramSplit = biasSingleParams.incomeProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("other")){
+					procParam.add(-1.0);
+				} else {
+					int idxDash = prefix.indexOf("-");
+					if (idxDash == -1) throw new Exception("Invalid Income Probability Config");
+					double low = Double.parseDouble(prefix.substring(1,idxDash));
+					String highStr = prefix.substring(idxDash+1,prefix.length()-1);
+					double high = (highStr.equals("Inf")) ? Double.MAX_VALUE : Double.parseDouble(highStr);
+					if (low >= high || high <= 0) throw new Exception("Invalid Income Probability Config");
+					procParam.add(low);
+					procParam.add(high);
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.hhIncomeProb.equals("")) {
+			Person.addBiasType("Household Income");
+			String[] paramSplit = biasSingleParams.hhIncomeProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("other")){
+					procParam.add(-1.0);
+				} else {
+					int idxDash = prefix.indexOf("-");
+					if (idxDash == -1) throw new Exception("Invalid Household Income Probability Config");
+					double low = Double.parseDouble(prefix.substring(1,idxDash));
+					String highStr = prefix.substring(idxDash+1,prefix.length()-1);
+					double high = (highStr.equals("Inf")) ? Double.MAX_VALUE : Double.parseDouble(highStr);
+					if (low >= high || high <= 0) throw new Exception("Invalid Household Income Probability Config");
+					procParam.add(low);
+					procParam.add(high);
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.raceProb.equals("")) {
+			Person.addBiasType("Race");
+			String[] paramSplit = biasSingleParams.raceProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				switch (prefix) {
+					case "White":
+						procParam.add(0.0);
+						break;
+					case "Black":
+						procParam.add(1.0);
+						break;
+					case "American Indian":
+						procParam.add(2.0);
+						break;
+					case "Asian":
+						procParam.add(3.0);
+						break;
+					case "Pacific Island":
+						procParam.add(4.0);
+						break;
+					case "Plus 2 Race":
+						procParam.add(5.0);
+						break;
+					case "Other Race":
+						procParam.add(6.0);
+						break;
+					case "other":
+						procParam.add(-1.0);
+						break;
+					default:
+						throw new Exception("Invalid Race Probability Config");
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.hispanicProb.equals("")){
+			Person.addBiasType("Hispanic");
+			String[] paramSplit = biasSingleParams.hispanicProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("Hispanic")){
+					procParam.add(1.0);
+				} else if (prefix.equals("Non-Hispanic")){
+					procParam.add(0.0);
+				} else  {
+					throw new Exception("Invalid Hispanic Probability Config");
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.residencyProb.equals("")){
+			Person.addBiasType("Residency");
+			String[] paramSplit = biasSingleParams.residencyProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("Inside")){
+					procParam.add(1.0);
+				} else if (prefix.equals("Outside")){
+					procParam.add(0.0);
+				} else  {
+					throw new Exception("Invalid Residency Probability Config");
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+
+		if (!this.biasSingleParams.livingAreaProb.equals("")){
+			Person.addBiasType("LivingArea");
+			String[] paramSplit = biasSingleParams.livingAreaProb.split("/");
+			List<List<Double>> typeParam = new ArrayList<>();
+			for (String paramPair: paramSplit){
+				List<Double> procParam = new ArrayList<>();
+				idxColon = paramPair.indexOf(":");
+				prefix = paramPair.substring(0,idxColon);
+				double probVal = Double.parseDouble(paramPair.substring(idxColon+1));
+				if (prefix.equals("other")){
+					procParam.add(-1.0);
+				} else {
+					int idxDash = prefix.indexOf("-");
+					if (idxDash == -1) throw new Exception("Invalid Living Area Probability Config");
+					double low = Double.parseDouble(prefix.substring(1,idxDash));
+					String highStr = prefix.substring(idxDash+1,prefix.length()-1);
+					double high = (highStr.equals("Inf")) ? Double.MAX_VALUE : Double.parseDouble(highStr);
+					if (low >= high || high <= 0) throw new Exception("Invalid Living Area Probability Config");
+					procParam.add(low);
+					procParam.add(high);
+				}
+				procParam.add(probVal);
+				typeParam.add(procParam);
+			}
+			Person.processedSingleBiasParams.add(typeParam);
+		}
+	}
+
+	public WorldModel(long seed, WorldParameters params, BiasParameters biasParameters, BiasSingleParameters biasSingleParameters) throws IOException,
+			Exception {
+		super(seed);
+		manipulationScheduler = new MasterScheduler<Manipulation>();
+		logScheduler = new MasterScheduler<LogSchedule>();
+		eventScheduler = new MasterScheduler<EventSchedule>();
+		this.params = params;
+		this.biasParams = biasParameters;
+		this.biasSingleParams = biasSingleParameters;
+		timeUtil.addEventTime(SimulationEvent.SimulationStart, new DateTime());
+		simulationSeed = seed;
+		spatialNetwork.loadMapLayers(params.maps, "walkways.shp",
+				"buildings.shp", "buildingUnits.shp", params.regions);
+
+		initRegion();
+		initPlaces();
+		GeoUtils.alignMBRs(spatialNetwork.getAllLayers());
+
 		initVisualGraph();
 		reservedLog = new ReservedLogChannels(this);
 		startDataCollectionForQoIs();
@@ -222,6 +516,15 @@ public class WorldModel extends SimState {
 	public void start() {
 		timeUtil.addEventTime(SimulationEvent.AgentInitStart, new DateTime());
 		super.start();
+
+		try {
+			this.collectSingleBiasTypes();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		String strInfo = Person.singleBiasTypes.toString();
+		if (this.biasSingleParams.activate) logger.info("Considered single bias types: "+strInfo.substring(1,strInfo.length()-1));
+		logger.info("Considered component bias types: "+biasParams.biasConsideration.replace("/",", "));
 
 		agentLayer.clear(); // clear any existing agents from previous runs
 		addSchedulingAgents();
@@ -280,6 +583,7 @@ public class WorldModel extends SimState {
 			e.printStackTrace();
 		}
 
+		/*
 		try{
 			String timeStamp = new SimpleDateFormat("MM-dd").format(new java.util.Date());
 			File file = new File("./logs/DiseaseData_" + agentId + "_" + timeStamp + ".tsv");
@@ -297,6 +601,8 @@ public class WorldModel extends SimState {
 		} catch (Exception e){
 			System.out.println(e);
 		}
+		*/
+
 
 		timeUtil.addEventTime(SimulationEvent.SimulationEnd, new DateTime());
 		timeUtil.logTimeSpent(SimulationEvent.SimulationStart,
@@ -313,6 +619,8 @@ public class WorldModel extends SimState {
 				.getGeometries().iterator();
 
 		this.neighborhoodBuildingMap = new TreeMap<Integer, List<Building>>();
+		this.regionResidentialMap = new TreeMap<Integer, List<Long>>();
+		this.regionApartmentMap = new TreeMap<Integer, List<Long>>();
 		this.buildings = new TreeMap<Long, Building>();
 		this.classrooms = new TreeMap<Long, Classroom>();
 		this.apartments = new TreeMap<Long, Apartment>();
@@ -325,6 +633,7 @@ public class WorldModel extends SimState {
 
 		long buildingId = 0;
 		int neighborhoodId = 0;
+		int regionId = 0;
 		int bType = 0;
 		int blockId = 0;
 		int blockGroupId = 0;
@@ -336,6 +645,11 @@ public class WorldModel extends SimState {
 			MasonGeometry geom = iter.next();
 
 			neighborhoodId = geom.getIntegerAttribute("neighbor");
+			try{
+				regionId = geom.getIntegerAttribute("region");
+			} catch (Exception e){
+				regionId = -1;
+			}
 			buildingId = geom.getIntegerAttribute("id");
 			bType = geom.getIntegerAttribute("function");
 			degree = geom.getDoubleAttribute("degree");
@@ -346,6 +660,44 @@ public class WorldModel extends SimState {
 			place.setNeighborhoodId(neighborhoodId);
 			place.setAttractiveness(degree);
 
+			// Entirely covered
+			if (regionId == -1) {
+				for (Integer rId : regions.keySet()) {
+					Region region = regions.get(rId);
+					if (region.getLocation().geometry.covers(geom.geometry)) {
+						regionId = rId;
+						break;
+					}
+				}
+			}
+
+			// At the boundary
+			if (regionId == -1){
+				for (Integer rId: regions.keySet()){
+					Region region = regions.get(rId);
+					if (region.getLocation().geometry.intersects(geom.geometry)){
+						regionId = rId;
+						break;
+					}
+				}
+			}
+
+			// A little outside
+			if (regionId == -1){
+
+				// Find the nearest region
+				double distance = Double.POSITIVE_INFINITY;
+				for (Integer rId: regions.keySet()){
+					Region region = regions.get(rId);
+					if (distance > region.getLocation().geometry.distance(geom.geometry)){
+						regionId = rId;
+						distance = region.getLocation().geometry.distance(geom.geometry);
+					}
+				}
+			}
+
+			place.setRegionId(regionId);
+
 			List<Building> neighbors = null;
 			if (neighborhoodBuildingMap.containsKey(neighborhoodId)) {
 				neighbors = neighborhoodBuildingMap.get(neighborhoodId);
@@ -353,6 +705,18 @@ public class WorldModel extends SimState {
 				neighbors = new ArrayList<Building>();
 				neighborhoodBuildingMap.put(neighborhoodId, neighbors);
 			}
+
+			if (BuildingType.valueOf(bType) == BuildingType.Residental){
+				List<Long> regionRes = null;
+				if (regionResidentialMap.containsKey(regionId)){
+					regionRes = regionResidentialMap.get(regionId);
+				} else {
+					regionRes = new ArrayList<Long>();
+					regionResidentialMap.put(regionId,regionRes);
+				}
+				regionRes.add(buildingId);
+			}
+
 
 			buildings.put(place.getId(), place);
 			neighbors.add(place);
@@ -364,6 +728,7 @@ public class WorldModel extends SimState {
 		// UNITS
 		Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap,
 				params.numOfAgents);
+		//Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap);
 		int nIndex = 0;
 
 		NeighborhoodComposition neighborhoodComposition;
@@ -392,7 +757,6 @@ public class WorldModel extends SimState {
 			neighborhoodComposition.calculate(numOfAgentsPerNeighborhood.get(nId));
 			// neighborhoodComposition.calculateConstant(numOfAgentsPerNeighborhood.get(nId));
 
-			logger.info("Neighborhood #" + nId);
 			logger.info("-------Buildings----------");
 			logger.info("Total number of buildings: "
 					+ numberOfNeighborhoodBuildings);
@@ -482,6 +846,7 @@ public class WorldModel extends SimState {
 				apartment.setRentalCost(rent);
 
 				apartment.setBlockId(bld.getBlockId());
+				apartment.setRegionId(bld.getRegionID());
 				apartment.setBlockGroupId(bld.getBlockGroupId());
 				apartment.setCensusTractId(bld.getCensusTractId());
 
@@ -588,11 +953,16 @@ public class WorldModel extends SimState {
 			}
 
 			// building unit location setting
+			List<Long> emptyBuilding = new ArrayList<>();
 			for (Building bld : neighborhoodBuildings) {
 				bld.setAttractiveness(neighborhoodComposition
 						.generateAttractivenessNumber());
 				List<MasonGeometry> units = spatialNetwork
 						.getBuildingUnitTable().get((int) bld.getId());
+				if (units == null){
+					System.out.println((int) bld.getId());
+					continue;
+				}
 				int index = 0;
 				for (BuildingUnit unit : bld.getUnits()) {
 					unit.setLocation(units.get(index));
@@ -600,6 +970,63 @@ public class WorldModel extends SimState {
 					index %= units.size();
 				}
 			}
+
+			break;
+		}
+	}
+
+	private void initRegion(){
+		Iterator<MasonGeometry> iter = spatialNetwork.getRegionLayer()
+				.getGeometries().iterator();
+		this.regions = new TreeMap<Integer,Region>();
+		this.regionsIds = new ArrayList<Integer>();
+
+		int regionID;
+		int totalNumAgents = params.numOfAgents;
+		double percentage;
+		int countedAgents = 0;
+
+		while (iter.hasNext()) {
+			MasonGeometry geom = iter.next();
+
+			regionID = geom.getIntegerAttribute("id");
+			percentage = geom.getDoubleAttribute("TotPop");
+			regionsIds.add(regionID);
+
+			Region place = new Region(regionID, percentage);
+
+			place.setIsMale(geom.getDoubleAttribute("Male"));
+			place.setLocation(geom);
+			for (int i = 0; i < 10; i++) place.addAgeGroup(geom.getDoubleAttribute("AgeGroup"+i));
+
+			for (int i = 0; i < 5; i++) place.addEduLevel(geom.getDoubleAttribute("EduLevel"+i));
+
+			try{
+				place.setIsHispanic(geom.getDoubleAttribute("Hispanic"));
+			} catch (Exception ignore){ }
+
+			try{
+				for (int i = 0; i < 7; i++) place.addRace(geom.getDoubleAttribute("Race"+i));
+			} catch (Exception ignore){ }
+
+			try{
+				for (int i = 0; i < 7; i++) place.addIncomeLevel(geom.getDoubleAttribute("Income"+i));
+			} catch (Exception ignore){ }
+
+			try{
+				for (int i = 0; i < 6; i++) place.addIndivIncomeLevel(geom.getDoubleAttribute("IndiInc"+i));
+			} catch (Exception ignore){ }
+
+			try{
+				place.setInProvince(1-geom.getDoubleAttribute("Foreign"));
+			} catch (Exception ignore){ }
+
+			try{
+				place.setAreaPerAgent(geom.getDoubleAttribute("Area/Person"));
+			} catch (Exception ignore){ }
+
+			place.initCounts();
+			regions.put(place.getRegionID(), place);
 		}
 	}
 
@@ -893,9 +1320,13 @@ public class WorldModel extends SimState {
 		// add approx equal number of agents for each neighborhood.
 		Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap,
 				params.numOfAgents);
+		//Map<Integer, Integer> numOfAgentsPerNeighborhood = numberOfAgentsPerNeighborhood(this.neighborhoodBuildingMap);
+
 		int nIndex = 0;
 		logger.info("Total number of agents: " + params.numOfAgents);
 
+		int agentCount = params.numOfAgents;
+		int targetNumAgent = params.numOfAgents;
 		for (int nId : this.neighborhoodBuildingMap.keySet()) {
 			System.out.println("Number of agents in neighborhood #" + nId + ": " + numOfAgentsPerNeighborhood.get(nId));
 
@@ -903,46 +1334,107 @@ public class WorldModel extends SimState {
 			neighborhoodComposition.calculate(numOfAgentsPerNeighborhood.get(nId));
 			// neighborhoodComposition.calculateConstant(numOfAgentsPerNeighborhood.get(nId));
 
-			// create create family agents with kids
-			for (long i = 0; i < neighborhoodComposition
-					.getNumberOfFamilyAgentsWKids(); i++) {
-				addAgent(agentId++, nId, true, true, 3);
-			}
+			for (int rId : this.regions.keySet()) {
+				Region curRegion = regions.get(rId);
 
-			// create create family agents with no kid
-			for (long i = 0; i < neighborhoodComposition
-					.getNumberOfFamilyAgentsWOKids(); i++) {
-				addAgent(agentId++, nId, true, false, 2);
-			}
+				int numAgentInRegion = (int)(curRegion.getPerPopulation() * targetNumAgent + 0.5);
+				if (agentCount - numAgentInRegion < 0) numAgentInRegion = agentCount;
+				agentCount -= numAgentInRegion;
+				curRegion.setPopulation(numAgentInRegion);
+				curRegion.calNumAgents(params.numOfSingleAgentsPer1000, params.numOfFamilyAgentsWithKidsPer1000);
 
-			// create single agents
-			for (long i = 0; i < neighborhoodComposition
-					.getNumberOfSingleAgents(); i++) {
-				addAgent(agentId++, nId, false, false, 1);
+				logger.info("Number of agents in Region #" + rId + ": " + curRegion.getPopulation());
+
+				// create family agents with kids
+				for (long i = 0; i < curRegion.getNumberOfFamilyAgentsWKids(); i++) {
+					addAgent(agentId++, nId, true, true, 3, curRegion);
+				}
+
+				// create family agents with no kid
+				for (long i = 0; i < curRegion.getNumberOfFamilyAgentsWOKids(); i++) {
+					addAgent(agentId++, nId, true, false, 2, curRegion);
+				}
+
+				// create single agents
+				for (long i = 0; i < curRegion.getNumberOfSingleAgents(); i++) {
+					addAgent(agentId++, nId, false, false, 1, curRegion);
+				}
 			}
 		}
+
 		// spatialNetwork.clearPrecomputedPaths();
 		logger.info("Human agents are added.");
+
+		logger.info("Number of Regions: "+regions.size());
+		for (Integer rid: regions.keySet()){
+			logger.info("-------Region "+rid+": "+regions.get(rid).getPopulation()+" Agents----------");
+			logger.info(regions.get(rid).getAgeGroup());
+			logger.info(regions.get(rid).getEduLevel());
+			logger.info(regions.get(rid).getGender());
+			logger.info(regions.get(rid).getHispanic());
+
+			String info = regions.get(rid).getRace();
+			if (info != null) logger.info(info);
+			info = regions.get(rid).getIncomeLevel();
+			if (info != null) logger.info(info);
+			info = regions.get(rid).getIndivIncomeLevel();
+			if (info != null) logger.info(info);
+		}
 	}
 
 	private void addAgent(long agentId, int nId, boolean family, boolean kids,
-			int numOfPeople) {
+			int numOfPeople, Region region) {
 
 		Person agent = new Person(this, agentId);
 
 		AgentInitialization initialization = new AgentInitialization(this);
 		// initialize the agent
 
-		EducationLevel education = initialization.generateEducationLevel();
+		int agentAge = initialization.generateAgentAge(region);
+		EducationLevel education = initialization.generateEducationLevel(region);
+		Race race = initialization.generateAgentRace(region);
+		int hh_income = initialization.generateAgentHHCensusIncome(region);
+		int indiv_income = initialization.generateAgentIndivCensusIncome(region);
+		boolean isMale = initialization.isMale(region);
+		boolean isHispanic = initialization.isHispanic(region);
+		boolean inProvince = initialization.inProvince(region);
+		region.incrementInitiated();
+
+		String gender = (isMale) ? "Male" : "Female";
+		StringBuilder res = new StringBuilder();
+		res.append(" Agent #").append(agentId).append(" ")
+				.append(agentAge).append(" years old ")
+				.append(gender).append(" ");
+		try{
+			res.append(race.toString()).append(" ");
+		} catch (Exception ignore){}
+		res.append(education.toString());
+		if (hh_income != -1)
+			res.append(" with annual household income ").append((double)hh_income/1000.0).append("k");
+		if (indiv_income != -1)
+			res.append(" (").append((double)indiv_income/1000.0).append("k ind.)");
+		logger.info(res.toString());
+
 		// System.out.println("Education level: " + education);
 		double initialBalance = initialization
 				.generateInitialBalance(education);
 		double joviality = initialization.generateJovialityValue();
 
+		agent.setOriginRegion(region.getRegionID());
 		agent.setNeighborhoodId(nId);
-
-		agent.setAge(initialization.generateAgentAge());
+		agent.setAge(agentAge);
 		agent.setEducationLevel(education);
+		agent.setGender(isMale);
+
+		agent.setRace(race);
+		agent.setHHCensusIncome(hh_income);
+		agent.setIndivCensusIncome(indiv_income);
+		agent.setHispanic(isHispanic);
+		agent.setHouseholdInProvince(inProvince);
+
+		agent.setReportingRate();
+		agent.setReportingRates_Single();
+
 		agent.setInterest(initialization.getAgentInterest());
 		agent.getFoodNeed()
 				.setAppetite(initialization.generateAppetiteNumber());
@@ -975,7 +1467,7 @@ public class WorldModel extends SimState {
 
 		Stoppable stp = schedule.scheduleRepeating(agent);
 		agent.setStoppable(stp);
-		logger.info("Agent #" + agentId + " added.");
+		// logger.info("Agent #" + agentId + " added.");
 	}
 
 	/**
@@ -1001,6 +1493,15 @@ public class WorldModel extends SimState {
 		}
 		numberOfAgentsPerNeighborhood.put(nids[nids.length - 1],
 				numOfAgents - (neighborhoodBuildingMap.size() - 1) * apprxNumber);
+
+		return numberOfAgentsPerNeighborhood;
+	}
+
+	public Map<Integer, Integer> numberOfAgentsPerNeighborhood(Map<Integer, List<Building>> neighborhoodBuildingMap) {
+		Map<Integer, Integer> numberOfAgentsPerNeighborhood = new TreeMap<Integer, Integer>();
+		for (Integer rId : regions.keySet()){
+			numberOfAgentsPerNeighborhood.put(rId, regions.get(rId).getPopulation());
+		}
 
 		return numberOfAgentsPerNeighborhood;
 	}
@@ -1418,6 +1919,19 @@ public class WorldModel extends SimState {
 				.collect(Collectors.toList());
 	}
 
+
+	public List<Building> getUsableBuildings(int neighboodId,int regionId, BuildingType type) {
+		return this.buildings
+				.values()
+				.stream()
+				.filter(p -> p.getNeighborhoodId() == neighboodId
+						&& p.isUsable() == true
+						&& p.getBuildingType().equals(type)
+						&& p.getRegionID() == regionId)
+				.collect(Collectors.toList());
+	}
+
+
 	/**
 	 * Returns usable buildings.
 	 * 
@@ -1472,6 +1986,17 @@ public class WorldModel extends SimState {
 				.stream()
 				.filter(p -> p.isUsable() == true
 						&& p.getRemainingPersonCapacity() > 0)
+				.collect(Collectors.toList());
+	}
+
+
+	public List<Apartment> getUsableApartmentsWithAvailableCapacity(int regionId) {
+		return apartments
+				.values()
+				.stream()
+				.filter(p -> p.isUsable() == true
+						&& p.getRemainingPersonCapacity() > 0)
+				.filter(p -> p.getRegionId() == regionId)
 				.collect(Collectors.toList());
 	}
 
@@ -1586,6 +2111,8 @@ public class WorldModel extends SimState {
 	public Person getAgent(Long id) {
 		return this.agents.get(id);
 	}
+
+	public Region getRegion(Integer id) {return  this.regions.get(id);}
 
 	public int getDay() {
 		return day;
@@ -1740,118 +2267,146 @@ public class WorldModel extends SimState {
 			}
 		});
 
+		/*
+		dataCollector.addWatcher("Wearing Masks", new Collector() {
+			private static final long serialVersionUID = 311152044370201L;
+
+			public Double getData() {
+				long loggingInterval;
+
+				// percentage infectious agents
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_WEARING_MASKS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = (double) agents.values().stream()
+							.map(Person::isWearingMask)
+							.filter(p -> p).count()
+							* 100.0 / agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PERCENTAGE_OF_WEARING_MASKS,
+							value, schedule.getSteps());
+					quantitiesOfInterest.percentageWearingMasks = value;
+				}
+
+				return (double) quantitiesOfInterest.percentageWearingMasks;
+			}
+		});
+		*/
+		/*
 		// captures all Quantities of Interest
-//		dataCollector.addWatcher("QoIs", new Collector() {
-//			private static final long serialVersionUID = 311152044373854L;
-//
-//			public Double getData() {
-//				long loggingInterval;
-//
-//				// average network degree
-//				loggingInterval = quantitiesOfInterest
-//						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE);
-//				if (schedule.getSteps() % loggingInterval == 0) {
-//					Set<Long> keySet = agents.keySet();
-//
-//					double sum = 0;
-//					for (Long agentId : keySet) {
-//						sum += (double) friendFamilyNetwork
-//								.getEdgesIn(agentId).size();
-//					}
-//					double value = sum / keySet.size();
-//					quantitiesOfInterest.addValue(
-//							QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE,
-//							value, schedule.getSteps());
-//					quantitiesOfInterest.avgNetworkDegree = value;
-//				}
-//
-//				// average balance
-//				loggingInterval = quantitiesOfInterest
-//						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_BALANCE);
-//				if (schedule.getSteps() % loggingInterval == 0) {
-//
-//					double value = agents
-//							.values()
-//							.stream()
-//							.map(Person::getFinancialSafetyNeed)
-//							.mapToDouble(
-//									FinancialSafetyNeed::getAvailableBalance)
-//							.average().getAsDouble();
-//					quantitiesOfInterest.addValue(
-//							QuantitiesOfInterest.AVERAGE_BALANCE, value,
-//							schedule.getSteps());
-//					quantitiesOfInterest.avgBalance = value;
-//				}
-//
-//				// percentage of unhappy agents
-//				loggingInterval = quantitiesOfInterest
-//						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS);
-//				if (schedule.getSteps() % loggingInterval == 0) {
-//
-//					double value = (double) agents.values().stream()
-//							.map(Person::getLoveNeed)
-//							.filter(p -> p.isSatisfied() == false).count()
-//							* 100.0 / agents.size();
-//					quantitiesOfInterest.addValue(
-//							QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS,
-//							value, schedule.getSteps());
-//					quantitiesOfInterest.percentageUnhappy = value;
-//				}
-//
-//				// pub visits per agent
-//				loggingInterval = quantitiesOfInterest
-//						.getLoggingInterval(QuantitiesOfInterest.PUB_VISITS_PER_AGENT);
-//				if (schedule.getSteps() % loggingInterval == 0) {
-//
-//					double value = quantitiesOfInterest.getPubVisitCount();
-//					value /= agents.size();
-//					quantitiesOfInterest.addValue(
-//							QuantitiesOfInterest.PUB_VISITS_PER_AGENT, value,
-//							schedule.getSteps());
-//					quantitiesOfInterest.resetPubVisitorCount();
-//					quantitiesOfInterest.pubVisitPerAgent = value;
-//				}
-//
-//				// number of interactions
-//				// we first capture all existing interactions
-//				for (Pub pub : getAllPubs()) {
-//					List<Meeting> meetings = pub.getAllMeetings();
-//					for (Meeting meeting : meetings) {
-//						quantitiesOfInterest.captureInteractions(meeting,
-//								schedule.getSteps());
-//					}
-//				}
-//
-//				for (Restaurant restaurant : getAllRestaurants()) {
-//					List<Meeting> meetings = restaurant.getAllMeetings();
-//					for (Meeting meeting : meetings) {
-//						quantitiesOfInterest.captureInteractions(meeting,
-//								schedule.getSteps());
-//					}
-//				}
-//
-//				loggingInterval = quantitiesOfInterest
-//						.getLoggingInterval(QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS);
-//				if (schedule.getSteps() % loggingInterval == 0) {
-//					List<AgentInteraction> agentInteractions = quantitiesOfInterest
-//							.getAgentInteractions();
-//
-//					quantitiesOfInterest.addValue(
-//							QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS,
-//							(double) agentInteractions.size(),
-//							schedule.getSteps());
-//					quantitiesOfInterest.numOfSocialInteractions = agentInteractions.size();
-//					agentInteractions.clear();
-//				}
-//
-//				// For the sake of performance, return 1.0.
-//				return 1.0;
-//				// You can return a value you are interested.
-//				// For instance, if you want to monitor average balance, use the following code.
-//				// return (double) quantitiesOfInterest.avgBalance;
-//				// return (double) quantitiesOfInterest.percentageInfectious;
-//			}
-//		});
+		dataCollector.addWatcher("QoIs", new Collector() {
+			private static final long serialVersionUID = 311152044373854L;
+
+			public Double getData() {
+				long loggingInterval;
+
+				// average network degree
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE);
+				if (schedule.getSteps() % loggingInterval == 0) {
+					Set<Long> keySet = agents.keySet();
+
+					double sum = 0;
+					for (Long agentId : keySet) {
+						sum += (double) friendFamilyNetwork
+								.getEdgesIn(agentId).size();
+					}
+					double value = sum / keySet.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.AVERAGE_SOCIAL_NETWORK_DEGREE,
+							value, schedule.getSteps());
+					quantitiesOfInterest.avgNetworkDegree = value;
+				}
+
+				// average balance
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.AVERAGE_BALANCE);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = agents
+							.values()
+							.stream()
+							.map(Person::getFinancialSafetyNeed)
+							.mapToDouble(
+									FinancialSafetyNeed::getAvailableBalance)
+							.average().getAsDouble();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.AVERAGE_BALANCE, value,
+							schedule.getSteps());
+					quantitiesOfInterest.avgBalance = value;
+				}
+
+				// percentage of unhappy agents
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = (double) agents.values().stream()
+							.map(Person::getLoveNeed)
+							.filter(p -> p.isSatisfied() == false).count()
+							* 100.0 / agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PERCENTAGE_OF_UNHAPPY_AGENTS,
+							value, schedule.getSteps());
+					quantitiesOfInterest.percentageUnhappy = value;
+				}
+
+				// pub visits per agent
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.PUB_VISITS_PER_AGENT);
+				if (schedule.getSteps() % loggingInterval == 0) {
+
+					double value = quantitiesOfInterest.getPubVisitCount();
+					value /= agents.size();
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.PUB_VISITS_PER_AGENT, value,
+							schedule.getSteps());
+					quantitiesOfInterest.resetPubVisitorCount();
+					quantitiesOfInterest.pubVisitPerAgent = value;
+				}
+
+				// number of interactions
+				// we first capture all existing interactions
+				for (Pub pub : getAllPubs()) {
+					List<Meeting> meetings = pub.getAllMeetings();
+					for (Meeting meeting : meetings) {
+						quantitiesOfInterest.captureInteractions(meeting,
+								schedule.getSteps());
+					}
+				}
+
+				for (Restaurant restaurant : getAllRestaurants()) {
+					List<Meeting> meetings = restaurant.getAllMeetings();
+					for (Meeting meeting : meetings) {
+						quantitiesOfInterest.captureInteractions(meeting,
+								schedule.getSteps());
+					}
+				}
+
+				loggingInterval = quantitiesOfInterest
+						.getLoggingInterval(QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS);
+				if (schedule.getSteps() % loggingInterval == 0) {
+					List<AgentInteraction> agentInteractions = quantitiesOfInterest
+							.getAgentInteractions();
+
+					quantitiesOfInterest.addValue(
+							QuantitiesOfInterest.NUM_OF_SOCIAL_INTERACTIONS,
+							(double) agentInteractions.size(),
+							schedule.getSteps());
+					quantitiesOfInterest.numOfSocialInteractions = agentInteractions.size();
+					agentInteractions.clear();
+				}
+
+				// For the sake of performance, return 1.0.
+				return 1.0;
+				// You can return a value you are interested.
+				// For instance, if you want to monitor average balance, use the following code.
+				// return (double) quantitiesOfInterest.avgBalance;
+				// return (double) quantitiesOfInterest.percentageInfectious;
+			}
+		});
+		 */
 
 		dataCollector.addWatcher("barStats", new Collector() {
 			private static final long serialVersionUID = 7722307416790950096L;
@@ -1920,9 +2475,26 @@ public class WorldModel extends SimState {
 					if (configurationPath != null) {
 						params = new WorldParameters(configurationPath);
 					}
+
+					String biasConfigPath = argumentForKey("-bias.config",
+							args);
+					BiasParameters biasParameters = new BiasParameters();
+					if (biasConfigPath!= null) {
+						biasParameters = new BiasParameters(biasConfigPath);
+					}
+
+
+					String biasSingleConfigPath = argumentForKey("-bias.single.config",
+							args);
+					BiasSingleParameters biasSingleParameters = new BiasSingleParameters();
+					if (biasConfigPath!= null) {
+						biasSingleParameters = new BiasSingleParameters(biasSingleConfigPath);
+					}
+
 					return (SimState) (c.getConstructor(new Class[] {
-							Long.TYPE, WorldParameters.class }).newInstance(new Object[] {
-									Long.valueOf(params.seed), params }));
+							Long.TYPE, WorldParameters.class, BiasParameters.class, BiasSingleParameters.class }).newInstance(new Object[] {
+							Long.valueOf(params.seed), params , biasParameters, biasSingleParameters}));
+
 				} catch (Exception e) {
 					throw new RuntimeException(
 							"Exception occurred while trying to construct the simulation "
