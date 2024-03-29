@@ -1,10 +1,6 @@
 package edu.gmu.mason.vanilla;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.joda.time.LocalDateTime;
@@ -62,25 +58,48 @@ public class Person implements Steppable, java.io.Serializable {
 	@Skip
 	private Jitter jitter;
 
-	// basic properties
 	private long agentId;
 	@State
 	private int neighborhoodId;
+
+	// bias properties -- General
 	@Characteristics
 	private int originRegionId; // Assigned while initiate
 	@Characteristics
 	private boolean isMale;
 	@Characteristics
-	private boolean isHispanic;
-	@Characteristics
-	private Race race;
-	@Characteristics
 	private EducationLevel educationLevel;
 	@State
 	private double age;
 
-	// public boolean isNeedle = false;
+	// bias properties -- Atl Examples
+	@Characteristics
+	private boolean isHispanic;
+	@Characteristics
+	private Race race;
+	@Characteristics
+	private int indiv_census_income;
+	@Characteristics
+	private int hh_census_income;
 
+	// bias properties -- GZ-Tianhe Examples
+	@Characteristics
+	private boolean householdInProvince;
+
+	// bias reporting
+	@Skip
+	public static List<String> singleBiasTypes = new ArrayList<>();
+	@Skip
+	public static List<List<List<Double>>> processedSingleBiasParams = new ArrayList<>();
+	@Skip
+	public static int numSingleBias = 0;
+
+	@Characteristics
+	public double reportingRate;
+	@Characteristics
+	public List<Double> reportingRates_Single;
+
+	// Agent properties
 	@State
 	private PersonMode currentMode;
 	@State
@@ -101,13 +120,7 @@ public class Person implements Steppable, java.io.Serializable {
 	@State
 	private InfectiousDisease infectiousDisease;
 
-	// reportingRates stored in order: (set as public to keep reaching it simple)
-	//   [AgeGroup, Race, Edu Level, Gender, Hispanic, Income, Region]
-	@State
-	public List<Double> reportingRates;
 
-	@Skip
-	private String originLocation;
 
 	// agent needs from maslov's hierarchy of needs
 	// level 1
@@ -194,125 +207,101 @@ public class Person implements Steppable, java.io.Serializable {
 
 		// Adding Infectious Disease
 		this.infectiousDisease = new InfectiousDisease(this);
-		this.originLocation = null;
 
 		this.originRegionId = 0;
-		this.reportingRates = new ArrayList<>();
-		for (int i = 0; i < 7; i++) this.reportingRates.add(0.0);
-
+		this.reportingRate = 0;
+		this.reportingRates_Single = new ArrayList<>();
 	}
 
-	public void setReportingRates(){
-		int ageGroupIdx = (int)Math.floor(age/5) - 3;
-		switch (ageGroupIdx){
-			case 0:
-				this.reportingRates.set(0,model.biasParams.rateOfAge15to19);
-				break;
-			case 1:
-				this.reportingRates.set(0,model.biasParams.rateOfAge20to24);
-				break;
-			case 2:
-				this.reportingRates.set(0,model.biasParams.rateOfAge25to29);
-				break;
-			case 3:
-				this.reportingRates.set(0,model.biasParams.rateOfAge30to34);
-				break;
-			case 4:
-				this.reportingRates.set(0,model.biasParams.rateOfAge35to39);
-				break;
-			case 5:
-				this.reportingRates.set(0,model.biasParams.rateOfAge40to44);
-				break;
-			case 6:
-				this.reportingRates.set(0,model.biasParams.rateOfAge45to49);
-				break;
-			case 7:
-				this.reportingRates.set(0,model.biasParams.rateOfAge50to54);
-				break;
-			case 8:
-				this.reportingRates.set(0,model.biasParams.rateOfAge55to59);
-				break;
-			default:
-				this.reportingRates.set(0,model.biasParams.rateOfAge60to64);
-				break;
+	public static void addBiasType(String newBias){
+		singleBiasTypes.add(newBias);
+	}
+
+	public void setReportingRate(){
+		String[] consideredBias = model.biasParams.biasConsideration.split("/");
+		double numerator = model.biasParams.intercept;
+		for (String biasType: consideredBias){
+			if (biasType.equals("Vulnerability") && this.age >= 50) numerator *= model.biasParams.vulnerability;
+			if (biasType.equals("Race") && this.race == Race.WhiteOnly) numerator *= model.biasParams.raceWhite;
+			if (biasType.equals("Gender") && this.isMale) numerator *= model.biasParams.genderMale;
+			if (biasType.equals("Income") && this.indiv_census_income > 70000) numerator *= model.biasParams.income;
+			if (biasType.equals("Household Income") && this.hh_census_income > 100000) numerator *= model.biasParams.hh_income;
+
+			if (biasType.equals("Hispanic") && model.biasParams.hispanic != 0 && this.isHispanic) numerator *= model.biasParams.hispanic;
+			if (biasType.equals("Education") && model.biasParams.eduBachelor != 0 &&
+					(this.educationLevel == EducationLevel.Bachelors || this.educationLevel == EducationLevel.Graduate))
+				numerator *= model.biasParams.eduBachelor;
+			if (biasType.equals("Living Area") && model.biasParams.livingArea != 0 &&
+					this.getOriginRegion().getAreaPerAgent() > 30) numerator *= model.biasParams.livingArea;
+			if (biasType.equals("Residency") && model.biasParams.resInProvince != 0 && this.householdInProvince)
+				numerator *= model.biasParams.resInProvince;
 		}
+		this.reportingRate = numerator/(1+numerator);
+	}
 
-		int raceIdx = race.getValue();
-		switch (raceIdx){
-			case 0:
-				this.reportingRates.set(1,model.biasParams.rateOfWhiteOnly);
-				break;
-			case 1:
-				this.reportingRates.set(1,model.biasParams.rateOfBlackOnly);
-				break;
-			case 2:
-				this.reportingRates.set(1,model.biasParams.rateOfAmerIndianOnly);
-				break;
-			case 3:
-				this.reportingRates.set(1,model.biasParams.rateOfAsianOnly);
-				break;
-			case 4:
-				this.reportingRates.set(1,model.biasParams.rateOfPacIslandOnly);
-				break;
-			case 5:
-				this.reportingRates.set(1,model.biasParams.rateOfOtherRace);
-				break;
-			default:
-				this.reportingRates.set(1,model.biasParams.rateOfPlus2Races);
-				break;
-		}
+	public double getReportingRate(){
+		return this.reportingRate;
+	}
 
-		int eduIdx = educationLevel.getValue();
-		switch (eduIdx){
-			case 0:
-				this.reportingRates.set(2,model.biasParams.rateOfLow);
-				break;
-			case 1:
-				this.reportingRates.set(2,model.biasParams.rateOfHighSchoolOrCollege);
-				break;
-			case 2:
-				this.reportingRates.set(2,model.biasParams.rateOfBachelors);
-				break;
-			default:
-				this.reportingRates.set(2,model.biasParams.rateOfGraduate);
-				break;
-		}
+	public void setReportingRates_Single(){
+		numSingleBias = singleBiasTypes.size();
+		for (int i = 0 ; i < numSingleBias; i++) {
+			String biasType = singleBiasTypes.get(i);
+			List<List<Double>> pairProb = processedSingleBiasParams.get(i);
 
-		if(isMale){
-			this.reportingRates.set(3,model.biasParams.rateOfMale);
-		} else {
-			this.reportingRates.set(3,model.biasParams.rateOfFemale);
-		}
+			int idxOther = -1;
+			boolean found = false;
 
-		if(isHispanic){
-			this.reportingRates.set(4,model.biasParams.rateOfHispanic);
-		} else {
-			this.reportingRates.set(4,model.biasParams.rateOfNonHispanic);
-		}
-
-		double minIncome = model.params.minimumHourlyRate * model.params.workHoursPerDay * 21;
-		double maxIncome = model.params.maximumHourlyRate * model.params.workHoursPerDay * 30;
-		double Q2Income = (minIncome + maxIncome) / 2;
-		double Q1Income = (minIncome + Q2Income) / 2;
-		double Q3Income = (maxIncome + Q2Income) / 2;
-
-		if (this.financialSafetyNeed.projectedMonthlyIncome() < Q1Income){
-			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ1);
-		} else if (this.financialSafetyNeed.projectedMonthlyIncome() < Q2Income) {
-			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ2);
-		} else if (this.financialSafetyNeed.projectedMonthlyIncome() < Q3Income) {
-			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ3);
-		} else {
-			this.reportingRates.set(5,model.biasParams.rateOfIncomeQ4);
-		}
-
-		if (this.getOriginRegion().getMedianIncome() < model.biasParams.annualIncomeThres){
-			this.reportingRates.set(6, model.biasParams.rateOfBelowThres);
-		} else {
-			this.reportingRates.set(6, model.biasParams.rateOfAboveThres);
+			if (biasType.equals("Age") || biasType.equals("Income") || biasType.equals("HouseHold Income")  || biasType.equals("Living Area")) {
+				double compareVal = 0;
+				if (biasType.equals("Age")) compareVal = this.age;
+				if (biasType.equals("Income")) compareVal = (double) this.indiv_census_income / 1000.0;
+				if (biasType.equals("HouseHold Income")) compareVal = (double) this.hh_census_income / 1000.0;
+				if (biasType.equals("Living Area")) compareVal = this.getOriginRegion().getAreaPerAgent();
+				for (int j = 0; j < pairProb.size() && !found; j++) {
+					List<Double> param = pairProb.get(j);
+					if (param.get(0) == -1.0) {
+						idxOther = j;
+						continue;
+					}
+					if (param.get(0) <= compareVal && param.get(1) > compareVal) {
+						this.reportingRates_Single.add(param.get(2));
+						found = true;
+					}
+				}
+				if (!found) {
+					double rate = (idxOther == -1) ? 0.5 : pairProb.get(idxOther).get(1);
+					this.reportingRates_Single.add(rate);
+				}
+			} else {
+				double searchIdx = -1.0;
+				if (biasType.equals("Gender")) searchIdx = this.isMale ? 1.0 : 0.0;
+				if (biasType.equals("Education")) searchIdx = this.educationLevel.getValue();
+				if (biasType.equals("Race")) searchIdx = this.race.getValue();
+				if (biasType.equals("Hispanic")) searchIdx = this.isHispanic ? 1.0 : 0.0;
+				if (biasType.equals("Residency")) searchIdx = this.householdInProvince ? 1.0 : 0.0;
+				for (int j = 0; j < pairProb.size() && !found; j++) {
+					List<Double> param = pairProb.get(j);
+					if (param.get(0) == -1.0) {
+						idxOther = j;
+						continue;
+					}
+					if (param.get(0) == searchIdx) {
+						this.reportingRates_Single.add(param.get(1));
+						found = true;
+					}
+				}
+				if (!found) {
+					double rate = (idxOther == -1) ? 0.5 : pairProb.get(idxOther).get(1);
+					this.reportingRates_Single.add(rate);
+				}
+			}
 		}
 	}
 
+	public List<Double> getReportingRates_Single(){
+		return this.reportingRates_Single;
+	}
 
 	public void setOriginRegion(int regionId){
 		this.originRegionId = regionId;
@@ -320,9 +309,17 @@ public class Person implements Steppable, java.io.Serializable {
 
 	public void setRace(Race race){ this.race = race;}
 
+	public void setHHCensusIncome(int income){this.hh_census_income = income;}
+
+	public void setIndivCensusIncome(int income){this.indiv_census_income = income;}
+
+
 	public void setGender(boolean isMale){ this.isMale = isMale; }
 
 	public void setHispanic(boolean isHispanic) {this.isHispanic = isHispanic;}
+
+	public void setHouseholdInProvince(boolean inProvince) {this.householdInProvince = inProvince;}
+
 
 	public void initializeDiseaseStatus(InfectionStatus status, VaccineStatus vaccineStatus, double c2spread, double cbinfected){
 
@@ -352,9 +349,6 @@ public class Person implements Steppable, java.io.Serializable {
 		return this.infectiousDisease.getChanceToSpreat();
 	}
 
-	public boolean reportedInfectious(){
-		return this.infectiousDisease.isReported();
-	}
 	public double getDaysFromDose() {
 		return this.infectiousDisease.getDaysFromDose();
 	}
@@ -364,8 +358,6 @@ public class Person implements Steppable, java.io.Serializable {
 	public VaccineStatus getVaccineStatus() {
 		return this.infectiousDisease.getVaccineStatus();
 	}
-
-	public boolean isDiseaseReported(){return this.infectiousDisease.isReported(); }
 
 	public double getDaysQuarantined(){return this.infectiousDisease.getDaysQuarantined();}
 	public void setQuarantine(){this.infectiousDisease.setQuarantine();}
@@ -408,7 +400,6 @@ public class Person implements Steppable, java.io.Serializable {
 		this.currentMode = PersonMode.AtHome;
 		this.currentUnit = this.shelterNeed.getCurrentShelter();
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
-		this.originLocation = this.location.toString();
 
 		// Initialize the disease
 		if (infectiousDisease.getRemainNumOfInitInfect() > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 70) ) toBeTheFirstPatient();

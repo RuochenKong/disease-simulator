@@ -1,0 +1,5 @@
+activate = true
+ageProb = [50-80]:0.8/other:0.2
+genderProb = Male:0.2/Female:0.8
+incomeProb = [70-Inf]:0.8/other:0.2
+raceProb = White:0.2/other:0.8

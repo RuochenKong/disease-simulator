@@ -1,1 +1,1 @@
-java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=all -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration atlanta.properties -until 133632
+java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=bias -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration parameters.properties -bias.config bias.properties -bias.single.config bias.single.properties -until 25920

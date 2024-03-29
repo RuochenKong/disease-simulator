@@ -73,8 +73,8 @@ public class WorldModelUI extends ChartedGUIState {
 		super(state);
 	}
 
-	public WorldModelUI(WorldParameters params, WorldBiasParameters biasParameters) throws IOException, Exception {
-		super(new WorldModel(params.seed, params, biasParameters));
+	public WorldModelUI(WorldParameters params,BiasParameters biasParameters, BiasSingleParameters biasSingleParameters) throws IOException, Exception {
+		super(new WorldModel(params.seed, params, biasParameters, biasSingleParameters));
 	}
 
 	public static String getName() {
@@ -129,7 +129,9 @@ public class WorldModelUI extends ChartedGUIState {
 		insp.addInspector(new TitledSimpleInspector(
 				((WorldModel) state).params, this, null), "Parameters");
 		insp.addInspector(new TitledSimpleInspector(
-				((WorldModel) state).biasParams, this, null), "Reporting Bias parameters");
+				((WorldModel) state).biasParams, this, null), "Multivariate Biases Parameters");
+		insp.addInspector(new TitledSimpleInspector(
+				((WorldModel) state).biasSingleParams, this, null), "Single Bias Parameters");
 		insp.addInspector(new TitledSimpleInspector(
 				((WorldModel) state).getQuantitiesOfInterest(), this, null), "QOI");
 		return insp;
@@ -369,21 +371,36 @@ public class WorldModelUI extends ChartedGUIState {
 						+ WorldParameters.DEFAULT_PROPERTY_FILE_NAME + ". A new configuration file is generated.");
 			}
 
-			WorldBiasParameters biasParameters = null;
+			BiasParameters biasParameters = null;
 			try {
 				String configurationPath = WorldModel.argumentForKey("-bias.config", args);
 				if(configurationPath==null) {
-					configurationPath =  WorldBiasParameters.DEFAULT_BIAS_FILE_NAME;
+					configurationPath =  BiasParameters.DEFAULT_BIAS_FILENAME;
 				}
-				biasParameters = new WorldBiasParameters(configurationPath);
+				biasParameters = new BiasParameters(configurationPath);
 			} catch (ConfigurationException e) {
-				biasParameters = new WorldBiasParameters();
-				biasParameters.store( WorldBiasParameters.DEFAULT_BIAS_FILE_NAME);
+				biasParameters = new BiasParameters();
+				biasParameters.store( BiasParameters.DEFAULT_BIAS_FILENAME);
 				System.err.println("WARNING: Counld not find a bias configuration file:"
-						+  WorldBiasParameters.DEFAULT_BIAS_FILE_NAME + ". A new configuration file is generated.");
+						+  BiasParameters.DEFAULT_BIAS_FILENAME + ". A new configuration file is generated.");
 			}
 
-			new WorldModelUI(params, biasParameters).createController();
+			BiasSingleParameters biasSingleParameters = null;
+			try {
+				String configurationPath = WorldModel.argumentForKey("-bias.single.config", args);
+				if(configurationPath==null) {
+					configurationPath =  BiasSingleParameters.DEFAULT_BIAS_FILENAME;
+				}
+				biasSingleParameters = new BiasSingleParameters(configurationPath);
+			} catch (ConfigurationException e) {
+				biasSingleParameters = new BiasSingleParameters();
+				biasSingleParameters.store( BiasSingleParameters.DEFAULT_BIAS_FILENAME);
+				System.err.println("WARNING: Counld not find a bias configuration file:"
+						+  BiasSingleParameters.DEFAULT_BIAS_FILENAME + ". A new configuration file is generated.");
+			}
+
+			new WorldModelUI(params, biasParameters, biasSingleParameters).createController();
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

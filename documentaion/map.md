@@ -34,4 +34,20 @@ The instructions below were adhered to in order to create the Atlanta map. It's 
 1. Open the geojson file with `QGIS`
 1. Delete all the fields and create an `id`
 1. Update `id` with `@row_number` or your preferred identification mechanism;
-1. Export the features as `buildings.shp` while `EPSG:26916 - NAD83 / UTM zone 16N` is selected for `CRS`
+1. Export the features as `walkways.shp` while `EPSG:26916 - NAD83 / UTM zone 16N` is selected for `CRS`
+
+## Commnets on Beijin
+
+1. if you have the bounding box you can replace `({{bbox}})` with your bonding box. e.g. (39.784,116.165, 40.038, 116.628) where used for Beijing
+
+2. Go to Processing Toolbox -> Vector geometry -> Fix geometries and run the algorithm for the building layer
+
+## Comment on San Francisco
+
+1. banding box is: (37.708269684354526, -122.51901626586914, 37.81385247479046, -122.35301971435545)
+
+## Comment on Atlanta Metropolitan
+
+1. Map should be bounded by area larger than the metropolitan area.
+1. We need to specify the metropolitan area: [out:json][timeout:25]; ( area["name"="Atlanta"]; way(area)["building"]({{bbox}}); ); out body; >; out skel qt;
+1. For walkways: [out:json][timeout:25]; ( area["name"="Atlanta"]; way(area)["highway"]({{bbox}}); ); out body; >; out skel qt;

@@ -1,12 +1,10 @@
 package edu.gmu.mason.vanilla;
 import scala.Int;
-import java.util.Random;
+
+import java.util.*;
+
 import sim.app.lsystem.LSystem;
 import sim.util.geo.MasonGeometry;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.RandomAccess;
 
 public class Region {
 
@@ -15,63 +13,85 @@ public class Region {
     private int regionID;
     private double perPopulation;
     private int population;
-
-    private int numberOfSingleAgents;
-    private int numberOfFamilyAgentsWKids;
-    private int numberOfFamilyAgentsWOKids;
-
-    private List<Double> race;
-    private List<Double> ageGroup;
-    private List<Double> educationLevel;
-
-    private List<Integer> raceDist;
-    private List<Integer> ageGroupDist;
-    private List<Integer> educationLevelDist;
-
-    private List<Integer> numPerRace;
-    private List<Integer> numPerAgeGroup;
-    private List<Integer> numPerEduLevel;
-
-    private double isHispanic;
-    private double isMale;
-
-    private int numHispanic;
-    private int numMale;
-    private int medianHouseholdIncome;
-
     private MasonGeometry location;
 
     private int initiatedAgent;
 
+    private int numberOfSingleAgents;
+    private int numberOfFamilyAgentsWKids;
+    private int numberOfFamilyAgentsWOKids;
     private Random rand;
+
+    // General
+    private List<Double> ageGroup;
+    private List<Integer> numPerAgeGroup;
+
+    private List<Double> educationLevel;
+    private List<Integer> numPerEduLevel;
+
+    private double isMale;
+    private int numMale;
+
+    // Atl & San-Fran
+    private List<Double> race;
+    private List<Integer> numPerRace;
+
+    private static List<Integer> incomeRanges = Arrays.asList(0,10,30,60,100,150,200);
+    private List<Double> incomeLevel;
+    private List<Integer> numPerIncomeLevel;
+
+    private static List<Integer> indivIncomeRanges = Arrays.asList(0,10,25,50,75,100);
+    private List<Double> indivIncomeLevel;
+    private List<Integer> numPerIndivIncomeLevel;
+
+    private double isHispanic;
+    private int numHispanic;
+
+    // GZ-Tianhe
+    private double areaPerAgent;
+
+    private double inProvince;
+    private int numInProvince;
+
 
     public Region(){
         this.regionID = -1;
         this.perPopulation = 0;
         this.population = 0;
 
-        this.race = new ArrayList<>();
-        this.ageGroup = new ArrayList<>();
-        this.educationLevel = new ArrayList<>();
-
-        this.raceDist = new ArrayList<>();
-        this.ageGroupDist = new ArrayList<>();
-        this.educationLevelDist = new ArrayList<>();
-
-        this.numPerRace = new ArrayList<>();
-        this.numPerAgeGroup = new ArrayList<>();
-        this.numPerEduLevel = new ArrayList<>();
-
-        this.isHispanic = 0;
-        this.isMale = 0;
-
-        this.numHispanic = 0;
-        this.numMale = 0;
-
-        this.medianHouseholdIncome = 0;
         this.initiatedAgent = 0;
 
         rand = new Random(0);
+
+        // General
+        this.ageGroup = new ArrayList<>();
+        this.numPerAgeGroup = new ArrayList<>();
+
+        this.educationLevel = new ArrayList<>();
+        this.numPerEduLevel = new ArrayList<>();
+
+        this.isMale = 0;
+        this.numMale = 0;
+
+        // Atl & San-Fran
+        this.race = new ArrayList<>();
+        this.numPerRace = new ArrayList<>();
+
+        this.incomeLevel = new ArrayList<>();
+        this.numPerIncomeLevel = new ArrayList<>();
+
+        this.indivIncomeLevel = new ArrayList<>();
+        this.numPerIndivIncomeLevel = new ArrayList<>();
+
+
+        this.isHispanic = 0;
+        this.numHispanic = 0;
+
+        // GZ-Tianhe
+        this.areaPerAgent = 0;
+
+        this.inProvince = 1;
+        this.numInProvince = 0;
     }
 
     public Region(int id, double perPop){
@@ -116,36 +136,19 @@ public class Region {
         this.educationLevel.add(percentage);
     }
 
-    private void setEachDistribution(List<Double> percents, List<Integer> dists, List<Integer> counts){
-        int n = 0;
-        for (int i = 0; i < percents.size(); i++){
-            int numRepeat = (int)(percents.get(i) * accuracy + 0.5);
-            if (n + numRepeat > accuracy) numRepeat = accuracy - n;
-            n += numRepeat;
-            for (int r = 0; r < numRepeat; r++) dists.add(i);
-            counts.add(0);
-        }
-        for (int i = dists.size(); i < accuracy; i++)  dists.add(rand.nextInt(percents.size()-1)+1);
+    public void addIncomeLevel(double percentage){
+        this.incomeLevel.add(percentage);
     }
 
-    public void setDistribution(){
-        // Ignore UnKown Education Level
-        double refineEduProb = 1-educationLevel.get(0);
-        educationLevel.set(0,0.0);
-        for (int i = 0; i < educationLevel.size(); i++)
-            educationLevel.set(i, educationLevel.get(i)/refineEduProb);
-
-        setEachDistribution(race, raceDist, numPerRace);
-        setEachDistribution(ageGroup, ageGroupDist, numPerAgeGroup);
-        setEachDistribution(educationLevel, educationLevelDist, numPerEduLevel);
+    public void addIndivIncomeLevel(double percentage){
+        this.indivIncomeLevel.add(percentage);
     }
 
     public void setIsHispanic(double prob){ this.isHispanic = prob; }
     public void setIsMale(double prob){ this.isMale = prob;}
+    public void setInProvince(double inProvince){ this.inProvince = inProvince;}
 
-    public void setMedianHouseholdIncome(int income){
-        this.medianHouseholdIncome = income;
-    }
+    public void setAreaPerAgent(double AreaPerAgent){this.areaPerAgent = areaPerAgent;}
 
     public void setLocation(MasonGeometry location) {
         this.location = location;
@@ -153,25 +156,63 @@ public class Region {
 
     public int getRegionID(){ return this.regionID; }
 
+    private int getRandIdxWithDist(List<Double> probs){
+        double cumProb = 0;
+        double randVal = rand.nextDouble();
+        for (int i = 0; i <probs.size(); i++){
+            cumProb += probs.get(i);
+            if (randVal < cumProb) return i;
+        }
+        return -1;
+    }
+
+    public void initCounts(){
+        for (int i = 0; i < ageGroup.size(); i++) numPerAgeGroup.add(0);
+        for (int i = 0; i < educationLevel.size(); i++) numPerEduLevel.add(0);
+        for (int i = 0; i < race.size(); i++) numPerRace.add(0);
+        for (int i = 0; i < incomeLevel.size(); i++) numPerIncomeLevel.add(0);
+        for (int i = 0; i < indivIncomeLevel.size(); i++) numPerIndivIncomeLevel.add(0);
+    }
+
     public EducationLevel newEduLevelAssigned(){
-        int idx = rand.nextInt(accuracy);
-        int eduIdx = educationLevelDist.get(idx);
+        int eduIdx = this.getRandIdxWithDist(educationLevel);
+        if (eduIdx == -1) return null;
         numPerEduLevel.set(eduIdx, numPerEduLevel.get(eduIdx) + 1);
         return EducationLevel.valueOf(eduIdx);
     }
 
     public AgeGroup newAgeGroupAssigned(){
-        int idx = rand.nextInt(accuracy);
-        int ageIdx = ageGroupDist.get(idx);
+        int ageIdx = this.getRandIdxWithDist(ageGroup);
+        if (ageIdx == -1) return null;
         numPerAgeGroup.set(ageIdx, numPerAgeGroup.get(ageIdx) + 1);
         return AgeGroup.valueOf(ageIdx);
     }
 
     public Race newRaceAssigned(){
-        int idx = rand.nextInt(accuracy);
-        int raceIdx = raceDist.get(idx);
+        int raceIdx = this.getRandIdxWithDist(race);
+        if (raceIdx == -1) return null;
         numPerRace.set(raceIdx, numPerRace.get(raceIdx) + 1);
         return Race.valueOf(raceIdx);
+    }
+
+    public int newIncomeAssigned(){
+        if (this.incomeLevel.size() == 0) return -1;
+        int incomeIdx = this.getRandIdxWithDist(incomeLevel);
+        numPerIncomeLevel.set(incomeIdx, numPerIncomeLevel.get(incomeIdx) + 1);
+
+        int lowerBound = incomeRanges.get(incomeIdx) * 1000;
+        int upperBound = (incomeIdx + 1 < incomeRanges.size()) ? incomeRanges.get(incomeIdx+1) * 1000: 1000000;
+        return lowerBound + rand.nextInt(upperBound-lowerBound);
+    }
+
+    public int newIndivIncomeAssigned(){
+        if (this.indivIncomeLevel.size() == 0) return -1;
+        int incomeIdx = this.getRandIdxWithDist(indivIncomeLevel);
+        numPerIndivIncomeLevel.set(incomeIdx, numPerIndivIncomeLevel.get(incomeIdx) + 1);
+
+        int lowerBound = indivIncomeRanges.get(incomeIdx) * 1000;
+        int upperBound = (incomeIdx + 1 < indivIncomeRanges.size()) ? indivIncomeRanges.get(incomeIdx+1) * 1000: 500000;
+        return lowerBound + rand.nextInt(upperBound-lowerBound);
     }
 
     public boolean newGender(){ // 1 for male, 0 for female
@@ -179,13 +220,20 @@ public class Region {
             numMale ++;
             return true;
         }
-
         return false;
     }
 
     public boolean newHispanic(){ // 1 for hispanic, 0 for non-hispanic
         if (rand.nextDouble() < this.isHispanic){
             numHispanic ++;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean newInProvince(){
+        if (rand.nextDouble() < this.inProvince){ // 1 for in province, 0 for out
+            numInProvince ++;
             return true;
         }
         return false;
@@ -199,29 +247,34 @@ public class Region {
         return this.population;
     }
 
-    public String getRace(){
+    private String getListElements(String attr, List<Integer> nums){
+        if (nums.size() == 0) return null;
         StringBuilder res = new StringBuilder();
-        res.append("Race: ");
-        for (int i = 0; i < 7; i++)
-            res.append(numPerRace.get(i).toString()).append(" ");
+        res.append("# of ").append(attr);
+        for (Integer num : nums) res.append(num.toString()).append(" ");
         return res.toString();
     }
 
     public String getAgeGroup(){
-        StringBuilder res = new StringBuilder();
-        res.append("Age Group: ");
-        for (int i = 0; i < 10; i++)
-            res.append(numPerAgeGroup.get(i).toString()).append(" ");
-        return res.toString();
+        return this.getListElements("Age Group: ", numPerAgeGroup);
     }
 
     public String getEduLevel(){
-        StringBuilder res = new StringBuilder();
-        res.append("Education Level: ");
-        for (int i = 0; i < 5; i++)
-            res.append(numPerEduLevel.get(i).toString()).append(" ");
-        return res.toString();
+        return this.getListElements("Education Level: ", numPerEduLevel);
     }
+
+    public String getRace(){
+        return this.getListElements("Race: ", numPerRace);
+    }
+
+    public String getIncomeLevel(){
+        return this.getListElements("Income Level: ", numPerIncomeLevel);
+    }
+
+    public String getIndivIncomeLevel(){
+        return this.getListElements("Individual Income Level: ", numPerIndivIncomeLevel);
+    }
+
 
     public String getGender(){
         StringBuilder res = new StringBuilder();
@@ -232,6 +285,12 @@ public class Region {
     public String getHispanic(){
         StringBuilder res = new StringBuilder();
         res.append("Hispanic: "+numHispanic+", Non-Hispanic: "+(population-numHispanic));
+        return res.toString();
+    }
+
+    public String getInProvince(){
+        StringBuilder res = new StringBuilder();
+        res.append("HH Reg In: "+numInProvince+", Out: "+(population-numInProvince));
         return res.toString();
     }
 
@@ -247,15 +306,7 @@ public class Region {
         return numberOfFamilyAgentsWOKids;
     }
 
-    public void clearDistCollection(){
-        this.raceDist.clear();
-        this.educationLevelDist.clear();
-        this.ageGroupDist.clear();
-    }
-
     public MasonGeometry getLocation() {return this.location;}
 
-    public int getMedianIncome() {
-        return this.medianHouseholdIncome;
-    }
+    public double getAreaPerAgent() {return this.areaPerAgent;}
 }

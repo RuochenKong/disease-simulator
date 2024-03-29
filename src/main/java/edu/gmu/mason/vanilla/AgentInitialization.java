@@ -104,11 +104,23 @@ public class AgentInitialization {
 		return region.newEduLevelAssigned();
 	}
 
+	public int generateAgentHHCensusIncome(Region region){
+		return region.newIncomeAssigned();
+	}
+
+	public int generateAgentIndivCensusIncome(Region region){
+		return region.newIndivIncomeAssigned();
+	}
+
 	public boolean isMale(Region region){
 		return region.newGender();
 	}
 
 	public boolean isHispanic(Region region){
 		return region.newHispanic();
+	}
+
+	public boolean inProvince(Region region){
+		return region.newInProvince();
 	}
 }

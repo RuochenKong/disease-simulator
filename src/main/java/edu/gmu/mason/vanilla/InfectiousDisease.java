@@ -27,6 +27,14 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private static int remainNumOfInitInfect = -1;
 
+    // Bias Reporting
+    @State
+    private boolean isReported;
+    @Skip
+    private List<Boolean> singleBiasReports;
+    @Characteristics
+    private String biasReportsTypes;
+
     // Let the agents know something about the disease
     // But the information is delayed
     @Characteristics
@@ -66,20 +74,13 @@ public class InfectiousDisease implements java.io.Serializable {
     private double daysQuarantined;
     @Skip
     private double maxDaysQuarantined;
-    @State
-    private boolean isReported;
+
     @Characteristics
     private double normalAppetite;
     @Characteristics
     private int normalSleepLength;
 
-    // Biased Report
-    @State
-    private List<Boolean> biasedReported;
-    @Characteristics
-    private static final List<String> biasCategories= new ArrayList<>(Arrays.asList("AgeGroup", "Race", "EduLevel", "Gender", "Hispanic", "Income", "Region"));
-    @State
-    private String reportedCategories;
+
 
     // Logging info
     @Skip
@@ -114,9 +115,43 @@ public class InfectiousDisease implements java.io.Serializable {
         return rand;
     }
 
-    private void resetBiasedReport(){
-        for (int i = 0 ; i < 7; i++) this.biasedReported.set(i, false);
-        this.reportedCategories = null;
+    // Check whether report with component biases
+    private boolean calReport(){
+        boolean report;
+        Random rand = new Random();
+        report =  rand.nextDouble() < agent.getReportingRate();
+        return report;
+    }
+
+    // Check whether report with single bias
+    private void calSingleReport(){
+        Random rand = new Random();
+        if (this.agent.getReportingRates_Single().size() != Person.numSingleBias)
+            this.agent.setReportingRates_Single();
+        while (this.singleBiasReports.size() != Person.numSingleBias)
+            this.singleBiasReports.add(false);
+        for (int i = 0; i < Person.numSingleBias; i++)
+            if (rand.nextDouble() < this.agent.getReportingRates_Single().get(i))
+                this.singleBiasReports.set(i, true);
+    }
+
+    // Reset singleBiasReports
+    private void resetSingleBias(){
+        while (this.singleBiasReports.size() != Person.numSingleBias)
+            this.singleBiasReports.add(false);
+        for (int i = 0; i < Person.numSingleBias; i++)
+            this.singleBiasReports.set(i, false);
+        this.biasReportsTypes = null;
+    }
+
+    // Convert boolean list of reporting to a single string
+    private void setBiasReportsTypes(){
+        StringBuilder ss = new StringBuilder();
+        for (int i = 0 ; i < singleBiasReports.size(); i++){
+            if (singleBiasReports.get(i))
+                ss.append("/").append(Person.singleBiasTypes.get(i));
+        }
+        this.biasReportsTypes = (ss.length() > 0) ? ss.substring(1) : null;
     }
 
     public InfectiousDisease(){
@@ -137,16 +172,18 @@ public class InfectiousDisease implements java.io.Serializable {
         this.statusChangeCheckIn = null;
         this.wearingMasks = false;
         this.maskWearingLength = 0;
-        this.reportedCategories = null;
+        this.singleBiasReports = new ArrayList<>();
+        for (int i = 0; i < Person.numSingleBias; i++) this.singleBiasReports.add(false);
+        this.biasReportsTypes = null;
 
         Random rand = new Random();
         this.maskCheckTikCount = rand.nextInt(15)-6;
-        this.biasedReported = new ArrayList<>();
-        for (int i = 0; i < 7; i ++) biasedReported.add(false);
+
     }
 
     public InfectiousDisease(Person p){
         this();
+
         if (remainNumOfInitInfect == -1){
             double infectPer = p.getModel().params.initPercentInfectious/ (double)100;
             int numAgents = p.getModel().params.numOfAgents;
@@ -215,20 +252,9 @@ public class InfectiousDisease implements java.io.Serializable {
             this.maxDaysInStatus = rand.nextDouble() * 3 + 5;
             this.maxDaysQuarantined = rand.nextDouble() * 3 + 1;
 
-            this.isReported = calReport();
-
-            this.agent.setReportingRates(); // Set Biased Reporting Rate
-            // Get reporting
-            StringBuilder strBuilder = new StringBuilder("");
-            for (int i = 0; i < 7; i++){
-                if (rand.nextDouble() < this.agent.reportingRates.get(i)){
-                    this.biasedReported.set(i, true);
-                    strBuilder.append("/");
-                    strBuilder.append(biasCategories.get(i));
-                }
-            }
-            this.reportedCategories = strBuilder.toString();
-            this.reportedCategories = (this.reportedCategories.length() <= 1) ? null : this.reportedCategories.substring(1);
+            this.isReported = this.calReport();
+            this.calSingleReport();
+            this.setBiasReportsTypes();
 
             // Increment the count at the newest tik
             if (this.isReported) numNewCases.set(numNewCases.size() - 1, numNewCases.get(numNewCases.size() - 1) + 1);
@@ -239,12 +265,7 @@ public class InfectiousDisease implements java.io.Serializable {
             this.maxDaysInStatus = rand.nextDouble() * 150 + 30;
     }
 
-    public boolean calReport(){
-        boolean report;
-        Random rand = new Random();
-        report =  rand.nextDouble() < agent.getModel().params.reportingProbability;
-        return report;
-    }
+
 
     // For zero patients
     public int getRemainNumOfInitInfect(){
@@ -356,10 +377,6 @@ public class InfectiousDisease implements java.io.Serializable {
         return this.statusChangeCheckIn;
     }
 
-    public String getReportedCategories(){
-        return this.reportedCategories;
-    }
-
     private void incrementTikCounts(){
         String agentTime = agent.getModel().getSimulationTime().toString();
         if (agentTime.equals(currentTime)) return;
@@ -408,7 +425,7 @@ public class InfectiousDisease implements java.io.Serializable {
             setStatus(InfectionStatus.Recovered);
             this.daysQuarantined = -1;
             this.isReported = false;
-            resetBiasedReport();
+            this.resetSingleBias();
         }
 
         // Recovered for [3-6] months change to Susceptible
@@ -452,10 +469,14 @@ public class InfectiousDisease implements java.io.Serializable {
         return this.wearingMasks;
     }
 
-    public boolean isReported() {
+    public boolean getCompReport() {
         if (this.status == InfectionStatus.Infectious)
             return isReported;
         return false;
+    }
+
+    public String getSingleBiasReports(){
+        return this.biasReportsTypes;
     }
 
     public double getKnowCaseImpactParam(){

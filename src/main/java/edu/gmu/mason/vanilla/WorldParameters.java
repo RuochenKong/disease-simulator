@@ -192,7 +192,7 @@ public class WorldParameters extends AnnotatedPropertied {
 	// Disease Parameters
 	@EditableProperty(group = "Disease", description = "Initial percentage of infectious", lower = "0.0", upper = "100.0", readOnly = false)
 	public double initPercentInfectious;
-	@EditableProperty(group = "Disease", description = "Probability of staying at home when infected", lower = "0.0", upper = "100.0", readOnly = false)
+	@EditableProperty(group = "Disease", description = "Parameter of staying at home when infected", lower = "0.0", upper = "100.0", readOnly = false)
 	public double selfQuarantinedProbability;
 	@EditableProperty(group = "Disease", description = "Disease spreading parameter", lower = "0.0", upper = "1.0", readOnly = false)
 	public double additionalDiseaseSpreadingParam;

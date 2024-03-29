@@ -1,1 +1,0 @@
-java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=bias -Dfile.prefix=bias_2000_30_ -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration parameters.properties -bias.config parameters.bias -until 12960
