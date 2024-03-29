@@ -23,16 +23,16 @@ import edu.gmu.mason.vanilla.utils.SimulationTimeStepSetting;
  * General description_________________________________________________________
  * This is a data structure class to keep all model parameters. The values are
  * automatically loaded from a config file
- * 
+ *
  * @author Hamdi Kavak (hkavak at gmu.edu), Joon-Seok Kim (jkim258 at gmu.edu)
- * 
+ *
  */
 public class WorldParameters extends AnnotatedPropertied {
 
 	private static final long serialVersionUID = 3872954334021542511L;
 
 	// CONSTANTS
-	public static final String DEFAULT_PROPERTY_FILE_NAME = "atlanta.properties";
+	public static final String DEFAULT_PROPERTY_FILE_NAME = "parameters.properties";
 
 	// SIMULATION
 	public static final long SEED = 1;
@@ -192,7 +192,7 @@ public class WorldParameters extends AnnotatedPropertied {
 	// Disease Parameters
 	@EditableProperty(group = "Disease", description = "Initial percentage of infectious", lower = "0.0", upper = "100.0", readOnly = false)
 	public double initPercentInfectious;
-	@EditableProperty(group = "Disease", description = "Parameter of staying at home when infected", lower = "0.0", upper = "100.0", readOnly = false)
+	@EditableProperty(group = "Disease", description = "Probability of staying at home when infected", lower = "0.0", upper = "100.0", readOnly = false)
 	public double selfQuarantinedProbability;
 	@EditableProperty(group = "Disease", description = "Disease spreading parameter", lower = "0.0", upper = "1.0", readOnly = false)
 	public double additionalDiseaseSpreadingParam;
