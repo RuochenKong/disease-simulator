@@ -63,10 +63,12 @@ pom.xml.tag
 *.serialized
 
 # Log files
-logs/
-qois/
-*.log
+# logs/
+# qois/
+# *.log
 *.checkpoint
+*.ipynd_checkpoint
+*.dgs
 
 # batch files
 batch/
