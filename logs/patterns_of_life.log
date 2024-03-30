@@ -10,7 +10,7 @@
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Pubs Needed: 20
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Workplace Needed: 500
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Restaurant Needed: 40
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - GUI initialization time: 439 ms.
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - GUI initialization time: 314 ms.
 [INFO] edu.gmu.mason.vanilla.WorldModel start - Considered single bias types: Age, Gender, Education, Income, Race
 [INFO] edu.gmu.mason.vanilla.WorldModel start - Considered component bias types: Vulnerability, Gender, Income, Race
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Total number of agents: 2000
@@ -2259,8 +2259,16 @@
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - # of Race: 7 89 1 1 0 0 4 
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - # of Income Level: 42 24 24 3 2 5 2 
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - # of Individual Income Level: 0 18 39 33 4 8 
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Agent population create/initialize time: 4528 ms.
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Portrayal setup time: 4659 ms.
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Agent population create/initialize time: 5469 ms.
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Portrayal setup time: 5619 ms.
 [INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #1 Mon @ 00:00
+[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #1 Mon @ 19:00
+[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #2 Tue @ 00:00
+[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #2 Tue @ 19:00
+[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #3 Wed @ 00:00
+[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #3 Wed @ 19:00
+[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #4 Thu @ 00:00
+[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #4 Thu @ 19:00
+[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #5 Fri @ 00:00
 [INFO] edu.gmu.mason.vanilla.WorldModel finish - Social network graph saved.
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Total simulation time: 82001 ms.
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Total simulation time: 1002247 ms.

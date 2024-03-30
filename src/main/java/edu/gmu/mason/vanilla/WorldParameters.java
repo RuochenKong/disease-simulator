@@ -202,8 +202,6 @@ public class WorldParameters extends AnnotatedPropertied {
 	public double knownCaseImpactParam;
 	@EditableProperty(group = "Disease", description = "Threshold Percentage of Infectious to Wear Mask", lower = "0.0", upper = "1.0", readOnly = false)
 	public double maskWearingThreshold;
-	@EditableProperty(group = "Disease", description = "Probability of reporting a case", lower = "0.0", upper = "1.0", readOnly = false)
-	public double reportingProbability;
 	@EditableProperty(group = "Disease", description = "Effectivity of wearing masks", lower = "0.0", upper = "1.0", readOnly = false)
 	public double avgMaskEffectivity;
 	@EditableProperty(group = "Disease", description = "Minimum minutes of continuously wearing masks", lower = "1", upper = "1440", readOnly = false)
