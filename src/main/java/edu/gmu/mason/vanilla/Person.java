@@ -69,7 +69,7 @@ public class Person implements Steppable, java.io.Serializable {
 	private boolean isMale;
 	@Characteristics
 	private EducationLevel educationLevel;
-	@State
+	@Characteristics
 	private double age;
 
 	// bias properties -- Atl Examples

@@ -1,34 +1,27 @@
 # Overview
 
-This repository is infectious disease simulator described in the paper 
-``Understanding Bias in AI Models for the Prediction of Infectious Disease Spread'' currently under review. 
+This repository is the infectious disease simulation with biased data generator described in the paper 
+***"An Infectious Disease Spread Simulation to Control Data Bias"*** currently under review. 
 
-## Data
-The simulated disease data could be found in the directory [diseasedata](diseasedata).
-The data were generated with 2000 agents with simulated downtown atlanta as their living space. 
-
-The "ground truth" of the disease cases in the simulated world is stored in [unbiased_2000.tsv](diseasedata/unbiased_2000.tsv).
-Then we manually split the map into 4 region, and gave them different reporting rate.
-
-![image](https://github.com/RuochenKong/disease-simulator/blob/main/diseasedata/figures/4_regions.png)
-
-The data with the different reporting rates are stored in [processed_data](diseasedata/processed_data). 
-The first number in the filenames represents the reporting rate of the top left region, and the second for the rest.
-
-The scripts for simulating the reporting rate and for plotting are in [scripts](diseasedata/scripts).
-
-# Patterns-of-Life Simulation
-
-Location-based social networks (LBSNs) have been studied extensively in recent years. However, utilizing real-world LBSN data sets in such studies yields several weaknesses: sparse and small data sets, privacy concerns, and a lack of authoritative ground-truth. To overcome these weaknesses, we leverage a large-scale geospatial simulation to create a framework to simulate human behavior and to create synthetic but realistic LBSN data based on human patterns of life. Such data not only captures the location of users over time but also their interactions via social networks. Patterns of life are simulated by giving agents (i.e., people) an array of 'needs' that they aim to satisfy, e.g., agents go home when they are tired, to restaurants when they are hungry, to work to cover their financial needs, and to recreational sites to meet friends and satisfy their social needs. While existing real-world LBSN data sets are trivially small, the proposed framework provides a source for massive LBSN benchmark data that closely mimics the real-world. As such it allows us to capture 100% of the (simulated) population without any data uncertainty, privacy-related concerns, or incompleteness. It allows researchers to see the (simulated) world through the lens of an omniscient entity having perfect data. Our framework is made available to the community. In addition, we provide a series of simulated benchmark LBSN data sets using different real-world urban environments obtained from OpenStreetMap. The simulation software and data sets which comprise gigabytes of spatio-temporal and temporal social network data are made available to the research community.
+# Biased Data Simulation 
+This simulation is an extension of the [*Patterns of Life
+simulation*](https://github.com/gmuggs/pol), a scalable agent-based simulation of human
+behavior that was recently used to generate large-scale and socially
+plausible location-based social network data and trajectory
+data. To simulate the spread of disease and the process of generating 
+observational biased datasets, we extended the Pattern of
+Life Simulation by adding the following features:
+- An infectious disease model.
+- Functionality to inform the simulation with real-world population census data, allowing to simulate any region
+in the world where population census data is available.
+- To generate biased observations, we provide the functionality to
+adjust the proportion of different population groups reporting their cases when infected.
+- To understand multivariate bias that is confounded by multiple population attributes
+- We provide a demonstration of simulation and data generation for showcase at VLDB’24.
 
 
-# Location-Based Social Network Data Generation Framework
-
-The framework utilizes and extends the MASON (Multi-Agent Simulation of Neighborhoods) open-source simulation toolkit and its GIS extension, GeoMASON. MASON is a fast discrete-event multi-agent simulation library core developed in Java. It is designed to be the foundation for sizeable custom-purpose Java simulations by providing the basic run-time infrastructure for simulation development.
-
-
+<!---
 ## Structure of project
-
 
 The structure of the project and its summary are described as follows:
 - [edu/gmu/mason/vanilla](src/main/java/edu/gmu/mason/vanilla): Core models including agents and needs
@@ -37,7 +30,7 @@ The structure of the project and its summary are described as follows:
 - [edu/gmu/mason/vanilla/gui](src/main/java/edu/gmu/mason/vanilla/gui): Utilities related to GUI
 - [edu/gmu/mason/vanilla/log](src/main/java/edu/gmu/mason/vanilla/log): Classes related to the logging system used to generate data
 - [edu/gmu/mason/vanilla/utils](src/main/java/edu/gmu/mason/vanilla/utils): Other utilities
-
+-->
 
 ## How to compile and build a jar file
 

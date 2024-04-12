@@ -27,6 +27,24 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private static int remainNumOfInitInfect = -1;
 
+    // Range of Lasting Days
+    @Characteristics
+    private static int minExposed;
+    @Characteristics
+    private static int maxExposed;
+    @Characteristics
+    private static int minInfectious;
+    @Characteristics
+    private static int maxInfectious;
+    @Characteristics
+    private static int minRecovered;
+    @Characteristics
+    private static int maxRecovered;
+    @Characteristics
+    private static int minStayingHome;
+    @Characteristics
+    private static int maxStayingHome;
+
     // Bias Reporting
     @State
     private boolean isReported;
@@ -154,6 +172,34 @@ public class InfectiousDisease implements java.io.Serializable {
         this.biasReportsTypes = (ss.length() > 0) ? ss.substring(1) : null;
     }
 
+    // initializing static variables
+    private void setStatics(WorldParameters params){
+
+        String [] splits = params.exposedLasting.split("-");
+        try{ minExposed = Integer.valueOf(splits[0]); } catch (Exception ignore){ minExposed = 1;}
+        try{ maxExposed = Integer.valueOf(splits[1]); } catch (Exception ignore){ maxExposed = 5;}
+
+        splits = params.infectiousLasting.split("-");
+        try{ minInfectious = Integer.valueOf(splits[2]); } catch (Exception ignore){ minInfectious = 5;}
+        try{ maxInfectious = Integer.valueOf(splits[3]); } catch (Exception ignore){ maxInfectious = 8;}
+
+        splits = params.recoveredLasting.split("-");
+        try{ minRecovered = Integer.valueOf(splits[4]); } catch (Exception ignore){ minRecovered = 30;}
+        try{ maxRecovered = Integer.valueOf(splits[5]); } catch (Exception ignore){ maxRecovered = 180;}
+
+        splits = params.stayingHome.split("-");
+        try{ minStayingHome = Integer.valueOf(splits[6]); } catch (Exception ignore){ minStayingHome = 1;}
+        try{ maxStayingHome = Integer.valueOf(splits[7]); } catch (Exception ignore){ maxStayingHome = 4;}
+
+        double infectPer = params.initPercentInfectious/ (double)100;
+        int numAgents =  params.numOfAgents;
+        remainNumOfInitInfect = (int) (infectPer * numAgents);
+        numTikDelay = params.numTikDelay;
+        currentTime = params.initialSimulationTime.toString();
+        numNewCases.add(0);
+
+    }
+
     public InfectiousDisease(){
         this.agent = null;
         this.chanceToSpreat = 0.5;
@@ -185,13 +231,7 @@ public class InfectiousDisease implements java.io.Serializable {
         this();
 
         if (remainNumOfInitInfect == -1){
-            double infectPer = p.getModel().params.initPercentInfectious/ (double)100;
-            int numAgents = p.getModel().params.numOfAgents;
-            remainNumOfInitInfect = (int) (infectPer * numAgents);
-            numTikDelay = p.getModel().params.numTikDelay;
-            currentTime = p.getModel().params.initialSimulationTime.toString();
-
-            numNewCases.add(0);
+            setStatics(p.getModel().params);
         }
 
         this.agent = p;
@@ -245,12 +285,12 @@ public class InfectiousDisease implements java.io.Serializable {
             this.maxDaysInStatus = 0;
         // Exposed for [1-5] days change to Infectious
         if (this.status == InfectionStatus.Exposed)
-            this.maxDaysInStatus = rand.nextDouble() * 4 + 1;
+            this.maxDaysInStatus = rand.nextDouble() * (maxExposed-minExposed) + minExposed;
         // Infectious for [5-8] days change to Recovered,
         // Could bear at most [1-4] days of staying home
         if (this.status == InfectionStatus.Infectious){
-            this.maxDaysInStatus = rand.nextDouble() * 3 + 5;
-            this.maxDaysQuarantined = rand.nextDouble() * 3 + 1;
+            this.maxDaysInStatus = rand.nextDouble() * (maxInfectious-minInfectious) + minInfectious;
+            this.maxDaysQuarantined = rand.nextDouble() * (maxStayingHome-minStayingHome) + minStayingHome;
 
             this.isReported = this.calReport();
             this.calSingleReport();
@@ -262,9 +302,8 @@ public class InfectiousDisease implements java.io.Serializable {
 
         // Recovered for [1-6] months change to Susceptible
         if (this.status == InfectionStatus.Recovered)
-            this.maxDaysInStatus = rand.nextDouble() * 150 + 30;
+            this.maxDaysInStatus = rand.nextDouble() * (maxRecovered-minRecovered) + minRecovered;
     }
-
 
 
     // For zero patients
