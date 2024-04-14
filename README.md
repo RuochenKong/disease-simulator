@@ -5,7 +5,7 @@ This repository is the infectious disease simulation with biased data generator 
 
 # Biased Data Simulation 
 This simulation is an extension of the [*Patterns of Life
-simulation*](https://github.com/gmuggs/pol), a scalable agent-based simulation of human
+simulation*](https://github.com/azufle/pol), a scalable agent-based simulation of human
 behavior that was recently used to generate large-scale and socially
 plausible location-based social network data and trajectory
 data. To simulate the spread of disease and the process of generating 
@@ -151,7 +151,7 @@ which requires the following four ESRI shapefiles:
 
 
 Note that multi geometry type such as multipoint and multipolygons are not supported. In order to load different maps, you have two options.
-- Copy maps into [src/main/resources/campus_data/](src/main/resources/atlanta).
+- Copy maps into [src/main/resources/atlanta/](src/main/resources/atlanta).
 - Set the location of maps in the resources directory with parameter `maps`. For instance, you can load the San Fransisco maps by setting `maps` configuration as follows.
 ```
 maps = san-fran
