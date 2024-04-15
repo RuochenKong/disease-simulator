@@ -174,3 +174,18 @@ The detail of each tag is as following:
 - `Single Bias Parameters`: The parameters used to control the model considering single bias. An example of the corresponding file is [bias.single.properties](bias.single.properties) specified after `-bias.single.config`. This model simulates reporting bias by directly assigning the reporting chance of agents with specific characteristics. For example, in the figure *Single Bias Parameters*, the line `[15-30]:0.3/[50-80]:0.8/other:0.5` implies that agents between the ages of 15 and 30 will have a 30% chance of reporting, agents between the ages of 50 and 80 will have an 80% chance, and all others will have 50% chance.
 - `Multivariate Biases Parameters`: The parameters used to control the model considering multivariate biases. An example of the corresponding file is [bias.properties](bias.properties) specified after `-bias.config`. This model calculates the reporting chance of agents by a logistic regression model originally for mask usage prediction ([Von Hoene, Emma, et al.,2023](https://dl.acm.org/doi/10.1145/3615891.3628010)). We modified the model slightly, assuming an agent age over the age of 50 has a "perceived vulnerability > 50" (true), and ignoring the political variable, as these features are not available in the simulation. As shown in the figure *Multivariate Biases Parameters*, the considered attributes are specified under the `Init` separated by the symbol `/`. The intercepts and the odds ratios for the logistic regression model can be edited. As an example, a 16-year-old white male with a 20k income would have a reporting probability of $\frac{4.54 \times(3.571^0\times2.471^0\times0.289^1\times0.438^1)}{1 + 4.54 \times(3.571^0\times2.471^0\times0.289^1\times0.438^1)} \approx 0.365$.
 
+## Output Dataset
+
+Five files will be generated while running the simulation. Among them two are cached for execution and the other three include the necessary information. The three files are:
+- `patterns_of_life.log`: It contains all information on the console. The summary of agents in each region is available in this file.
+- `AgentCharacteristicTable.tsv`: It includes all unchangeable characteristics of agents (e.g. Race, Gender, Education Level). It also collects the reporting chances of each agent in column `reportingRate` and `reportingRates_Single`. The `reportingRate` is the chance calculated by the multivariate biases model, and the `reportingRates_Single` is the assigned rate by the single bias model.
+- `DiseaseReports.tsv`: It provides disease spread information. The details are as following:
+  - `regionId`: The region the agent belongs to.
+  - `diseaseStatus`: Disease status in SEIR model (i.e. Susceptible, Exposed, Infectious, Recovered).
+  - `byAgentID`: The agent that spread the disease.
+  - `time`: The time the agent being infected and becoming Exposed.
+  - `location` and `checkin`: The place the agent becoming Exposed. The former is the actual location in longitude and latitude format, and the latter is the function of this location (e.g. restaurant, home, work). 
+  - `Report(Component)`: Binary value, representing whether the agent reported with the multivariate reporting chance.
+    - `Report(Single)`: A string of bias types, seperated by `/`, representing in which considered bias types the agent reported. For example, `Age/EduLevel/Race` means the agent reported with reporting chances assigned by considering age, education level, or race, but didn't report in other considerations.
+  
+Current available datasets are in [examples/logs](examples/logs).
