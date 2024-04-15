@@ -186,6 +186,6 @@ Five files will be generated while running the simulation. Among them two are ca
   - `time`: The time the agent being infected and becoming Exposed.
   - `location` and `checkin`: The place the agent becoming Exposed. The former is the actual location in longitude and latitude format, and the latter is the function of this location (e.g. restaurant, home, work). 
   - `Report(Component)`: Binary value, representing whether the agent reported with the multivariate reporting chance.
-    - `Report(Single)`: A string of bias types, seperated by `/`, representing in which considered bias types the agent reported. For example, `Age/EduLevel/Race` means the agent reported with reporting chances assigned by considering age, education level, or race, but didn't report in other considerations.
+  - `Report(Single)`: A string of bias types, seperated by `/`, representing in which considered bias types the agent reported. For example, `Age/EduLevel/Race` means the agent reported with reporting chances assigned by considering age, education level, or race, but didn't report in other considerations.
   
 Current available datasets are in [examples/logs](examples/logs).
