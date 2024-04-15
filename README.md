@@ -3,6 +3,7 @@
 This repository is the infectious disease simulation with biased data generator described in the paper 
 ***"An Infectious Disease Spread Simulation to Control Data Bias"*** currently under review. 
 The demonstration video is available for download [here](demo.mp4), or on YouTube:
+
 [![](https://markdown-videos-api.jorgenkh.no/youtube/kqPduiHbLV4)](https://youtu.be/kqPduiHbLV4)
 
 # Biased Data Simulation 
