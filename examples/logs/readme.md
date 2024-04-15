@@ -19,3 +19,6 @@ Currently, 10 datasets are available stored separately in each folder. The detai
     The related batch files are [run_atlanta.sh](../run_atlanta.sh) and [run_san_francisco.sh](../run_san_francisco.sh).
 
 The maps for Atlanta and San Francisco are in [atlanta](../atlanta) and [san-fran](../san-fran).
+
+
+## Visualization
