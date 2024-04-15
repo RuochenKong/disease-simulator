@@ -2,6 +2,11 @@
 
 This repository is the infectious disease simulation with biased data generator described in the paper 
 ***"An Infectious Disease Spread Simulation to Control Data Bias"*** currently under review. 
+The demonstration video is available here.
+
+<video width="320" height="240" controls>
+  <source src="demo.mp4" type="video/mp4">
+</video>
 
 # Biased Data Simulation 
 This simulation is an extension of the [*Patterns of Life
@@ -129,7 +134,7 @@ Examples of configurations are found in [examples/](examples/).
 Default maps are located in [src/main/resources/atlanta/](src/main/resources/atlanta/). 
 The current version of this project includes three maps 
 (i.e., [Atlanta downtown](src/main/resources/atlanta), 
-[partial San Fransisco](src/main/resources/san-fran), 
+[partial San Francisco](src/main/resources/san-fran), 
 [Tianhe (Guangzhou, China)](src/main/resources/gz-tianhe)) complaint with simulation,
 which requires the following four ESRI shapefiles:
 - `buildings`: They represent 2D polygonal footprints of buildings. It should include `neighbor` (neighborhood id: Integer), `id` (building id: Integer), `function` (building type: Integer), and `degree` (attractiveness of building: Double) fields.
@@ -152,7 +157,7 @@ which requires the following four ESRI shapefiles:
 
 Note that multi geometry type such as multipoint and multipolygons are not supported. In order to load different maps, you have two options.
 - Copy maps into [src/main/resources/atlanta/](src/main/resources/atlanta).
-- Set the location of maps in the resources directory with parameter `maps`. For instance, you can load the San Fransisco maps by setting `maps` configuration as follows.
+- Set the location of maps in the resources directory with parameter `maps`. For instance, you can load the San Francisco maps by setting `maps` configuration as follows.
 ```
 maps = san-fran
 ```
