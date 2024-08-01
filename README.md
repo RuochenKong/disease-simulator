@@ -188,4 +188,10 @@ Five files will be generated while running the simulation. Among them two are ca
   - `Report(Component)`: Binary value, representing whether the agent reported with the multivariate reporting chance.
   - `Report(Single)`: A string of bias types, seperated by `/`, representing in which considered bias types the agent reported. For example, `Age/EduLevel/Race` means the agent reported with reporting chances assigned by considering age, education level, or race, but didn't report in other considerations.
   
-Current available datasets are in [examples/logs](examples/logs).
+Current available datasets are in [examples/logs](examples/logs). 
+
+## Runtime and Scalability
+For all simulation runs, we used a population of **5,000** agents for **30 simulation days**. Each simulation took approximately 5 hours running single-threaded on an Intel NUC using a Intel i5-1135G7 CPU with 2.40GHz.
+
+The simulation scales quadratic in the number of agents due to the underlying social network. If we scale the number of agents (without scaling the number of places to visit), we will have (linearly) more agents co-locating with each other and, thus, have a (quadratic) increase in pair-wise meetings between agents.
+
