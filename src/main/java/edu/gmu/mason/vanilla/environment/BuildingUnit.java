@@ -52,8 +52,9 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	@State
 	private int numOfAgents;
 
-	@State
-	private Map< Person, ArrayList<LocalDateTime>>infectedAgents;
+//	@State
+//	private Map< Person, ArrayList<LocalDateTime>>infectedAgents;
+
 	@State
 	private int numOfVisits = 0;
 	@State
@@ -84,7 +85,7 @@ public abstract class BuildingUnit implements java.io.Serializable {
 		this.meetingIdIndexCounter = 0;
 		this.type = type;
 
-		this.infectedAgents = new HashMap<Person, ArrayList<LocalDateTime>>();
+		// this.infectedAgents = new HashMap<Person, ArrayList<LocalDateTime>>();
 
 		// new variable for logging
 		agentSet = visitMap.keySet();
@@ -123,15 +124,31 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	}
 
 	public void agentArrives(Person agent, double visitLength) {
+		if(agent.getDiseaseStatus() == InfectionStatus.Susceptible){
+			for (Person p: this.getCurrentAgents()){
+				if (p.getDiseaseStatus() == InfectionStatus.Infectious){
+					Random rand = new Random();
+					// Low chance been exposed by someone in the same building.
+					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * agent.getModel().params.additionalDiseaseSpreadingParam * 0.1){
+						if (p.getInfectiousDisease().getDiseaseSeq() == null)
+							System.err.println("Agent #"+p.getAgentId()+" seq err. -- BuildingUnit");
+						agent.beenExposed(p);
+					}
+				}
+			}
+		}
+
 		visitMap.put(agent.getAgentId(), new Visit(agent.getSimulationTime(), visitLength));
 		numOfAgents = visitMap.size();
 
+		/*
 		// Create a mapped pair, key = agent, and values = <arriving time, leaving time>
 		if(agent.getDiseaseStatus() == InfectionStatus.Infectious){
 			ArrayList<LocalDateTime> times = null;
 			infectedAgents.put(agent, times = new ArrayList<LocalDateTime>());
 			times.add(agent.getSimulationTime());
 		}
+		 */
 	}
 
 	public void agentLeaves(Person agent) {
@@ -151,35 +168,37 @@ public abstract class BuildingUnit implements java.io.Serializable {
 			}
 		}
 
-		// Store the leaving time of an infected agent
-		if(agent.getDiseaseStatus() == InfectionStatus.Infectious){
-			ArrayList<LocalDateTime> times = infectedAgents.get(agent);
-			if (times != null) times.add(agent.getSimulationTime());
-		}
+		/*
 
-
-		// Check whether an infected agent exist when the agent is at the Building
-		// Agent may get exposed when the infectious agents exist.
-		if(agent.getDiseaseStatus() == InfectionStatus.Susceptible){
-			for (Person p : infectedAgents.keySet()){
-				ArrayList<LocalDateTime> times = infectedAgents.get(p);
-				Visit visit = visitMap.get(agent.getAgentId());
-				if (visit == null) continue;
-				if (times.get(0).isBefore(visit.getArrivalTime()) &&
-						(times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1)))){
-					Random rand = new Random();
-					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * agent.getModel().params.additionalDiseaseSpreadingParam){
-						agent.beenExposed(agent.getSimulationTime(), p.getAgentId());
-
-						/* DEBUGGER */
-						// System.out.println("From Building -- [Agent "+agent.getAgentId()+"] exposed.");
-						// System.out.println(agent.getCurrentDiseaseStatus());
-					}
-					if (agent.getDiseaseStatus() == InfectionStatus.Exposed) break;
-				}
-			}
-
-		}
+		 */
+//		// Store the leaving time of an infected agent
+//		if(agent.getDiseaseStatus() == InfectionStatus.Infectious){
+//			ArrayList<LocalDateTime> times = infectedAgents.get(agent);
+//			if (times != null) times.add(agent.getSimulationTime());
+//		}
+//
+//
+//		// Check whether an infected agent exist when the agent is at the Building
+//		// Agent may get exposed when the infectious agents exist.
+//		if(agent.getDiseaseStatus() == InfectionStatus.Susceptible){
+//			for (Person p : infectedAgents.keySet()){
+//				ArrayList<LocalDateTime> times = infectedAgents.get(p);
+//				Visit visit = visitMap.get(agent.getAgentId());
+//				if (visit == null) continue;
+//				if (times.get(0).isBefore(visit.getArrivalTime()) &&
+//						(times.size() == 1 || visit.getArrivalTime().isBefore(times.get(1)))){
+//					Random rand = new Random();
+//					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * agent.getModel().params.additionalDiseaseSpreadingParam){
+//						agent.beenExposed(p);
+//
+//						/* DEBUGGER */
+//						// System.out.println("From Building -- [Agent "+agent.getAgentId()+"] exposed.");
+//						// System.out.println(agent.getCurrentDiseaseStatus());
+//					}
+//					if (agent.getDiseaseStatus() == InfectionStatus.Exposed) break;
+//				}
+//			}
+//		}
 
 		visitMap.remove(agent.getAgentId());
 		numOfAgents = visitMap.size();

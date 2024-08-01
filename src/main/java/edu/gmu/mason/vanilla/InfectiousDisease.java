@@ -27,6 +27,13 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private static int remainNumOfInitInfect = -1;
 
+    // Simulate sequence
+    @Characteristics
+    private String diseaseSeq;
+
+    @Characteristics
+    private int numExposed;
+
     // Range of Lasting Days
     @Characteristics
     private static int minExposed;
@@ -52,6 +59,13 @@ public class InfectiousDisease implements java.io.Serializable {
     private List<Boolean> singleBiasReports;
     @Characteristics
     private String biasReportsTypes;
+
+    // Sequenced Reporting
+    @State
+    private boolean isSampled;
+    @State
+    private boolean isSequenced;
+
 
     // Let the agents know something about the disease
     // But the information is delayed
@@ -138,6 +152,8 @@ public class InfectiousDisease implements java.io.Serializable {
         boolean report;
         Random rand = new Random();
         report =  rand.nextDouble() < agent.getReportingRate();
+        if (report) this.isSampled = rand.nextDouble() < agent.getModel().params.percentSampled;
+        if (isSampled) this.isSequenced = rand.nextDouble() < agent.getModel().params.percentSequenced;
         return report;
     }
 
@@ -180,16 +196,16 @@ public class InfectiousDisease implements java.io.Serializable {
         try{ maxExposed = Integer.valueOf(splits[1]); } catch (Exception ignore){ maxExposed = 5;}
 
         splits = params.infectiousLasting.split("-");
-        try{ minInfectious = Integer.valueOf(splits[2]); } catch (Exception ignore){ minInfectious = 5;}
-        try{ maxInfectious = Integer.valueOf(splits[3]); } catch (Exception ignore){ maxInfectious = 8;}
+        try{ minInfectious = Integer.valueOf(splits[0]); } catch (Exception ignore){ minInfectious = 5;}
+        try{ maxInfectious = Integer.valueOf(splits[1]); } catch (Exception ignore){ maxInfectious = 8;}
 
         splits = params.recoveredLasting.split("-");
-        try{ minRecovered = Integer.valueOf(splits[4]); } catch (Exception ignore){ minRecovered = 30;}
-        try{ maxRecovered = Integer.valueOf(splits[5]); } catch (Exception ignore){ maxRecovered = 180;}
+        try{ minRecovered = Integer.valueOf(splits[0]); } catch (Exception ignore){ minRecovered = 30;}
+        try{ maxRecovered = Integer.valueOf(splits[1]); } catch (Exception ignore){ maxRecovered = 180;}
 
         splits = params.stayingHome.split("-");
-        try{ minStayingHome = Integer.valueOf(splits[6]); } catch (Exception ignore){ minStayingHome = 1;}
-        try{ maxStayingHome = Integer.valueOf(splits[7]); } catch (Exception ignore){ maxStayingHome = 4;}
+        try{ minStayingHome = Integer.valueOf(splits[0]); } catch (Exception ignore){ minStayingHome = 1;}
+        try{ maxStayingHome = Integer.valueOf(splits[1]); } catch (Exception ignore){ maxStayingHome = 4;}
 
         double infectPer = params.initPercentInfectious/ (double)100;
         int numAgents =  params.numOfAgents;
@@ -224,6 +240,12 @@ public class InfectiousDisease implements java.io.Serializable {
 
         Random rand = new Random();
         this.maskCheckTikCount = rand.nextInt(15)-6;
+
+        this.diseaseSeq = null;
+        this.numExposed = 0;
+
+        this.isSampled = false;
+        this.isSequenced = false;
 
     }
 
@@ -313,14 +335,24 @@ public class InfectiousDisease implements java.io.Serializable {
 
     public void setStatus(){
         setStatus(InfectionStatus.Infectious);
+        this.numExposed += 1;
+        this.diseaseSeq = String.valueOf(agent.getAgentId())+'-'+this.numExposed;
         this.infectedByAgentID = agent.getAgentId();
         remainNumOfInitInfect --;
     }
 
     // For exposed status
-    public void setStatus(long agentID){
+    public void setStatus(Person p){
+        // Avoid Unknown Expose
+        if (p.getInfectiousDisease().getDiseaseSeq() == null) {
+            System.err.println("Null on agent "+infectedByAgentID);
+            return;
+        }
         setStatus(InfectionStatus.Exposed);
-        this.infectedByAgentID = agentID;
+        this.infectedByAgentID = p.getAgentId();
+        this.numExposed += 1;
+        this.diseaseSeq = p.getInfectiousDisease().getDiseaseSeq()
+                + "." +agent.getAgentId() + '-' + numExposed;
     }
 
     public void setChanceToSpreat(double c2spread){
@@ -341,6 +373,11 @@ public class InfectiousDisease implements java.io.Serializable {
     public void setDaysFromDose(double daysFromDose){
         this.daysFromDose = daysFromDose;
     } // Might be useless
+
+    public String getDiseaseSeq() {return this.diseaseSeq;}
+
+    public boolean isSampled() {return this.isSampled;}
+    public boolean isSequenced() {return this.isSequenced;}
 
     public void setQuarantine(){
         this.daysQuarantined = 0;
@@ -464,6 +501,8 @@ public class InfectiousDisease implements java.io.Serializable {
             setStatus(InfectionStatus.Recovered);
             this.daysQuarantined = -1;
             this.isReported = false;
+            this.isSampled = false;
+            this.isSequenced = false;
             this.resetSingleBias();
         }
 

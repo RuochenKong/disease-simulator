@@ -89,6 +89,8 @@ public class ReservedLogChannels implements Serializable {
 	protected Collection<EventList> eventChangingJob;
 	protected Collection<EventList> eventChangingDisease;
 	protected Collection<EventList> eventChangingDiseaseReports;
+	protected Collection<EventList> eventChangingPhylo;
+
 
 	protected WorldModel model;
 	
@@ -125,6 +127,13 @@ public class ReservedLogChannels implements Serializable {
 			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting("DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
 			return instance;
 		}
+
+		if (whatTest != null && whatTest.equals("phylo") ){
+			instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
+			instance.putIfAbsent(Level.getLevel("EVT15"), new Setting("DiseaseReports","DiseaseReports"));
+			return instance;
+		}
+
 
 		if (whatTest != null && whatTest.equals("bias") ){
 			instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
@@ -190,7 +199,7 @@ public class ReservedLogChannels implements Serializable {
 		 */
 
 		instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
-		instance.putIfAbsent(Level.getLevel("EVT14"), new Setting("DiseaseReports","DiseaseReports"));
+		instance.putIfAbsent(Level.getLevel("EVT15"), new Setting("DiseasePhyloReports","DiseasePhyloReports"));
 		return instance;
 	
 	}
@@ -494,6 +503,9 @@ public class ReservedLogChannels implements Serializable {
 				{"EVT14", new LogSchedule(0, "EVT14", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,byAgentID,time,location,checkin,Report(Component),Report(Single)]", textFormatter, 0)},
 				{"EVT14", new IterativeEventLogSchedule(0, 1, "EVT14", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDiseaseReports, eventFormatter, 1)},
 
+				{"EVT15", new LogSchedule(0, "EVT15", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,diseaseSeq,time,location,checkin,Reported,Sampled,Sequenced]", textFormatter, 0)},
+				{"EVT15", new IterativeEventLogSchedule(0, 1, "EVT15", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingPhylo, eventFormatter, 1)},
+
 				// For checkin
 				{"AGENT5", new LogSchedule(0, "AGENT5", (Supplier & Serializable) () -> schema.CheckinDataset.CheckinTable, checkinTableSchema, 0)},
 				{"AGENT5", new IterativeLogSchedule(1, 1, "AGENT5", (Supplier & Serializable) () -> model.getAgentsCheckin(), checkinData, 1)},
@@ -712,6 +724,32 @@ public class ReservedLogChannels implements Serializable {
 				eventList.add((Supplier & Serializable) () -> agentDisease.getCompReport());
 				eventList.add((Supplier & Serializable) () -> agentDisease.getSingleBiasReports());
 				eventChangingDiseaseReports.add(eventList);
+			}
+		}
+
+		if (eventChangingPhylo == null){
+			eventChangingPhylo = new ArrayList<>();
+
+			// step agentId [regionId,diseaseStatus,byAgentID,time,location,checkin,Report(Component),Report(Single)]
+			for (Person p : model.getAgents()) {
+				EventList eventList = new EventList(p.getAgentId());
+				eventList.enableIndividualUpdateTime(false);
+				eventList.add((Supplier & Serializable) () -> p.getOriginRegionId());
+				InfectiousDisease agentDisease = model.getAgent(p.getAgentId()).getInfectiousDisease();
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatus());
+				eventList.add((Supplier & Serializable) () -> {
+					if (agentDisease.getStatus() == InfectionStatus.Susceptible ||
+							agentDisease.getStatus() == InfectionStatus.Recovered)
+						return null;
+					return agentDisease.getDiseaseSeq();
+				});
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeTime());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeLocation());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeCheckIn());
+				eventList.add((Supplier & Serializable) () -> agentDisease.getCompReport());
+				eventList.add((Supplier & Serializable) () -> agentDisease.isSampled());
+				eventList.add((Supplier & Serializable) () -> agentDisease.isSequenced());
+				eventChangingPhylo.add(eventList);
 			}
 		}
 

@@ -196,6 +196,10 @@ public class WorldParameters extends AnnotatedPropertied {
 	public double selfQuarantinedProbability;
 	@EditableProperty(group = "Disease", description = "Disease spreading parameter", lower = "0.0", upper = "1.0", readOnly = false)
 	public double additionalDiseaseSpreadingParam;
+	@EditableProperty(group = "Disease", description = "Percentage of reported cases being sampled", lower = "0.0", upper = "1.0", readOnly = false)
+	public double percentSampled;
+	@EditableProperty(group = "Disease", description = "Percentage of sampled cases being sequenced", lower = "0.0", upper = "1.0", readOnly = false)
+	public double percentSequenced;
 	@EditableProperty(group = "Disease", description = "Tik delay of known cases", lower = "0", upper = "1000000", readOnly = false)
 	public int numTikDelay;
 	@EditableProperty(group = "Disease", description = "Known case impact parameter", lower = "0.0", upper = "1.0", readOnly = false)

@@ -69,6 +69,7 @@ pom.xml.tag
 *.checkpoint
 *.ipynd_checkpoint
 *.dgs
+*.npy
 
 # batch files
 batch/

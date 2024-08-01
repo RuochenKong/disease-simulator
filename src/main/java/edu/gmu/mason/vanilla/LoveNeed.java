@@ -301,11 +301,13 @@ public class LoveNeed implements Need, java.io.Serializable {
 	 * @param p Person
 	 * @param infectionChance Chance to be infected
 	 */
-	public void agentMayGetInfected(Person p, double infectionChance){
+	public void agentMayGetInfected(Person p, Person source, double infectionChance){
 		if(p.getDiseaseStatus() == InfectionStatus.Susceptible){
 			Random rand = new Random();
 			if (rand.nextDouble() <= p.getChanceBeInfected() * infectionChance){
-				p.beenExposed(agent.getSimulationTime(),agent.getAgentId());
+				if (source.getInfectiousDisease().getDiseaseSeq() == null)
+					System.err.println("Agent #"+source.getAgentId()+" seq err. -- Love Need");
+				p.beenExposed(source);
 
 				/* DEBUGGER */
 				// System.out.println(p.getCurrentDiseaseStatus());
@@ -321,20 +323,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 	 */
 	public void spreadFromAToB(Person a, Person b, double addiChanceParam){
 		if (a.getDiseaseStatus() == InfectionStatus.Infectious) {
-			agentMayGetInfected(b, a.getChanceToSpreat() * addiChanceParam);
+			agentMayGetInfected(b,a, a.getChanceToSpreat() * addiChanceParam);
 		}
 	}
-
-
-	/**
-	 * Helper function to spread disease
-	 *     Called exposeFromAToB(Person a, Person b, double addiParam)
-	 *     Assume addiParam = 1;
-	 */
-	public void spreadFromAToB(Person a, Person b){
-		spreadFromAToB(a,b,1);
-	}
-
 
 	public void madeNewFriend() {
 		socialStatus += agent.getModel().params.socialStatusIncreaseValue;
@@ -411,11 +402,6 @@ public class LoveNeed implements Need, java.io.Serializable {
 						this.meetingId = meetingId;
 						p.getLoveNeed().setMeetingId(meetingId);
 
-						if (this.agent.getDiseaseStatus() == InfectionStatus.Infectious)
-							agent.getLoveNeed().getMeeting().infectedAgentJoin(this.agent.getAgentId(), this.agent.getChanceBeInfected());
-						if (p.getDiseaseStatus() == InfectionStatus.Infectious)
-							p.getLoveNeed().getMeeting().infectedAgentJoin(p.getAgentId(),p.getChanceBeInfected());
-
 						break;
 					}
 				}
@@ -480,11 +466,6 @@ public class LoveNeed implements Need, java.io.Serializable {
 																				// below.
 								this.meetingId = agentToConnect.getLoveNeed()
 										.getMeetingId();
-
-								if (agent.getDiseaseStatus() == InfectionStatus.Infectious)
-									agent.getLoveNeed().getMeeting().infectedAgentJoin(agent.getAgentId(),agent.getChanceBeInfected());
-								if (agentToConnect.getDiseaseStatus() == InfectionStatus.Infectious)
-									agentToConnect.getLoveNeed().getMeeting().infectedAgentJoin(agentToConnect.getAgentId(), agentToConnect.getChanceBeInfected());
 							}
 						} else {
 							// we need to create the meeting and add both agents
@@ -500,11 +481,6 @@ public class LoveNeed implements Need, java.io.Serializable {
 							this.meetingId = meetingId;
 							agentToConnect.getLoveNeed()
 									.setMeetingId(meetingId);
-
-							if (agent.getDiseaseStatus() == InfectionStatus.Infectious)
-								agent.getLoveNeed().getMeeting().infectedAgentJoin(agent.getAgentId(), agent.getChanceBeInfected());
-							if (agentToConnect.getDiseaseStatus() == InfectionStatus.Infectious)
-								agentToConnect.getLoveNeed().getMeeting().infectedAgentJoin(agentToConnect.getAgentId(), agentToConnect.getChanceBeInfected());
 
 						}
 					}
@@ -523,11 +499,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 	private void strengthenMeetingTies() {
 		List<Long> agentIds = getMeeting().getParticipants();
 
-		// Agent mey get infected
-		agentMayGetInfected(agent,agent.getLoveNeed().getMeeting().getInfectionChance()*agent.getModel().params.additionalDiseaseSpreadingParam);
 
 		if (agentIds.size() > 1) {
-
+			double diseaseParam = agent.getModel().params.additionalDiseaseSpreadingParam;
 			// the following nested loop cycles through all possible
 			// combinations between all agents meeting
 			for (int i = 0; i < agentIds.size(); i++) {
@@ -536,6 +510,11 @@ public class LoveNeed implements Need, java.io.Serializable {
 					try {
 						agent.getModel().getAgent(agentId).getLoveNeed()
 								.strengthenTies(agent.getAgentId());
+
+						// Agents mey get infected
+						spreadFromAToB(agent,agent.getModel().getAgent(agentId), diseaseParam);
+						spreadFromAToB(agent.getModel().getAgent(agentId),agent, diseaseParam);
+
 					} catch (Exception e) {
 						System.out.print(agent.getSimulationTime());
 						e.printStackTrace();
@@ -601,7 +580,7 @@ public class LoveNeed implements Need, java.io.Serializable {
 			if (aRoommate.getSleepNeed().getStatus() == SleepStatus.Awake) {
 				strengthenTies(aRoommate.getAgentId());
 				spreadFromAToB(this.agent,aRoommate,this.agent.getModel().params.additionalDiseaseSpreadingParam);
-				spreadFromAToB(aRoommate,this.agent,agent.getModel().params.additionalDiseaseSpreadingParam);
+				spreadFromAToB(aRoommate,this.agent,this.agent.getModel().params.additionalDiseaseSpreadingParam);
 			}
 		}
 	}

@@ -1,0 +1,1 @@
+java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=phylo -Dfile.prefix=sample -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration sample.properties -bias.config bias.properties -bias.single.config bias.single.properties -until 25920

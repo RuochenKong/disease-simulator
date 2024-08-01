@@ -364,8 +364,8 @@ public class Person implements Steppable, java.io.Serializable {
 	public void unsetQuarantine(){this.infectiousDisease.unsetQuarantine();}
 	public boolean isQuarantined(){return this.infectiousDisease.isQuarantined();}
 
-	public void beenExposed(LocalDateTime exposedTime, long agentId){
-		this.infectiousDisease.setStatus(agentId);
+	public void beenExposed(Person agent){
+		this.infectiousDisease.setStatus(agent);
 	}
 
 	public int getOriginRegionId(){return this.originRegionId;}
@@ -402,7 +402,7 @@ public class Person implements Steppable, java.io.Serializable {
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
 
 		// Initialize the disease
-		if (infectiousDisease.getRemainNumOfInitInfect() > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 70) ) toBeTheFirstPatient();
+		if (infectiousDisease.getRemainNumOfInitInfect() > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 90) ) toBeTheFirstPatient();
 
 		// if the agent is has a family and a kid, find a school for the kid and
 		// assign it.

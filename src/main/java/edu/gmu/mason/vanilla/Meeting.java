@@ -28,13 +28,8 @@ public class Meeting implements java.io.Serializable {
 	private LocalDateTime startTime;
 	private List<Long> participants;
 
-	private List<Double> infectionChances;
-	private List<Long> infectionAgents;
-
 
 	public Meeting(boolean planned, LocalDateTime startTime, String meetingId) {
-		this.infectionChances = new ArrayList<>();
-		this.infectionAgents = new ArrayList<>();
 		this.planned = planned;
 		this.startTime = startTime;
 		participants = new ArrayList<>();
@@ -64,11 +59,6 @@ public class Meeting implements java.io.Serializable {
 				break;
 			}
 		}
-		int idx = infectionAgents.indexOf(agentId);
-		if (idx != -1){
-			infectionAgents.remove(idx);
-			infectionChances.remove(idx);
-		}
 	}
 
 	private boolean agentExists(long personId) {
@@ -92,15 +82,5 @@ public class Meeting implements java.io.Serializable {
 		return startTime;
 	}
 
-	public double getInfectionChance(){
-		if (this.infectionChances.isEmpty())
-			return 0;
-		return (double)Collections.max(this.infectionChances);
-	}
-
-	public void infectedAgentJoin(Long agentID, double agentInfectionChance){
-		this.infectionChances.add(agentInfectionChance);
-		this.infectionAgents.add(agentID);
-	}
 
 }

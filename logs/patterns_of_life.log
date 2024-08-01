@@ -1,246 +1,246 @@
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - Number of neighborhoods: 1
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - -------Buildings----------
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - Total number of buildings: 12020
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of School Buildings needed: 1
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Residential Buildings needed: 8013
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Commercial Buildings needed: 4006
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of School Buildings needed: 3
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Residential Buildings needed: 8012
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Commercial Buildings needed: 4005
 [INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - --------Units---------
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Apartments Needed: 300
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Schools Needed: 1
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Pubs Needed: 2
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Workplace Needed: 50
-[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Restaurant Needed: 4
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - GUI initialization time: 717 ms.
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Apartments Needed: 7500
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Schools Needed: 3
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Pubs Needed: 50
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Workplace Needed: 1250
+[INFO] edu.gmu.mason.vanilla.WorldModel initPlaces - # of Restaurant Needed: 100
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - GUI initialization time: 309 ms.
 [INFO] edu.gmu.mason.vanilla.WorldModel start - Considered single bias types: Age, Gender, Income, Race
 [INFO] edu.gmu.mason.vanilla.WorldModel start - Considered component bias types: Vulnerability, Gender, Income, Race
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Total number of agents: 200
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #1: 7
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #0 43 years old Male BlackOnly HighSchoolOrCollege with annual household income 118.719k (132.677k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #1 56 years old Female WhiteOnly Bachelors with annual household income 3.503k (35.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #2 30 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #3 55 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #4 23 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #2 31 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #3 56 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #4 20 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #5 52 years old Female BlackOnly Low with annual household income 184.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #6 32 years old Female BlackOnly Graduate with annual household income 652.286k (390.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #6 33 years old Female BlackOnly Graduate with annual household income 652.286k (390.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #2: 11
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #7 35 years old Male WhiteOnly Bachelors with annual household income 118.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #8 51 years old Female WhiteOnly Bachelors with annual household income 43.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #9 25 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #10 45 years old Male WhiteOnly Bachelors with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #11 21 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #7 39 years old Male WhiteOnly Bachelors with annual household income 118.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #8 54 years old Female WhiteOnly Bachelors with annual household income 43.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #9 28 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #10 48 years old Male WhiteOnly Bachelors with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #11 22 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #12 42 years old Female WhiteOnly HighSchoolOrCollege with annual household income 184.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #13 27 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #14 39 years old Female WhiteOnly Bachelors with annual household income 282.141k (493.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #15 24 years old Female WhiteOnly HighSchoolOrCollege with annual household income 312.913k (92.478k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #16 41 years old Male WhiteOnly Bachelors with annual household income 88.098k (335.941k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #13 25 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #14 38 years old Female WhiteOnly Bachelors with annual household income 282.141k (493.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #15 20 years old Female WhiteOnly HighSchoolOrCollege with annual household income 312.913k (92.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #16 42 years old Male WhiteOnly Bachelors with annual household income 88.098k (335.941k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #17 51 years old Female AsianOnly Bachelors with annual household income 137.86k (53.315k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #3: 7
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #18 43 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #19 55 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #20 33 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #21 59 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #22 21 years old Female WhiteOnly HighSchoolOrCollege with annual household income 181.267k (121.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #23 53 years old Female BlackOnly Low with annual household income 134.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #24 31 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #18 40 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #19 58 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #20 32 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #21 56 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #22 23 years old Female WhiteOnly HighSchoolOrCollege with annual household income 181.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #23 51 years old Female BlackOnly Low with annual household income 134.605k (321.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #24 33 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #4: 7
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #25 49 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #26 64 years old Female WhiteOnly HighSchoolOrCollege with annual household income 43.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #27 34 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #28 59 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (76.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #29 23 years old Female BlackOnly Bachelors with annual household income 131.267k (96.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #30 55 years old Female BlackOnly Low with annual household income 134.605k (96.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #31 34 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #25 48 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #26 61 years old Female WhiteOnly HighSchoolOrCollege with annual household income 43.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #27 31 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #28 58 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #29 22 years old Female BlackOnly Bachelors with annual household income 131.267k (96.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #30 56 years old Female BlackOnly Low with annual household income 134.605k (96.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #31 32 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #5: 8
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #32 48 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #33 56 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #34 34 years old Female Plus2Races Bachelors with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #32 46 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #33 58 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #34 31 years old Female Plus2Races Bachelors with annual household income 81.198k (239.336k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #35 59 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #36 22 years old Female BlackOnly HighSchoolOrCollege with annual household income 181.267k (121.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #37 51 years old Female BlackOnly Low with annual household income 134.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #38 31 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #39 50 years old Female BlackOnly HighSchoolOrCollege with annual household income 182.141k (493.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #37 53 years old Female BlackOnly Low with annual household income 134.605k (321.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #38 30 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #39 54 years old Female BlackOnly HighSchoolOrCollege with annual household income 182.141k (493.862k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #6: 7
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #40 45 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (32.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #41 63 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #42 31 years old Female Plus2Races HighSchoolOrCollege with annual household income 31.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #43 57 years old Male BlackOnly Low with annual household income 100.105k (26.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #44 19 years old Female BlackOnly HighSchoolOrCollege with annual household income 81.267k (46.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #45 57 years old Female BlackOnly Low with annual household income 34.605k (46.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #41 64 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #42 32 years old Female Plus2Races HighSchoolOrCollege with annual household income 31.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #43 55 years old Male BlackOnly Low with annual household income 100.105k (26.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #44 17 years old Female BlackOnly HighSchoolOrCollege with annual household income 81.267k (46.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #45 55 years old Female BlackOnly Low with annual household income 34.605k (46.565k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #46 30 years old Female BlackOnly Bachelors with annual household income 152.286k (40.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #7: 3
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #47 49 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (57.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #48 61 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #49 33 years old Female Plus2Races Bachelors with annual household income 31.198k (89.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #48 63 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #49 32 years old Female Plus2Races Bachelors with annual household income 31.198k (89.336k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #8: 13
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #50 23 years old Male BlackOnly Bachelors with annual household income 78.719k (82.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #51 43 years old Female WhiteOnly Bachelors with annual household income 3.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #52 17 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #53 31 years old Male WhiteOnly HighSchoolOrCollege with annual household income 150.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #50 20 years old Male BlackOnly Bachelors with annual household income 78.719k (82.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #51 40 years old Female WhiteOnly Bachelors with annual household income 3.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #52 16 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #53 30 years old Male WhiteOnly HighSchoolOrCollege with annual household income 150.105k (76.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #54 17 years old Female BlackOnly Bachelors with annual household income 181.267k (96.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #55 34 years old Female BlackOnly Low with annual household income 134.605k (96.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #56 18 years old Female BlackOnly Graduate with annual household income 152.286k (65.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #57 28 years old Female BlackOnly Bachelors with annual household income 132.141k (93.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #58 16 years old Female BlackOnly Low with annual household income 162.913k (67.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #56 17 years old Female BlackOnly Graduate with annual household income 152.286k (65.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #57 29 years old Female BlackOnly Bachelors with annual household income 132.141k (93.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #58 15 years old Female BlackOnly Low with annual household income 162.913k (67.478k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #59 26 years old Male WhiteOnly Low with annual household income 58.098k (335.941k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #60 35 years old Female AsianOnly Bachelors with annual household income 67.86k (28.315k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #61 24 years old Female BlackOnly Bachelors with annual household income 138.56k (54.362k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #62 16 years old Female AsianOnly Bachelors with annual household income 14.232k (79.443k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #60 38 years old Female AsianOnly Bachelors with annual household income 67.86k (28.315k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #61 22 years old Female BlackOnly Bachelors with annual household income 138.56k (54.362k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #62 17 years old Female AsianOnly Bachelors with annual household income 14.232k (79.443k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #9: 10
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #63 24 years old Male BlackOnly Low with annual household income 28.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #64 52 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #65 16 years old Female Plus2Races Bachelors with annual household income 11.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #66 41 years old Male WhiteOnly Low with annual household income 150.105k (76.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #67 17 years old Female BlackOnly HighSchoolOrCollege with annual household income 131.267k (96.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #63 22 years old Male BlackOnly Low with annual household income 28.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #64 50 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #65 19 years old Female Plus2Races Bachelors with annual household income 11.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #66 42 years old Male WhiteOnly Low with annual household income 150.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #67 18 years old Female BlackOnly HighSchoolOrCollege with annual household income 131.267k (96.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #68 31 years old Female BlackOnly Low with annual household income 34.605k (96.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #69 18 years old Female BlackOnly Bachelors with annual household income 152.286k (65.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #69 15 years old Female BlackOnly Bachelors with annual household income 152.286k (65.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #70 27 years old Female BlackOnly HighSchoolOrCollege with annual household income 132.141k (93.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #71 15 years old Female BlackOnly Low with annual household income 162.913k (42.478k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #72 33 years old Male WhiteOnly Low with annual household income 18.098k (335.941k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #71 16 years old Female BlackOnly Low with annual household income 162.913k (42.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #72 32 years old Male WhiteOnly Low with annual household income 18.098k (335.941k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #10: 8
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #73 42 years old Male BlackOnly HighSchoolOrCollege with annual household income 118.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #74 58 years old Female WhiteOnly HighSchoolOrCollege with annual household income 43.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #75 34 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #76 54 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #73 41 years old Male BlackOnly HighSchoolOrCollege with annual household income 118.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #74 57 years old Female WhiteOnly HighSchoolOrCollege with annual household income 43.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #75 31 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #76 50 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #77 21 years old Female WhiteOnly Bachelors with annual household income 181.267k (121.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #78 46 years old Female BlackOnly Low with annual household income 184.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #79 34 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #80 49 years old Female WhiteOnly Bachelors with annual household income 182.141k (493.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #78 49 years old Female BlackOnly Low with annual household income 184.605k (321.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #79 31 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #80 47 years old Female WhiteOnly Bachelors with annual household income 182.141k (493.862k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #11: 7
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #81 41 years old Male WhiteOnly Bachelors with annual household income 118.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #82 57 years old Female WhiteOnly Bachelors with annual household income 43.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #83 31 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #84 52 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #85 26 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #82 55 years old Female WhiteOnly Bachelors with annual household income 43.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #83 32 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #84 54 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #85 27 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #86 53 years old Female WhiteOnly Low with annual household income 284.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #87 33 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #87 31 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #12: 13
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #88 43 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (82.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #89 56 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #90 33 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #88 44 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (82.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #89 59 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #90 30 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #91 54 years old Male WhiteOnly HighSchoolOrCollege with annual household income 150.105k (51.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #92 22 years old Male WhiteOnly HighSchoolOrCollege with annual household income 131.267k (96.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #93 46 years old Male BlackOnly Low with annual household income 64.605k (71.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #94 29 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #93 48 years old Male BlackOnly Low with annual household income 64.605k (71.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #94 26 years old Female BlackOnly Graduate with annual household income 652.286k (65.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #95 48 years old Female BlackOnly HighSchoolOrCollege with annual household income 132.141k (68.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #96 20 years old Male BlackOnly Low with annual household income 162.913k (42.478k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #97 47 years old Male WhiteOnly Low with annual household income 58.098k (335.941k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #96 21 years old Male BlackOnly Low with annual household income 162.913k (42.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #97 48 years old Male WhiteOnly Low with annual household income 58.098k (335.941k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #98 50 years old Male BlackOnly HighSchoolOrCollege with annual household income 57.86k (28.315k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #99 34 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.56k (29.362k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #99 30 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.56k (29.362k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #100 27 years old Female AsianOnly HighSchoolOrCollege with annual household income 14.232k (54.443k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #13: 3
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #101 40 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #102 61 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #103 32 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #103 34 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #14: 1
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #104 63 years old Female BlackOnly HighSchoolOrCollege with annual household income 58.719k (32.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #104 62 years old Female BlackOnly HighSchoolOrCollege with annual household income 58.719k (32.677k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #15: 10
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #105 20 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (32.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #106 35 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #107 18 years old Female Plus2Races Bachelors with annual household income 31.198k (64.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #108 28 years old Male BlackOnly HighSchoolOrCollege with annual household income 70.105k (26.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #109 17 years old Male BlackOnly HighSchoolOrCollege with annual household income 81.267k (46.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #110 22 years old Female BlackOnly Low with annual household income 64.605k (46.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #111 16 years old Female BlackOnly Graduate with annual household income 102.286k (40.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #112 21 years old Female BlackOnly HighSchoolOrCollege with annual household income 62.141k (43.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #113 16 years old Male BlackOnly Low with annual household income 92.913k (12.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #106 37 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #107 17 years old Female Plus2Races Bachelors with annual household income 31.198k (64.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #108 26 years old Male BlackOnly HighSchoolOrCollege with annual household income 70.105k (26.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #109 18 years old Male BlackOnly HighSchoolOrCollege with annual household income 81.267k (46.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #110 21 years old Female BlackOnly Low with annual household income 64.605k (46.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #111 15 years old Female BlackOnly Graduate with annual household income 102.286k (40.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #112 23 years old Female BlackOnly HighSchoolOrCollege with annual household income 62.141k (43.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #113 18 years old Male BlackOnly Low with annual household income 92.913k (12.478k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #114 23 years old Male WhiteOnly Low with annual household income 18.098k (60.941k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #16: 7
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #115 32 years old Female BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #116 56 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #117 23 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #118 48 years old Male BlackOnly HighSchoolOrCollege with annual household income 250.105k (76.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #119 16 years old Female BlackOnly HighSchoolOrCollege with annual household income 181.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #115 30 years old Female BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #116 58 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #117 20 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #118 46 years old Male BlackOnly HighSchoolOrCollege with annual household income 250.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #119 15 years old Female BlackOnly HighSchoolOrCollege with annual household income 181.267k (121.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #120 41 years old Female BlackOnly Low with annual household income 134.605k (321.565k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #121 22 years old Female BlackOnly Bachelors with annual household income 652.286k (65.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #17: 8
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #122 40 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (57.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #123 55 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #124 28 years old Female Plus2Races HighSchoolOrCollege with annual household income 11.198k (89.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #125 59 years old Male BlackOnly Low with annual household income 100.105k (26.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #126 19 years old Female BlackOnly HighSchoolOrCollege with annual household income 81.267k (46.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #127 54 years old Female BlackOnly Low with annual household income 34.605k (46.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #128 28 years old Female BlackOnly HighSchoolOrCollege with annual household income 102.286k (40.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #129 48 years old Female BlackOnly HighSchoolOrCollege with annual household income 62.141k (43.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #122 44 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (57.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #123 59 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #124 25 years old Female Plus2Races HighSchoolOrCollege with annual household income 11.198k (89.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #125 57 years old Male BlackOnly Low with annual household income 100.105k (26.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #126 16 years old Female BlackOnly HighSchoolOrCollege with annual household income 81.267k (46.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #127 52 years old Female BlackOnly Low with annual household income 34.605k (46.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #128 25 years old Female BlackOnly HighSchoolOrCollege with annual household income 102.286k (40.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #129 47 years old Female BlackOnly HighSchoolOrCollege with annual household income 62.141k (43.862k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #18: 4
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #130 46 years old Male BlackOnly HighSchoolOrCollege with annual household income 28.719k (57.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #131 60 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #132 30 years old Female Plus2Races Bachelors with annual household income 11.198k (89.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #133 57 years old Male WhiteOnly HighSchoolOrCollege with annual household income 150.105k (51.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #130 47 years old Male BlackOnly HighSchoolOrCollege with annual household income 28.719k (57.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #131 62 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #132 31 years old Female Plus2Races Bachelors with annual household income 11.198k (89.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #133 58 years old Male WhiteOnly HighSchoolOrCollege with annual household income 150.105k (51.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #19: 9
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #134 47 years old Male BlackOnly Bachelors with annual household income 118.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #135 59 years old Female WhiteOnly Bachelors with annual household income 13.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #134 45 years old Male BlackOnly Bachelors with annual household income 118.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #135 55 years old Female WhiteOnly Bachelors with annual household income 13.503k (0.223k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #136 34 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #137 57 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #138 22 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #139 52 years old Female BlackOnly Low with annual household income 284.605k (321.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #137 59 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #138 21 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #139 53 years old Female BlackOnly Low with annual household income 284.605k (321.565k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #140 34 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #141 54 years old Female WhiteOnly Bachelors with annual household income 282.141k (493.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #141 50 years old Female WhiteOnly Bachelors with annual household income 282.141k (493.862k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #142 22 years old Male WhiteOnly Low with annual household income 312.913k (67.478k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #20: 10
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #143 40 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #144 55 years old Female WhiteOnly HighSchoolOrCollege with annual household income 43.503k (35.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #144 59 years old Female WhiteOnly HighSchoolOrCollege with annual household income 43.503k (35.223k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #145 33 years old Female Plus2Races Graduate with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #146 52 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #147 23 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #146 50 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #147 22 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #148 48 years old Female BlackOnly Low with annual household income 184.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #149 34 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #149 30 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #150 49 years old Female WhiteOnly Bachelors with annual household income 282.141k (493.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #151 21 years old Female WhiteOnly HighSchoolOrCollege with annual household income 312.913k (92.478k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #152 45 years old Male WhiteOnly HighSchoolOrCollege with annual household income 88.098k (335.941k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #151 20 years old Female WhiteOnly HighSchoolOrCollege with annual household income 312.913k (92.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #152 49 years old Male WhiteOnly HighSchoolOrCollege with annual household income 88.098k (335.941k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #21: 12
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #153 45 years old Male BlackOnly Bachelors with annual household income 118.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #153 46 years old Male BlackOnly Bachelors with annual household income 118.719k (132.677k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #154 56 years old Female WhiteOnly Bachelors with annual household income 43.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #155 35 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #156 59 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #157 23 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #158 53 years old Female BlackOnly HighSchoolOrCollege with annual household income 284.605k (321.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #159 34 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #155 38 years old Female Plus2Races Graduate with annual household income 141.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #156 55 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (126.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #157 22 years old Female WhiteOnly Bachelors with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #158 50 years old Female BlackOnly HighSchoolOrCollege with annual household income 284.605k (321.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #159 31 years old Female BlackOnly Graduate with annual household income 652.286k (90.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #160 46 years old Female WhiteOnly Bachelors with annual household income 282.141k (493.862k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #161 20 years old Female WhiteOnly HighSchoolOrCollege with annual household income 312.913k (67.478k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #162 54 years old Male WhiteOnly HighSchoolOrCollege with annual household income 88.098k (335.941k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #163 55 years old Female BlackOnly Bachelors with annual household income 187.86k (28.315k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #164 35 years old Female WhiteOnly Bachelors with annual household income 188.56k (54.362k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #161 24 years old Female WhiteOnly HighSchoolOrCollege with annual household income 312.913k (67.478k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #162 51 years old Male WhiteOnly HighSchoolOrCollege with annual household income 88.098k (335.941k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #163 56 years old Female BlackOnly Bachelors with annual household income 187.86k (28.315k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #164 37 years old Female WhiteOnly Bachelors with annual household income 188.56k (54.362k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #22: 7
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #165 44 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #166 58 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #167 33 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #168 51 years old Male WhiteOnly Low with annual household income 250.105k (76.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #169 19 years old Female BlackOnly HighSchoolOrCollege with annual household income 981.267k (121.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #170 46 years old Female BlackOnly Low with annual household income 134.605k (96.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #165 43 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (132.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #166 55 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #167 32 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #168 53 years old Male WhiteOnly Low with annual household income 250.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #169 16 years old Female BlackOnly HighSchoolOrCollege with annual household income 981.267k (121.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #170 49 years old Female BlackOnly Low with annual household income 134.605k (96.565k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #171 31 years old Female BlackOnly Bachelors with annual household income 652.286k (65.151k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #23: 5
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #172 47 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (82.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #173 60 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #174 34 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #175 55 years old Male BlackOnly Low with annual household income 150.105k (51.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #176 22 years old Female BlackOnly HighSchoolOrCollege with annual household income 131.267k (71.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #172 49 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (82.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #173 63 years old Female BlackOnly HighSchoolOrCollege with annual household income 13.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #174 30 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #175 58 years old Male BlackOnly Low with annual household income 150.105k (51.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #176 21 years old Female BlackOnly HighSchoolOrCollege with annual household income 131.267k (71.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #24: 5
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #177 47 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (82.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #178 61 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #179 32 years old Female Plus2Races Bachelors with annual household income 81.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #180 55 years old Male WhiteOnly Low with annual household income 250.105k (51.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #177 45 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (82.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #178 60 years old Female WhiteOnly HighSchoolOrCollege with annual household income 13.503k (0.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #179 33 years old Female Plus2Races Bachelors with annual household income 81.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #180 56 years old Male WhiteOnly Low with annual household income 250.105k (51.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #181 21 years old Female BlackOnly HighSchoolOrCollege with annual household income 181.267k (96.669k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #25: 6
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #182 44 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (82.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #183 58 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #184 29 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #185 58 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (76.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #186 24 years old Female BlackOnly HighSchoolOrCollege with annual household income 131.267k (96.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #187 50 years old Female BlackOnly Low with annual household income 64.605k (96.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #182 42 years old Male BlackOnly HighSchoolOrCollege with annual household income 78.719k (82.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #183 56 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #184 25 years old Female Plus2Races Bachelors with annual household income 31.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #185 55 years old Male WhiteOnly HighSchoolOrCollege with annual household income 250.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #186 20 years old Female BlackOnly HighSchoolOrCollege with annual household income 131.267k (96.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #187 53 years old Female BlackOnly Low with annual household income 64.605k (96.565k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #26: 4
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #188 37 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (82.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #188 39 years old Male BlackOnly HighSchoolOrCollege with annual household income 58.719k (82.677k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #189 57 years old Female WhiteOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #190 32 years old Female Plus2Races Bachelors with annual household income 11.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #191 52 years old Male WhiteOnly Low with annual household income 250.105k (76.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #190 31 years old Female Plus2Races Bachelors with annual household income 11.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #191 50 years old Male WhiteOnly Low with annual household income 250.105k (76.517k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of agents in Region #27: 8
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #192 52 years old Male BlackOnly HighSchoolOrCollege with annual household income 28.719k (57.677k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #193 62 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #194 30 years old Female Plus2Races Bachelors with annual household income 11.198k (239.336k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #195 56 years old Male BlackOnly HighSchoolOrCollege with annual household income 150.105k (51.517k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #196 17 years old Female BlackOnly HighSchoolOrCollege with annual household income 31.267k (71.669k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #197 55 years old Female BlackOnly Low with annual household income 34.605k (71.565k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #198 33 years old Female BlackOnly Bachelors with annual household income 652.286k (40.151k ind.)
-[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #199 55 years old Female BlackOnly HighSchoolOrCollege with annual household income 52.141k (68.862k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #192 51 years old Male BlackOnly HighSchoolOrCollege with annual household income 28.719k (57.677k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #193 63 years old Female BlackOnly HighSchoolOrCollege with annual household income 3.503k (20.223k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #194 32 years old Female Plus2Races Bachelors with annual household income 11.198k (239.336k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #195 55 years old Male BlackOnly HighSchoolOrCollege with annual household income 150.105k (51.517k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #196 16 years old Female BlackOnly HighSchoolOrCollege with annual household income 31.267k (71.669k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #197 57 years old Female BlackOnly Low with annual household income 34.605k (71.565k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #198 30 years old Female BlackOnly Bachelors with annual household income 652.286k (40.151k ind.)
+[INFO] edu.gmu.mason.vanilla.WorldModel addAgent -  Agent #199 57 years old Female BlackOnly HighSchoolOrCollege with annual household income 52.141k (68.862k ind.)
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Human agents are added.
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - Number of Regions: 27
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - -------Region 1: 7 Agents----------
@@ -459,8 +459,8 @@
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - # of Race: 0 7 0 0 0 0 1 
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - # of Income Level: 1 2 3 0 0 1 1 
 [INFO] edu.gmu.mason.vanilla.WorldModel addHumanAgents - # of Individual Income Level: 0 1 1 5 0 1 
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Agent population create/initialize time: 788 ms.
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Portrayal setup time: 1044 ms.
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Agent population create/initialize time: 951 ms.
+[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Portrayal setup time: 1054 ms.
 [INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #1 Mon @ 00:00
 [INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #1 Mon @ 19:00
 [INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #2 Tue @ 00:00
@@ -490,23 +490,3 @@
 [INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #14 Sun @ 00:00
 [INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #14 Sun @ 19:00
 [INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #15 Mon @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #15 Mon @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #16 Tue @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #16 Tue @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #17 Wed @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #17 Wed @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #18 Thu @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #18 Thu @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #19 Fri @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #19 Fri @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #20 Sat @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #20 Sat @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #21 Sun @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #21 Sun @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #22 Mon @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #22 Mon @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #23 Tue @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel eveningRoutine - Evening routine:Day #23 Tue @ 19:00
-[INFO] edu.gmu.mason.vanilla.WorldModel nightlyRoutine - Night routine:Day #24 Wed @ 00:00
-[INFO] edu.gmu.mason.vanilla.WorldModel finish - Social network graph saved.
-[INFO] edu.gmu.mason.vanilla.utils.DateTimeUtil logTimeSpent - Total simulation time: 2149702 ms.
