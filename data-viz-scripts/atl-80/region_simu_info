@@ -1,0 +1,246 @@
+Total number of agents: 5000
+Number of agents in Region #1: 164
+Number of agents in Region #2: 263
+Number of agents in Region #3: 185
+Number of agents in Region #4: 168
+Number of agents in Region #5: 188
+Number of agents in Region #6: 170
+Number of agents in Region #7: 84
+Number of agents in Region #8: 331
+Number of agents in Region #9: 258
+Number of agents in Region #10: 190
+Number of agents in Region #11: 181
+Number of agents in Region #12: 318
+Number of agents in Region #13: 67
+Number of agents in Region #14: 14
+Number of agents in Region #15: 258
+Number of agents in Region #16: 185
+Number of agents in Region #17: 199
+Number of agents in Region #18: 88
+Number of agents in Region #19: 214
+Number of agents in Region #20: 251
+Number of agents in Region #21: 311
+Number of agents in Region #22: 187
+Number of agents in Region #23: 116
+Number of agents in Region #24: 114
+Number of agents in Region #25: 139
+Number of agents in Region #26: 103
+Number of agents in Region #27: 254
+
+Number of Regions: 27
+-------Region 1: 164 Agents----------
+# of Age Group: 6 23 38 41 14 11 10 6 13 2 
+# of Education Level: 0 6 40 75 43 
+Male: 58, Female: 106
+Hispanic: 9, Non-Hispanic: 155
+# of Race: 57 85 1 11 1 2 7 
+# of Income Level: 35 21 12 16 22 20 38 
+# of Individual Income Level: 0 0 16 27 32 89 
+-------Region 2: 263 Agents----------
+# of Age Group: 2 29 90 71 33 13 8 11 4 2 
+# of Education Level: 0 0 11 116 136 
+Male: 119, Female: 144
+Hispanic: 15, Non-Hispanic: 248
+# of Race: 180 30 2 28 0 5 18 
+# of Income Level: 30 0 20 62 57 45 49 
+# of Individual Income Level: 0 4 11 69 71 108 
+-------Region 3: 185 Agents----------
+# of Age Group: 5 25 42 38 22 14 12 10 14 3 
+# of Education Level: 0 6 64 64 51 
+Male: 78, Female: 107
+Hispanic: 10, Non-Hispanic: 175
+# of Race: 77 80 1 14 0 2 11 
+# of Income Level: 23 20 46 10 42 21 23 
+# of Individual Income Level: 0 22 39 41 13 70 
+-------Region 4: 168 Agents----------
+# of Age Group: 4 16 22 39 24 14 13 15 12 9 
+# of Education Level: 0 5 46 61 56 
+Male: 83, Female: 85
+Hispanic: 9, Non-Hispanic: 159
+# of Race: 49 90 2 16 0 3 8 
+# of Income Level: 6 18 42 37 43 6 16 
+# of Individual Income Level: 3 10 40 29 50 36 
+-------Region 5: 188 Agents----------
+# of Age Group: 10 29 41 29 24 10 13 15 13 4 
+# of Education Level: 0 8 99 52 29 
+Male: 87, Female: 101
+Hispanic: 10, Non-Hispanic: 178
+# of Race: 54 107 0 12 0 4 11 
+# of Income Level: 13 41 32 30 35 14 23 
+# of Individual Income Level: 0 9 62 25 20 72 
+-------Region 6: 170 Agents----------
+# of Age Group: 18 16 30 21 27 10 13 14 12 9 
+# of Education Level: 0 37 100 22 11 
+Male: 71, Female: 99
+Hispanic: 7, Non-Hispanic: 163
+# of Race: 6 154 0 2 0 3 5 
+# of Income Level: 28 55 62 14 7 4 0 
+# of Individual Income Level: 30 20 92 17 10 1 
+-------Region 7: 84 Agents----------
+# of Age Group: 8 10 17 14 12 4 7 2 4 6 
+# of Education Level: 0 13 45 21 5 
+Male: 34, Female: 50
+Hispanic: 6, Non-Hispanic: 78
+# of Race: 5 74 0 0 0 1 4 
+# of Income Level: 21 15 32 6 10 0 0 
+# of Individual Income Level: 0 5 53 19 7 0 
+-------Region 8: 331 Agents----------
+# of Age Group: 145 115 29 16 10 6 4 4 1 1 
+# of Education Level: 0 25 44 165 97 
+Male: 135, Female: 196
+Hispanic: 20, Non-Hispanic: 311
+# of Race: 95 169 1 44 0 8 14 
+# of Income Level: 57 24 57 89 54 50 0 
+# of Individual Income Level: 6 6 83 82 102 52 
+-------Region 9: 258 Agents----------
+# of Age Group: 136 74 18 7 3 8 2 5 2 3 
+# of Education Level: 0 66 112 71 9 
+Male: 106, Female: 152
+Hispanic: 13, Non-Hispanic: 245
+# of Race: 66 147 2 25 0 8 10 
+# of Income Level: 46 116 36 20 21 19 0 
+# of Individual Income Level: 16 25 78 43 44 52 
+-------Region 10: 190 Agents----------
+# of Age Group: 5 22 48 46 23 13 15 5 11 2 
+# of Education Level: 0 10 48 61 71 
+Male: 85, Female: 105
+Hispanic: 10, Non-Hispanic: 180
+# of Race: 108 57 0 11 0 2 12 
+# of Income Level: 7 20 22 41 43 28 29 
+# of Individual Income Level: 2 2 36 40 40 70 
+-------Region 11: 181 Agents----------
+# of Age Group: 5 6 27 52 39 16 17 10 8 1 
+# of Education Level: 0 4 32 79 66 
+Male: 76, Female: 105
+Hispanic: 10, Non-Hispanic: 171
+# of Race: 127 29 0 9 0 3 13 
+# of Income Level: 2 24 24 29 32 23 47 
+# of Individual Income Level: 5 5 18 44 33 76 
+-------Region 12: 318 Agents----------
+# of Age Group: 4 37 82 68 27 28 36 17 11 8 
+# of Education Level: 0 43 148 55 72 
+Male: 254, Female: 64
+Hispanic: 51, Non-Hispanic: 267
+# of Race: 114 173 0 11 0 14 6 
+# of Income Level: 55 50 102 55 47 4 5 
+# of Individual Income Level: 17 31 82 112 25 51 
+-------Region 13: 67 Agents----------
+# of Age Group: 1 9 17 14 9 7 2 3 3 2 
+# of Education Level: 0 7 17 24 19 
+Male: 32, Female: 35
+Hispanic: 3, Non-Hispanic: 64
+# of Race: 9 53 0 0 0 0 5 
+# of Income Level: 0 19 5 31 3 0 9 
+# of Individual Income Level: 0 8 2 2 40 15 
+-------Region 14: 14 Agents----------
+# of Age Group: 0 2 1 0 0 3 0 0 0 8 
+# of Education Level: 0 4 10 0 0 
+Male: 2, Female: 12
+Hispanic: 0, Non-Hispanic: 14
+# of Race: 1 12 0 0 0 0 1 
+# of Income Level: 0 4 7 3 0 0 0 
+# of Individual Income Level: 0 0 14 0 0 0 
+-------Region 15: 258 Agents----------
+# of Age Group: 116 119 8 5 5 1 2 0 1 1 
+# of Education Level: 0 30 134 40 54 
+Male: 160, Female: 98
+Hispanic: 0, Non-Hispanic: 258
+# of Race: 3 252 0 0 0 0 3 
+# of Income Level: 25 95 59 77 2 0 0 
+# of Individual Income Level: 15 94 133 16 0 0 
+-------Region 16: 185 Agents----------
+# of Age Group: 75 59 7 12 10 5 3 7 6 1 
+# of Education Level: 0 26 82 63 14 
+Male: 39, Female: 146
+Hispanic: 4, Non-Hispanic: 181
+# of Race: 14 166 0 1 0 1 3 
+# of Income Level: 28 13 52 21 37 11 23 
+# of Individual Income Level: 17 26 30 29 26 57 
+-------Region 17: 199 Agents----------
+# of Age Group: 23 25 42 36 22 16 11 8 13 3 
+# of Education Level: 0 39 136 9 15 
+Male: 71, Female: 128
+Hispanic: 4, Non-Hispanic: 195
+# of Race: 8 185 0 1 0 0 5 
+# of Income Level: 36 65 58 32 8 0 0 
+# of Individual Income Level: 0 30 127 34 8 0 
+-------Region 18: 88 Agents----------
+# of Age Group: 4 16 18 13 15 3 5 2 6 6 
+# of Education Level: 0 3 62 7 16 
+Male: 34, Female: 54
+Hispanic: 4, Non-Hispanic: 84
+# of Race: 10 72 0 2 0 0 4 
+# of Income Level: 16 35 9 22 0 6 0 
+# of Individual Income Level: 0 5 4 64 15 0 
+-------Region 19: 214 Agents----------
+# of Age Group: 12 24 24 38 32 26 26 13 14 5 
+# of Education Level: 0 10 35 89 80 
+Male: 97, Female: 117
+Hispanic: 11, Non-Hispanic: 203
+# of Race: 117 69 3 7 0 4 14 
+# of Income Level: 11 51 27 24 20 27 54 
+# of Individual Income Level: 6 11 32 30 52 83 
+-------Region 20: 251 Agents----------
+# of Age Group: 5 22 59 49 38 30 24 12 9 3 
+# of Education Level: 0 5 71 95 80 
+Male: 110, Female: 141
+Hispanic: 23, Non-Hispanic: 228
+# of Race: 142 64 1 13 2 6 23 
+# of Income Level: 4 15 69 53 33 29 48 
+# of Individual Income Level: 0 0 42 45 75 89 
+-------Region 21: 311 Agents----------
+# of Age Group: 11 15 31 63 60 48 36 19 19 9 
+# of Education Level: 0 1 63 122 125 
+Male: 134, Female: 177
+Hispanic: 15, Non-Hispanic: 296
+# of Race: 188 94 0 9 0 2 18 
+# of Income Level: 5 31 47 50 34 54 90 
+# of Individual Income Level: 0 27 32 59 59 134 
+-------Region 22: 187 Agents----------
+# of Age Group: 16 19 37 37 27 18 15 6 10 2 
+# of Education Level: 0 44 68 51 24 
+Male: 76, Female: 111
+Hispanic: 8, Non-Hispanic: 179
+# of Race: 57 115 2 2 0 2 9 
+# of Income Level: 7 49 36 23 26 17 29 
+# of Individual Income Level: 1 14 73 15 39 45 
+-------Region 23: 116 Agents----------
+# of Age Group: 5 16 26 23 16 7 7 4 6 6 
+# of Education Level: 0 21 55 28 12 
+Male: 42, Female: 74
+Hispanic: 3, Non-Hispanic: 113
+# of Race: 6 106 0 0 0 0 4 
+# of Income Level: 8 39 37 14 7 11 0 
+# of Individual Income Level: 0 23 46 24 15 8 
+-------Region 24: 114 Agents----------
+# of Age Group: 4 15 16 25 17 11 8 5 4 9 
+# of Education Level: 0 20 51 20 23 
+Male: 44, Female: 70
+Hispanic: 6, Non-Hispanic: 108
+# of Race: 28 77 0 2 0 2 5 
+# of Income Level: 7 32 15 24 18 14 4 
+# of Individual Income Level: 6 29 29 11 20 19 
+-------Region 25: 139 Agents----------
+# of Age Group: 5 34 30 26 9 9 8 5 11 2 
+# of Education Level: 0 6 79 40 14 
+Male: 55, Female: 84
+Hispanic: 6, Non-Hispanic: 133
+# of Race: 40 81 0 10 0 1 7 
+# of Income Level: 28 35 8 38 16 7 7 
+# of Individual Income Level: 0 14 49 21 34 21 
+-------Region 26: 103 Agents----------
+# of Age Group: 2 16 29 31 8 6 3 1 5 2 
+# of Education Level: 0 19 47 30 7 
+Male: 36, Female: 67
+Hispanic: 6, Non-Hispanic: 97
+# of Race: 32 63 0 2 0 1 5 
+# of Income Level: 24 25 9 23 3 7 12 
+# of Individual Income Level: 0 14 26 18 28 17 
+-------Region 27: 254 Agents----------
+# of Age Group: 19 23 29 35 32 24 27 26 24 15 
+# of Education Level: 0 32 141 60 21 
+Male: 126, Female: 128
+Hispanic: 4, Non-Hispanic: 250
+# of Race: 24 215 2 3 0 0 10 
+# of Income Level: 112 62 46 16 4 10 4 
+# of Individual Income Level: 0 51 88 92 9 14 
