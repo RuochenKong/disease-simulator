@@ -168,7 +168,7 @@ public class ReservedLogChannels implements Serializable {
 			instance.putIfAbsent(Level.getLevel("AGENT3"), new Setting("JobTable","Jobs"));
 			instance.putIfAbsent(Level.getLevel("AGENT4"), new Setting("RelationshipTable","FriendRelationship",DEFAULT_OUTPUT_TYPE, "qois/"));
 			
-			instance.putIfAbsent(Level.getLevel("STAT"), new Setting("CensusTable","CensusData"));
+			// instance.putIfAbsent(Level.getLevel("STAT"), new Setting("CensusTable","CensusData"));
 			
 			// Append all event journals that do not follow general logging mechanism.
 			// You can use from EVT1 to EVNT49
@@ -181,8 +181,11 @@ public class ReservedLogChannels implements Serializable {
 			
 			instance.putIfAbsent(Level.getLevel("EVT10"), new Setting("MovingJournal","MovingJournal"));
 			instance.putIfAbsent(Level.getLevel("EVT11"), new Setting("JobChangeJournal","JobChangeJournal"));
-			
-			// return instance;
+			instance.putIfAbsent(Level.getLevel("AGENT6"), new Setting("SocialNetwork", "SocialNetwork", "RollingFile"));
+			instance.putIfAbsent(Level.getLevel("EVT13"), new Setting("DiseaseStatusChangeJournal","DiseaseStatusChangeJournal"));
+
+
+			return instance;
 			
 			
 		}
@@ -195,7 +198,6 @@ public class ReservedLogChannels implements Serializable {
 			instance.putIfAbsent(Level.getLevel("STAT5"), new Setting("QOI5Table","QOI5", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("STAT6"), new Setting("QOI6Table","QOI6", DEFAULT_OUTPUT_TYPE, "qois/"));
 			instance.putIfAbsent(Level.getLevel("AGENT5"), new Setting("Checkin", "Checkin", "RollingFile"));
-			instance.putIfAbsent(Level.getLevel("AGENT6"), new Setting("SocialNetwork", "SocialNetwork", "RollingFile"));
 		 */
 
 		instance.putIfAbsent(Level.getLevel("AGENT1"), new Setting("AgentCharacteristicsTable","AgentCharacteristics"));
@@ -497,7 +499,7 @@ public class ReservedLogChannels implements Serializable {
 				{"EVT11", new LogSchedule(0, "EVT11", (Supplier & Serializable) () -> "step\tagentId\t[job]", textFormatter, 0)},
 				{"EVT11", new IterativeEventLogSchedule(0, 1, "EVT11", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingJob, eventFormatter, 1)},
 
-				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,byAgentID,time,location,checkin]", textFormatter, 0)},
+				{"EVT13", new LogSchedule(0, "EVT13", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,diseaseSeq,time,location,checkin]", textFormatter, 0)},
 				{"EVT13", new IterativeEventLogSchedule(0, 1, "EVT13", (Supplier<Collection<EventList>> & Serializable) () -> eventChangingDisease, eventFormatter, 1)},
 
 				{"EVT14", new LogSchedule(0, "EVT14", (Supplier & Serializable) () -> "step\tagentId\t[regionId,diseaseStatus,byAgentID,time,location,checkin,Report(Component),Report(Single)]", textFormatter, 0)},
@@ -688,11 +690,10 @@ public class ReservedLogChannels implements Serializable {
 				InfectiousDisease agentDisease = model.getAgent(p.getAgentId()).getInfectiousDisease();
 				eventList.add((Supplier & Serializable) () -> agentDisease.getStatus());
 				eventList.add((Supplier & Serializable) () -> {
-					long byAgent = agentDisease.getInfectedByAgentID();
-					if (byAgent == -1 || agentDisease.getStatus() == InfectionStatus.Recovered
-					    || agentDisease.getStatus() == InfectionStatus.Susceptible)
+					if (agentDisease.getStatus() == InfectionStatus.Susceptible ||
+							agentDisease.getStatus() == InfectionStatus.Recovered)
 						return null;
-					return byAgent;
+					return agentDisease.getDiseaseSeq();
 				});
 				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeTime());
 				eventList.add((Supplier & Serializable) () -> agentDisease.getStatusChangeLocation());
