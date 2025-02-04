@@ -124,20 +124,8 @@ public abstract class BuildingUnit implements java.io.Serializable {
 	}
 
 	public void agentArrives(Person agent, double visitLength) {
-		if(agent.getDiseaseStatus() == InfectionStatus.Susceptible){
-			for (Person p: this.getCurrentAgents()){
-				if (p.getDiseaseStatus() == InfectionStatus.Infectious){
-					Random rand = new Random();
-					// Low chance been exposed by someone in the same building.
-					if (rand.nextDouble() < p.getChanceToSpreat() * agent.getChanceBeInfected() * agent.getModel().params.additionalDiseaseSpreadingParam * 0.1){
-						if (p.getInfectiousDisease().getDiseaseSeq() == null)
-							System.err.println("Agent #"+p.getAgentId()+" seq err. -- BuildingUnit");
-						agent.beenExposed(p);
-					}
-				}
-			}
-		}
-
+		for (Person p: this.getCurrentAgents())
+			InfectiousDisease.spreadFromAToB(agent,p,agent.getModel().params.additionalDiseaseSpreadingParam * 0.1);
 		visitMap.put(agent.getAgentId(), new Visit(agent.getSimulationTime(), visitLength));
 		numOfAgents = visitMap.size();
 

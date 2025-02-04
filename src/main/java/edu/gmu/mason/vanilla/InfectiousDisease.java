@@ -25,7 +25,10 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private Person agent;
     @Skip
-    private static int remainNumOfInitInfect = -1;
+    public static int remainNumOfInitInfect = 0;
+
+    @Skip
+    private static MersenneTwisterFast random;
 
     // Simulate sequence
     @Characteristics
@@ -41,7 +44,6 @@ public class InfectiousDisease implements java.io.Serializable {
     private static int maxExposed;
     @Characteristics
     private static int minInfectious;
-    @Characteristics
     private static int maxInfectious;
     @Characteristics
     private static int minRecovered;
@@ -91,13 +93,10 @@ public class InfectiousDisease implements java.io.Serializable {
 
     @State
     private boolean wearingMasks;
-    @Skip
-    private double maskWearingLength;
-    @Skip
-    private int maskCheckTikCount;
+
 
     @Characteristics
-    private double chanceToSpreat;
+    private double chanceToSpread;
     @Characteristics
     private double chanceBeInfected;
 
@@ -113,7 +112,6 @@ public class InfectiousDisease implements java.io.Serializable {
     private int normalSleepLength;
 
 
-
     // Logging info
     @Skip
     private long infectedByAgentID;
@@ -124,10 +122,19 @@ public class InfectiousDisease implements java.io.Serializable {
     @Skip
     private PersonMode statusChangeCheckIn;
 
+    // DISEASE SPREAD FUNCTION
+    public static void spreadFromAToB(Person des, Person src, double addiChanceParam){
+        double chance =  des.getChanceBeInfected() * src.getChanceToSpread() * addiChanceParam;
+        if (chance == 0) return;
+        if (random.nextDouble() < chance){
+            des.beenExposed(src);
+        }
+    }
+
     // HELPER FUNCTIONS
     // Normal distribution in range [0,1], with mean = 0.5
     private double randPositiveGaussian(){
-        double rand = agent.getModel().random.nextGaussian();
+        double rand = random.nextGaussian();
         rand = (rand > 3) ? 3 : rand;
         rand = (rand < -3) ? -3 : rand;
         rand /= 6;
@@ -150,22 +157,20 @@ public class InfectiousDisease implements java.io.Serializable {
     // Check whether report with component biases
     private boolean calReport(){
         boolean report;
-        Random rand = new Random();
-        report =  rand.nextDouble() < agent.getReportingRate();
-        if (report) this.isSampled = rand.nextDouble() < agent.getModel().params.percentSampled;
-        if (isSampled) this.isSequenced = rand.nextDouble() < agent.getModel().params.percentSequenced;
+        report =  random.nextDouble() < agent.getReportingRate();
+        if (report) this.isSampled = random.nextDouble() < agent.getModel().params.percentSampled;
+        if (isSampled) this.isSequenced = random.nextDouble() < agent.getModel().params.percentSequenced;
         return report;
     }
 
     // Check whether report with single bias
     private void calSingleReport(){
-        Random rand = new Random();
         if (this.agent.getReportingRates_Single().size() != Person.numSingleBias)
             this.agent.setReportingRates_Single();
         while (this.singleBiasReports.size() != Person.numSingleBias)
             this.singleBiasReports.add(false);
         for (int i = 0; i < Person.numSingleBias; i++)
-            if (rand.nextDouble() < this.agent.getReportingRates_Single().get(i))
+            if (random.nextDouble() < this.agent.getReportingRates_Single().get(i))
                 this.singleBiasReports.set(i, true);
     }
 
@@ -189,7 +194,7 @@ public class InfectiousDisease implements java.io.Serializable {
     }
 
     // initializing static variables
-    private void setStatics(WorldParameters params){
+    public static void initParams(WorldParameters params, MersenneTwisterFast rand){
 
         String [] splits = params.exposedLasting.split("-");
         try{ minExposed = Integer.valueOf(splits[0]); } catch (Exception ignore){ minExposed = 1;}
@@ -209,16 +214,20 @@ public class InfectiousDisease implements java.io.Serializable {
 
         double infectPer = params.initPercentInfectious/ (double)100;
         int numAgents =  params.numOfAgents;
+        System.out.println("------------------------------------------------"+infectPer);
+        System.out.println("------------------------------------------------"+numAgents);
+
         remainNumOfInitInfect = (int) (infectPer * numAgents);
+        System.out.println("------------------------------------------------"+remainNumOfInitInfect);
         numTikDelay = params.numTikDelay;
         currentTime = params.initialSimulationTime.toString();
         numNewCases.add(0);
-
+        random = rand;
     }
 
     public InfectiousDisease(){
         this.agent = null;
-        this.chanceToSpreat = 0.5;
+        this.chanceToSpread = 0.5;
         this.chanceBeInfected = 0.5;
         this.status = InfectionStatus.Susceptible;
         this.daysInStatus = 0;
@@ -233,13 +242,9 @@ public class InfectiousDisease implements java.io.Serializable {
         this.statusChangeLocation = null;
         this.statusChangeCheckIn = null;
         this.wearingMasks = false;
-        this.maskWearingLength = 0;
         this.singleBiasReports = new ArrayList<>();
         for (int i = 0; i < Person.numSingleBias; i++) this.singleBiasReports.add(false);
         this.biasReportsTypes = null;
-
-        Random rand = new Random();
-        this.maskCheckTikCount = rand.nextInt(15)-6;
 
         this.diseaseSeq = null;
         this.numExposed = 0;
@@ -252,21 +257,16 @@ public class InfectiousDisease implements java.io.Serializable {
     public InfectiousDisease(Person p){
         this();
 
-        if (remainNumOfInitInfect == -1){
-            setStatics(p.getModel().params);
-        }
-
         this.agent = p;
         this.normalAppetite = this.agent.getFoodNeed().getAppetite();
         this.normalSleepLength = this.agent.getSleepNeed().getSleepLengthInMinutes();
 
-        MersenneTwisterFast rand = agent.getModel().random;
 
         // Chance to be infected in range [0.3-0.7]
-        this.chanceBeInfected = 0.3 + 0.4*rand.nextDouble();
+        this.chanceBeInfected = 0.3 + 0.4*random.nextDouble();
 
         // Chance to spread in range [0.7-0.9]
-        this.chanceToSpreat = 0.7 + 0.2*rand.nextDouble();
+        this.chanceToSpread = 0.7 + 0.2*random.nextDouble();
 
         this.isReported = false;
     }
@@ -291,7 +291,7 @@ public class InfectiousDisease implements java.io.Serializable {
         double lower = agent.getModel().params.appetiteLowerBound;
         if (this.status == InfectionStatus.Infectious) {
             this.agent.getFoodNeed().setAppetite(Math.max(this.normalAppetite * 0.7,lower));
-            this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength + agent.getModel().random.nextInt(60) + 30);
+            this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength + random.nextInt(60) + 30);
         } else { // Back to normal
             this.agent.getFoodNeed().setAppetite(this.normalAppetite);
             this.agent.getSleepNeed().changeSleepLength(this.normalSleepLength);
@@ -300,19 +300,16 @@ public class InfectiousDisease implements java.io.Serializable {
         // System.out.println("  After setting:");
         // System.out.println(agent.getFoodNeed().getFoodNeedInfo());
 
-        // Random rand = new Random();
-        MersenneTwisterFast rand = agent.getModel().random;
-
         if (this.status == InfectionStatus.Susceptible)
             this.maxDaysInStatus = 0;
         // Exposed for [1-5] days change to Infectious
         if (this.status == InfectionStatus.Exposed)
-            this.maxDaysInStatus = rand.nextDouble() * (maxExposed-minExposed) + minExposed;
+            this.maxDaysInStatus = random.nextDouble() * (maxExposed-minExposed) + minExposed;
         // Infectious for [5-8] days change to Recovered,
         // Could bear at most [1-4] days of staying home
         if (this.status == InfectionStatus.Infectious){
-            this.maxDaysInStatus = rand.nextDouble() * (maxInfectious-minInfectious) + minInfectious;
-            this.maxDaysQuarantined = rand.nextDouble() * (maxStayingHome-minStayingHome) + minStayingHome;
+            this.maxDaysInStatus = random.nextDouble() * (maxInfectious-minInfectious) + minInfectious;
+            this.maxDaysQuarantined = random.nextDouble() * (maxStayingHome-minStayingHome) + minStayingHome;
 
             this.isReported = this.calReport();
             this.calSingleReport();
@@ -323,14 +320,10 @@ public class InfectiousDisease implements java.io.Serializable {
         }
 
         // Recovered for [1-6] months change to Susceptible
-        if (this.status == InfectionStatus.Recovered)
-            this.maxDaysInStatus = rand.nextDouble() * (maxRecovered-minRecovered) + minRecovered;
-    }
-
-
-    // For zero patients
-    public int getRemainNumOfInitInfect(){
-        return remainNumOfInitInfect;
+        if (this.status == InfectionStatus.Recovered){
+            this.maxDaysInStatus = random.nextDouble() * (maxRecovered-minRecovered) + minRecovered;
+            this.wearingMasks = false;
+        }
     }
 
     public void setStatus(){
@@ -355,8 +348,8 @@ public class InfectiousDisease implements java.io.Serializable {
                 + "." +agent.getAgentId() + '-' + numExposed;
     }
 
-    public void setChanceToSpreat(double c2spread){
-        this.chanceToSpreat = c2spread;
+    public void setChanceToSpread(double c2spread){
+        this.chanceToSpread = c2spread;
     }
 
     public void setChanceBeInfected(double cbinfected){
@@ -400,8 +393,12 @@ public class InfectiousDisease implements java.io.Serializable {
         return 0;
     }
 
-    public double getChanceToSpreat() {
-        if (this.status == InfectionStatus.Infectious) return chanceToSpreat;
+    public double getChanceToSpread() {
+        if (this.status == InfectionStatus.Infectious){
+            if (! this.wearingMasks) return chanceToSpread;
+            double effectivity = randPositiveGaussian(agent.getModel().params.avgMaskEffectivity);
+            return (1-effectivity) * this.chanceToSpread;
+        }
         return 0;
     }
 
@@ -471,20 +468,10 @@ public class InfectiousDisease implements java.io.Serializable {
         }
     }
 
+
     public void incrementDays(double tikMin){
         this.daysInStatus += tikMin/(24*60);
         incrementTikCounts();
-
-        if (this.wearingMasks ){
-
-            if (randPositiveGaussian(0.65) < 0.5 && this.maskWearingLength>agent.getModel().params.minMaskWearingLength){
-                System.out.println("[Agent "+agent.getAgentId()+"] end wearing masks at time "+agent.getSimulationTime());
-                this.wearingMasks = false;
-                this.maskWearingLength = 0;
-            } else {
-                this.maskWearingLength += tikMin;
-            }
-        }
 
         if (!this.vaccineStatus.equals(VaccineStatus.Unvaccined)){
             this.daysFromDose += tikMin/(24*60);
@@ -516,30 +503,20 @@ public class InfectiousDisease implements java.io.Serializable {
                 this.daysQuarantined = -1;
             } else if (this.daysQuarantined > this.maxDaysQuarantined){
                 this.daysQuarantined = -1;
-                this.maxDaysQuarantined = agent.getModel().random.nextDouble() * 2 + 3;
+                this.maxDaysQuarantined = random.nextDouble() * 2 + 3;
             } else {
                 this.daysQuarantined += tikMin/(24*60);
             }
         }
 
-        if (this.status == InfectionStatus.Susceptible){
-            if ( maskCheckTikCount > 0){
-                this.maskCheckTikCount --;
-            } else {
-                if (!wearingMasks){
-                    double chanceWearingMask = this.getKnowCaseImpactParam();
-                    if (agent.getModel().random.nextDouble() < chanceWearingMask){
+    }
 
-                        System.out.println("[Agent "+agent.getAgentId()+"] start wearing masks "+agent.getSimulationTime());
-                        this.wearingMasks = true;
-                        this.maskCheckTikCount =12;
-                    }
-                  }
-            }
-        } else if (this.wearingMasks) {
-            this.wearingMasks = false;
-            this.maskWearingLength = 0;
-            this.maskCheckTikCount = 12;
+    public void updateMaskWearing(){
+        this.wearingMasks = false;  // Re-check whether to wear mask
+        double chanceWearingMask = this.getKnowCaseImpactParam();
+        if (random.nextDouble() < chanceWearingMask){
+            this.wearingMasks = true;
+            System.out.println("[Agent "+agent.getAgentId()+"] wears masks.");
         }
     }
 

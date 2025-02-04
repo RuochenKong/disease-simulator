@@ -332,7 +332,7 @@ public class Person implements Steppable, java.io.Serializable {
 		if (vaccineStatus != null) this.infectiousDisease.setVaccineStatus(vaccineStatus);
 
 		// Customize the chances when specified
-		if (c2spread != -1) this.infectiousDisease.setChanceToSpreat(c2spread);
+		if (c2spread != -1) this.infectiousDisease.setChanceToSpread(c2spread);
 		if (cbinfected != -1) this.infectiousDisease.setChanceBeInfected(cbinfected);
 	}
 
@@ -345,8 +345,8 @@ public class Person implements Steppable, java.io.Serializable {
 		return this.infectiousDisease.getChanceBeInfected();
 	}
 
-	public double getChanceToSpreat(){
-		return this.infectiousDisease.getChanceToSpreat();
+	public double getChanceToSpread(){
+		return this.infectiousDisease.getChanceToSpread();
 	}
 
 	public double getDaysFromDose() {
@@ -376,14 +376,14 @@ public class Person implements Steppable, java.io.Serializable {
 	public String getCurrentDiseaseStatus(){
 		String line = "[Agent "+agentId;
 		line += "] " + getDiseaseStatus().toString() + " for " + getDaysInDiseaseStatus() + " days\n";
-		line += "  Chances:"+ this.infectiousDisease.getChanceToSpreat() + " to spread,\n";
+		line += "  Chances:"+ this.infectiousDisease.getChanceToSpread() + " to spread,\n";
 		line += "          "+ this.infectiousDisease.getChanceBeInfected() + " to be infected.";
 		return line;
 	}
 
 	public void toBeTheFirstPatient(){
 		initializeDiseaseStatus(InfectionStatus.Infectious, null, -1,-1);
-		System.out.println("[Agent "+agentId+"] Started the disesase, with "+infectiousDisease.getRemainNumOfInitInfect()+" agents remaining.");
+		System.out.println("[Agent "+agentId+"] Started the disesase, with "+InfectiousDisease.remainNumOfInitInfect+" agents remaining.");
 	}
 
 	/**
@@ -402,7 +402,7 @@ public class Person implements Steppable, java.io.Serializable {
 		moveTo(this.getShelter().getLocation().geometry.getCoordinate());
 
 		// Initialize the disease
-		if (infectiousDisease.getRemainNumOfInitInfect() > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 90) ) toBeTheFirstPatient();
+		if (InfectiousDisease.remainNumOfInitInfect > 0 && model.random.nextDouble() >= (1-model.params.initPercentInfectious/(double) 90) ) toBeTheFirstPatient();
 
 		// if the agent is has a family and a kid, find a school for the kid and
 		// assign it.

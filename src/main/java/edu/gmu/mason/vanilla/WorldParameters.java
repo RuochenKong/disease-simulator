@@ -208,8 +208,6 @@ public class WorldParameters extends AnnotatedPropertied {
 	public double maskWearingThreshold;
 	@EditableProperty(group = "Disease", description = "Effectivity of wearing masks", lower = "0.0", upper = "1.0", readOnly = false)
 	public double avgMaskEffectivity;
-	@EditableProperty(group = "Disease", description = "Minimum minutes of continuously wearing masks", lower = "1", upper = "1440", readOnly = false)
-	public int minMaskWearingLength;
 	@EditableProperty(group = "Disease", description = "Range of Days lasting in Exposed", lower = "", upper = "", readOnly = false)
 	public String exposedLasting;
 	@EditableProperty(group = "Disease", description = "Range of Days lasting in Infectious", lower = "", upper = "", readOnly = false)

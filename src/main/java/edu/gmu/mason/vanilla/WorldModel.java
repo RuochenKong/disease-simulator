@@ -503,6 +503,7 @@ public class WorldModel extends SimState {
 		initRegion();
 		initPlaces();
 		GeoUtils.alignMBRs(spatialNetwork.getAllLayers());
+		InfectiousDisease.initParams(params, random);
 
 		initVisualGraph();
 		reservedLog = new ReservedLogChannels(this);
@@ -1707,6 +1708,7 @@ public class WorldModel extends SimState {
 			}
 			happiness -= params.networkEdgeDeletionThreshold;
 			person.getLoveNeed().setSocialHappiness(happiness);
+			person.getInfectiousDisease().updateMaskWearing();
 		}
 
 	}

@@ -315,18 +315,6 @@ public class LoveNeed implements Need, java.io.Serializable {
 		}
 	}
 
-	/**
-	 * Helper function to spread disease
-	 * @param a Possible person to spread
-	 * @param b Possible person to be infected
-	 * @param addiChanceParam Another influence facts
-	 */
-	public void spreadFromAToB(Person a, Person b, double addiChanceParam){
-		if (a.getDiseaseStatus() == InfectionStatus.Infectious) {
-			agentMayGetInfected(b,a, a.getChanceToSpreat() * addiChanceParam);
-		}
-	}
-
 	public void madeNewFriend() {
 		socialStatus += agent.getModel().params.socialStatusIncreaseValue;
 	}
@@ -508,12 +496,12 @@ public class LoveNeed implements Need, java.io.Serializable {
 				if (agentIds.get(i) != agent.getAgentId()) {
 					Long agentId = agentIds.get(i);
 					try {
-						agent.getModel().getAgent(agentId).getLoveNeed()
-								.strengthenTies(agent.getAgentId());
+						Person other = agent.getModel().getAgent(agentId);
+						other.getLoveNeed().strengthenTies(agent.getAgentId());
 
 						// Agents mey get infected
-						spreadFromAToB(agent,agent.getModel().getAgent(agentId), diseaseParam);
-						spreadFromAToB(agent.getModel().getAgent(agentId),agent, diseaseParam);
+						InfectiousDisease.spreadFromAToB(agent,other, diseaseParam);
+						InfectiousDisease.spreadFromAToB(other,agent, diseaseParam);
 
 					} catch (Exception e) {
 						System.out.print(agent.getSimulationTime());
@@ -579,8 +567,9 @@ public class LoveNeed implements Need, java.io.Serializable {
 			// interact with only awake roommate
 			if (aRoommate.getSleepNeed().getStatus() == SleepStatus.Awake) {
 				strengthenTies(aRoommate.getAgentId());
-				spreadFromAToB(this.agent,aRoommate,this.agent.getModel().params.additionalDiseaseSpreadingParam);
-				spreadFromAToB(aRoommate,this.agent,this.agent.getModel().params.additionalDiseaseSpreadingParam);
+				double addChance = this.agent.getModel().params.additionalDiseaseSpreadingParam;
+				InfectiousDisease.spreadFromAToB(this.agent,aRoommate,addChance);
+				InfectiousDisease.spreadFromAToB(aRoommate,this.agent,addChance);
 			}
 		}
 	}
