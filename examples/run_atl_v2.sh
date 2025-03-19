@@ -1,0 +1,1 @@
+java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=disease -Dfile.prefix=atl-v2 -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration atl.5k.v2.properties -until 25920

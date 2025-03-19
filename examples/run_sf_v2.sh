@@ -1,0 +1,1 @@
+java -Dlog4j2.configurationFactory=edu.gmu.mason.vanilla.log.CustomConfigurationFactory -Dlog.rootDirectory=logs -Dsimulation.test=disease -Dfile.prefix=sf-v2 -jar ../target/vanilla-0.1-jar-with-dependencies.jar -configuration sf.5k.v2.properties -until 25920
