@@ -1,0 +1,6 @@
+eduProb = Bachelors:0.5/Graduate:0.7/other:0.3
+ageProb = [15-25]:0.3/[50-80]:0.7/other:0.5
+genderProb = Male:0.4/Female:0.7
+incomeProb = [70-Inf]:0.7/[35-50]:0.5/other:0.3
+raceProb = WhiteOnly:0.3/AsianOnly:0.7/other:0.5
+version = 4
